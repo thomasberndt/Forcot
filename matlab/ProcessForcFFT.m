@@ -1,4 +1,4 @@
-function processed = ProcessForcFFT(princeton)
+% function processed = ProcessForcFFT(princeton)
 % Takes raw princeton VRM FORC and applies, drift correction and smoothing.
 % princeton - Optional. A princeton FORC struct. If this argument is
 % not given, a dialog is shown for the user to open a file. 
@@ -11,69 +11,137 @@ function processed = ProcessForcFFT(princeton)
 % processed - a princeton forc struct with an additional field:
 % processed.smooth - containes the smoothed FORC (struct). 
     
-    if nargin < 1
+%     if nargin < 1
         princeton = LoadPrincetonForc();
-    end
-    if ~isfield(princeton, 'forc') || ~isfield(princeton.forc, 'SF_elong') || isempty(princeton.forc.SF_elong)
-        princeton.forc.SF_elong = 1; 
-    end
 
-    princeton.correctedM = DriftCorrection(...
-            princeton.measurements.M, princeton.measurements.t, ...
-            princeton.calibration.M, princeton.calibration.t);
+        princeton.correctedM = DriftCorrection(...
+                princeton.measurements.M, princeton.measurements.t, ...
+                princeton.calibration.M, princeton.calibration.t);
 
-    princeton.grid = RegularizeForcGrid(princeton.correctedM, ...
-        princeton.measurements.Ha, princeton.measurements.Hb); 
-
-    unsmoothed = CalculateForc(princeton.grid); 
-    princeton.forc.rho = unsmoothed.rho;
-    princeton.forc.Hc  = unsmoothed.Hc;
-    princeton.forc.Hu  = unsmoothed.Hu; 
-    princeton.forc.Ha  = unsmoothed.Ha;
-    princeton.forc.Hb  = unsmoothed.Hb; 
+        princeton.grid = RegularizeForcGrid(princeton.correctedM, ...
+            princeton.measurements.Ha, princeton.measurements.Hb); 
         
-    if ~isfield(princeton.forc, 'maxHc') || isempty(princeton.forc.maxHc)
-        princeton.forc.maxHc = princeton.metadata.script.Hc2; 
-    end
-    if ~isfield(princeton.forc, 'maxHu') || isempty(princeton.forc.maxHu)
-        princeton.forc.maxHu = princeton.metadata.script.Hb2;
-    end
+        princeton.unsmoothed = CalculateForc(princeton.grid); 
+        
+        rho = princeton.unsmoothed.rho; 
+        Ha = princeton.unsmoothed.Ha; 
+        Hb = princeton.unsmoothed.Hb; 
+        Hc = princeton.unsmoothed.Hc; 
+        Hu = princeton.unsmoothed.Hu; 
+%     end
     
-    
-    f1 = figure(3);
+    %%
     clf
-    subplot(2,1,1);
-    PlotFORC(princeton.forc);
+    subplot(2,5,1);
+    PlotFORC(princeton.unsmoothed);
+    drawnow;
+        
+%     SF = input('SF [%]: ') / 100; 
+    
+    rho(isnan(rho)) = 0; 
+
+    Na = 2.^nextpow2(size(Ha, 2)); 
+    Nb = 2.^nextpow2(size(Hb, 1)); 
+    Na = max(Na,Nb);
+    Nb = Na; 
+    da = nanmean(reshape(diff(Ha,1,2),[],1));
+    db = nanmean(reshape(diff(Hb,1,1),[],1));
+    a = [-Na/2:Na/2-1];
+    b = [-Nb/2:Nb/2-1];
+    k = 2*pi/(Na*da) * a;
+    j = 2*pi/(Nb*db) * b;
+    [J, K] = meshgrid(j, k); 
+    [B, A] = meshgrid(b, a); 
+    
+    F = fftshift(fft2(rho, Na, Nb));
+    
+    subplot(2,5,6); 
+    imagesc(log10(abs(F)));
+    
+    %%
+    F2 = F; 
+    noise = abs(K.*J);
+    F2(noise>max(noise(:))*0.01) = 0;
+    
+    subplot(2,5,7); 
+    imagesc(log10(abs(F2)));
+        
+    rho2 = ifft2(ifftshift(F2), Na, Nb); 
+    rho2 = rho2(1:size(Ha,1),1:size(Ha,2)); 
+    
+    princeton.smoothed = princeton.unsmoothed; 
+    princeton.smoothed.rho = rho2; 
+    
+    subplot(2,5,2); 
+    PlotFORC(princeton.smoothed);
+    drawnow;
+    
+    
+    %%
+    F2 = F; 
+    noise = abs(sqrt((K*da^2+J*db^2).*(K*da^2-J*db^2)));
+    F2(noise>max(noise(:))*0.1) = 0;
+    
+    subplot(2,5,8); 
+    imagesc(log10(abs(F2)));
+    
+    
+    rho2 = ifft2(ifftshift(F2), Na, Nb); 
+    rho2 = rho2(1:size(Ha,1),1:size(Ha,2)); 
+    
+    princeton.smoothed = princeton.unsmoothed; 
+    princeton.smoothed.rho = rho2; 
+    
+    subplot(2,5,3); 
+    PlotFORC(princeton.smoothed);
     drawnow;
     
     
     
-    if ~isfield(princeton, 'forc') || ~isfield(princeton.forc, 'SF') || isempty(princeton.forc.SF)
-        princeton.forc.SF = input('SF [%]: ') / 100; 
-    end
+    %%
+    F2 = F; 
+    noise = abs(sqrt((K.^2*da^2+J.^2*db^2)));
+    F2(noise>max(noise(:))*0.1) = 0;
+    
+    subplot(2,5,9); 
+    imagesc(log10(abs(F2)));
+    
+    
+    rho2 = ifft2(ifftshift(F2), Na, Nb); 
+    rho2 = rho2(1:size(Ha,1),1:size(Ha,2)); 
+    
+    princeton.smoothed = princeton.unsmoothed; 
+    princeton.smoothed.rho = rho2; 
+    
+    subplot(2,5,4); 
+    PlotFORC(princeton.smoothed);
+    drawnow;
     
     
     
+    %%
+    F2 = F; 
+    noise1 = abs(K.*J);
+    noise2 = abs(sqrt((K*da^2+J*db^2).*(K*da^2-J*db^2)));
+    noise3 = abs(sqrt((K.^2*da^2+J.^2*db^2)));
+    F2(noise1>max(noise1(:))*0.01 | noise3>max(noise3(:))*0.3) = 0;
+    
+    subplot(2,5,10); 
+    imagesc(log10(abs(F2)));
     
     
-    X = princeton.forc.rho; 
-    SF = princeton.forc.SF;
-    forc2 = princeton.forc; 
+    rho2 = ifft2(ifftshift(F2), Na, Nb); 
+    rho2 = rho2(1:size(Ha,1),1:size(Ha,2)); 
     
-    XX = ForcFftSmoothing(X, SF, 'cutoff', figure(4)); 
-
-    figure(f1);
-    subplot(2,1,2);
-    forc2.rho = abs(XX); 
-    PlotFORC(forc2);
-    title(num2str(SF*100));
+    princeton.smoothed = princeton.unsmoothed; 
+    princeton.smoothed.rho = rho2; 
+    
+    subplot(2,5,5); 
+    PlotFORC(princeton.smoothed);
+    drawnow;
     
     
-    
-    
-    
-    
-end
+% end
 
 
 

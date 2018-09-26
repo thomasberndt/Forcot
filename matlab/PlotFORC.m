@@ -30,10 +30,10 @@ function [lim, h, ax] = PlotFORC(forc, Hc, Hu, Hcplot, Huplot, limit)
         limit = [];
     end
     
-    if isempty(Hcplot)
+    if nargin == 3 || isempty(Hcplot)
         Hcplot = max(Hc(:));
     end
-    if isempty(Huplot)
+    if nargin == 3 || isempty(Huplot)
         Huplot = max(Hu(:));
     end
     
@@ -43,12 +43,21 @@ function [lim, h, ax] = PlotFORC(forc, Hc, Hu, Hcplot, Huplot, limit)
         limit = EstimateForcPeak(forc, Hc, Hu, Hcplot, Huplot);
     end
     
-    forc = forc / limit; 
-    forccolors = ones(101,3); 
-    forccolors(1:50,1) = linspace(0, 1, 50); 
-    forccolors(1:50,2) = linspace(0, 1, 50); 
-    forccolors(52:101,2) = linspace(1, 0, 50); 
-    forccolors(52:101,3) = linspace(1, 0, 50); 
+    forc = forc / limit;
+    labcolors = zeros(101,3);
+    theta = linspace(0, 1.7*pi, 101); 
+    amp = 50; 
+    labcolors(:,1) = amp; 
+    labcolors(:,2) = (1-abs(50-amp)./60).*(20+50*cos(theta)); 
+    labcolors(:,3) = (1-abs(50-amp)./60).*(25+25*sin(theta)); 
+    forccolors = lab2rgb(labcolors); 
+    forccolors(forccolors>1) = 1;
+    forccolors(forccolors<0) = 0;
+%     forccolors = ones(101,3); 
+%     forccolors(1:50,1) = linspace(0, 1, 50); 
+%     forccolors(1:50,2) = linspace(0, 1, 50); 
+%     forccolors(52:101,2) = linspace(1, 0, 50); 
+%     forccolors(52:101,3) = linspace(1, 0, 50); 
     vl = linspace(-1, 1, 20);  
     [~, h] = contourf(Hc*1000, Hu*1000, forc, vl, 'LineColor', 0.2*[1 1 1]);
     hold on
@@ -76,4 +85,6 @@ function [lim, h, ax] = PlotFORC(forc, Hc, Hu, Hcplot, Huplot, limit)
     caxis([-1 1]);
     lim = limit; 
     h = [h; mygridx; mygridy]; 
+    
+    colorbar
 end

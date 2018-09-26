@@ -13,7 +13,7 @@ function princeton_forc = LoadPrincetonForc(filepath)
 %   settings. 
 
     if nargin < 1
-        [filename, pathname] = uigetfile('../data/forc/*.frc');
+        [filename, pathname] = uigetfile('../data/*.frc');
         filepath = sprintf('%s/%s', pathname, filename);
     else 
         [pathname,filename,ext] = fileparts(filepath); 
