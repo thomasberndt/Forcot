@@ -44,15 +44,7 @@ function [lim, h, ax] = PlotFORC(forc, Hc, Hu, Hcplot, Huplot, limit)
     end
     
     forc = forc / limit;
-    labcolors = zeros(101,3);
-    theta = linspace(0, 1.7*pi, 101); 
-    amp = 50; 
-    labcolors(:,1) = amp; 
-    labcolors(:,2) = (1-abs(50-amp)./60).*(20+50*cos(theta)); 
-    labcolors(:,3) = (1-abs(50-amp)./60).*(25+25*sin(theta)); 
-    forccolors = lab2rgb(labcolors); 
-    forccolors(forccolors>1) = 1;
-    forccolors(forccolors<0) = 0;
+    forccolors = LabColors(0, linspace(0, 1, 101));
 %     forccolors = ones(101,3); 
 %     forccolors(1:50,1) = linspace(0, 1, 50); 
 %     forccolors(1:50,2) = linspace(0, 1, 50); 

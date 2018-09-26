@@ -52,11 +52,16 @@
     j = 2*pi/(Nb*db) * b;
     [J, K] = meshgrid(j, k); 
     [B, A] = meshgrid(b, a); 
+    c = b-a;
+    u = b+a; 
+    C = B-A; 
+    U = B+A;
     
     F = fftshift(fft2(rho, Na, Nb));
     
-    subplot(2,5,6); 
-    imagesc(log10(abs(F)));
+    subplot(2,5,6);
+    IM = FourierImage(F);
+    image(IM);
     
     %%
     F2 = F; 
@@ -64,7 +69,8 @@
     F2(noise>max(noise(:))*0.01) = 0;
     
     subplot(2,5,7); 
-    imagesc(log10(abs(F2)));
+    IM = FourierImage(F2);
+    image(IM);
         
     rho2 = ifft2(ifftshift(F2), Na, Nb); 
     rho2 = rho2(1:size(Ha,1),1:size(Ha,2)); 
@@ -83,7 +89,8 @@
     F2(noise>max(noise(:))*0.1) = 0;
     
     subplot(2,5,8); 
-    imagesc(log10(abs(F2)));
+    IM = FourierImage(F2);
+    image(IM);
     
     
     rho2 = ifft2(ifftshift(F2), Na, Nb); 
@@ -104,7 +111,8 @@
     F2(noise>max(noise(:))*0.1) = 0;
     
     subplot(2,5,9); 
-    imagesc(log10(abs(F2)));
+    IM = FourierImage(F2);
+    image(IM);
     
     
     rho2 = ifft2(ifftshift(F2), Na, Nb); 
@@ -127,7 +135,8 @@
     F2(noise1>max(noise1(:))*0.01 | noise3>max(noise3(:))*0.3) = 0;
     
     subplot(2,5,10); 
-    imagesc(log10(abs(F2)));
+    IM = FourierImage(F2);
+    image(IM);
     
     
     rho2 = ifft2(ifftshift(F2), Na, Nb); 
