@@ -44,12 +44,12 @@ function [lim, h, ax] = PlotFORC(forc, Hc, Hu, Hcplot, Huplot, limit)
     end
     
     forc = forc / limit;
-    forccolors = LabColors(0, linspace(0, 1, 101));
-%     forccolors = ones(101,3); 
-%     forccolors(1:50,1) = linspace(0, 1, 50); 
-%     forccolors(1:50,2) = linspace(0, 1, 50); 
-%     forccolors(52:101,2) = linspace(1, 0, 50); 
-%     forccolors(52:101,3) = linspace(1, 0, 50); 
+%     forccolors = LabColors(0, linspace(0, 1, 101));
+    forccolors = ones(101,3); 
+    forccolors(1:50,1) = linspace(0, 1, 50); 
+    forccolors(1:50,2) = linspace(0, 1, 50); 
+    forccolors(52:101,2) = linspace(1, 0, 50); 
+    forccolors(52:101,3) = linspace(1, 0, 50); 
     vl = linspace(-1, 1, 20);  
     [~, h] = contourf(Hc*1000, Hu*1000, forc, vl, 'LineColor', 0.2*[1 1 1]);
     hold on

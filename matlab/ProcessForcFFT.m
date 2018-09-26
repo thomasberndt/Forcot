@@ -31,8 +31,8 @@
 %     end
     
     %%
-    clf
-    subplot(2,5,1);
+%     clf
+    subplot(2,2,1);
     PlotFORC(princeton.unsmoothed);
     drawnow;
         
@@ -52,103 +52,74 @@
     j = 2*pi/(Nb*db) * b;
     [J, K] = meshgrid(j, k); 
     [B, A] = meshgrid(b, a); 
-    c = b-a;
-    u = b+a; 
     C = B-A; 
     U = B+A;
     
     F = fftshift(fft2(rho, Na, Nb));
     
-    subplot(2,5,6);
+    subplot(2,2,2);
     IM = FourierImage(F);
     image(IM);
     
     %%
-    F2 = F; 
-    noise = abs(K.*J);
-    F2(noise>max(noise(:))*0.01) = 0;
     
-    subplot(2,5,7); 
-    IM = FourierImage(F2);
-    image(IM);
+    SFs = 0:0.1:4; 
+    score = NaN(size(SFs));
+    for s = 1:length(SFs)
+        SF = SFs(s); 
+
+        F2 = F; 
+%         noise = abs(C)+abs(U);
+        noise = sqrt(C.^2+U.^2);
+        noise = sqrt(C.^2+2*U.^2);
+        F2(noise/max(noise(:))>0.5^(SF+1)) = 0;
+%         F2(abs(C)/max(abs(C(:)))>0.5^(SF+1)) = 0;
+%         F2(abs(U)/max(abs(U(:)))>0.5^(SF+1)) = 0;
+%         F2(U<-1 & C<0) = 0;
+%         F2(U>1 & C>0) = 0;
         
-    rho2 = ifft2(ifftshift(F2), Na, Nb); 
-    rho2 = rho2(1:size(Ha,1),1:size(Ha,2)); 
+        score(s) = mean(abs(F(F~=0)).^2)-mean(abs(F2(F2~=0)).^2); 
+    end
     
-    princeton.smoothed = princeton.unsmoothed; 
-    princeton.smoothed.rho = rho2; 
-    
-    subplot(2,5,2); 
-    PlotFORC(princeton.smoothed);
-    drawnow;
-    
-    
-    %%
+    best = find(score<0, 1, 'first');
+    if isempty(best)
+        SF = SFs(end);
+    else
+        SF = SFs(best); 
+    end
+    SF = input(sprintf('SF (%g): ', SF)); 
+%     SFs = [0 SF-0.5 SF SF+0.5]; 
+
     F2 = F; 
-    noise = abs(sqrt((K*da^2+J*db^2).*(K*da^2-J*db^2)));
-    F2(noise>max(noise(:))*0.1) = 0;
-    
-    subplot(2,5,8); 
+%         noise = abs(C)+abs(U);
+    noise = sqrt(C.^2+U.^2);
+    noise = sqrt(C.^2+2*U.^2);
+    F2(noise/max(noise(:))>0.5^(SF+1)) = 0;
+%         F2(abs(C)/max(abs(C(:)))>0.5^(SF+1)) = 0;
+%         F2(abs(U)/max(abs(U(:)))>0.5^(SF+1)) = 0;
+%         F2(U<-1 & C<0) = 0;
+%         F2(U>1 & C>0) = 0;        
+
+%         F2(U<-1 & C/max(abs(C(:)))<-0.5^(SF+1)) = 0;
+%         F2(U>1 & C/max(abs(C(:)))>0.5^(SF+1)) = 0;
+%         F2(abs(F2)/max(abs(F2(:))) < SF) = 0; 
+
+    subplot(2,2,4); 
     IM = FourierImage(F2);
     image(IM);
-    
-    
+    BB = length(b);
+    axis([0 BB*0.5^(SF+1) BB*(0.5-0.5^(SF+1)) BB*(0.5+0.5^(SF+1))]); 
+
     rho2 = ifft2(ifftshift(F2), Na, Nb); 
     rho2 = rho2(1:size(Ha,1),1:size(Ha,2)); 
-    
+
     princeton.smoothed = princeton.unsmoothed; 
     princeton.smoothed.rho = rho2; 
-    
-    subplot(2,5,3); 
+
+    subplot(2,2,3); 
     PlotFORC(princeton.smoothed);
     drawnow;
-    
-    
-    
-    %%
-    F2 = F; 
-    noise = abs(sqrt((K.^2*da^2+J.^2*db^2)));
-    F2(noise>max(noise(:))*0.1) = 0;
-    
-    subplot(2,5,9); 
-    IM = FourierImage(F2);
-    image(IM);
-    
-    
-    rho2 = ifft2(ifftshift(F2), Na, Nb); 
-    rho2 = rho2(1:size(Ha,1),1:size(Ha,2)); 
-    
-    princeton.smoothed = princeton.unsmoothed; 
-    princeton.smoothed.rho = rho2; 
-    
-    subplot(2,5,4); 
-    PlotFORC(princeton.smoothed);
-    drawnow;
-    
-    
-    
-    %%
-    F2 = F; 
-    noise1 = abs(K.*J);
-    noise2 = abs(sqrt((K*da^2+J*db^2).*(K*da^2-J*db^2)));
-    noise3 = abs(sqrt((K.^2*da^2+J.^2*db^2)));
-    F2(noise1>max(noise1(:))*0.01 | noise3>max(noise3(:))*0.3) = 0;
-    
-    subplot(2,5,10); 
-    IM = FourierImage(F2);
-    image(IM);
-    
-    
-    rho2 = ifft2(ifftshift(F2), Na, Nb); 
-    rho2 = rho2(1:size(Ha,1),1:size(Ha,2)); 
-    
-    princeton.smoothed = princeton.unsmoothed; 
-    princeton.smoothed.rho = rho2; 
-    
-    subplot(2,5,5); 
-    PlotFORC(princeton.smoothed);
-    drawnow;
-    
+    title(num2str(SF));
     
 % end
 
