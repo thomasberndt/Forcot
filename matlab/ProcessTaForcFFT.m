@@ -138,9 +138,10 @@
     Fsmooth2 = F2; 
     noise = sqrt(C.^2+U.^2);
     noise = sqrt(C.^2+2*U.^2);
-    Fsmooth1(noise/max(noise(:))>0.5^(SF+1)) = 0;
-    Fsmooth2(noise/max(noise(:))>0.5^(SF+1)) = 0;
-
+    if SF >= 0
+        Fsmooth1(noise/max(noise(:))>0.5^(SF+1)) = 0;
+        Fsmooth2(noise/max(noise(:))>0.5^(SF+1)) = 0;
+    end
     
     
     subplot(2,4,2); 
@@ -180,22 +181,61 @@
     
     subplot(2,4,6); 
     
-    phase = ifftshift(Fsmooth1) .* rot90(ifftshift(Fsmooth2),2); 
-    phase = fftshift(phase);
-    IMphase = FourierImage(phase);
+    G1 = ifftshift(Fsmooth1);
+    G2 = ifftshift(Fsmooth2); 
+    G = G2 - G1; 
+    
+    nor = abs(G.*conj(G)); 
+    phase = G .* conj(G) ./ nor; 
+    phase(nor == 0) = 0; 
+    IMphase = FourierImage(fftshift(phase));
     image(IMphase);
     axis([0 BB*0.5^(SF+1) BB*(0.5-0.5^(SF+1)) BB*(0.5+0.5^(SF+1))]); 
     
     
     subplot(2,4,5); 
-    C = ifft2(ifftshift(phase), Na, Nb); 
-    C = C(1:size(Ha1,1),1:size(Ha1,2)); 
-    cc = princeton1.unsmoothed; 
-    cc.rho = real(C); 
-    PlotFORC(cc);
+    C = ifft2(phase, Na, Nb); 
+%     [lF, pF] = ScaleFourierColors(C); 
+%     IM = LabColors(1-lF, pF);
+    imagesc(C);
     drawnow;
     
+%     forc = princeton1.unsmoothed; 
+%     forc.rho = C; 
+%     PlotFORC(forc);
+%     drawnow;
     
+
+
+    %%
+    
+    subplot(2,4,7); 
+        
+    [U,S,V] = svd([rho1(:), rho2(:)]');
+    s = diag(S); 
+    plot(s);
+    
+    s2 = s; 
+    s2(2:end) = 0;
+    S2 = diag(s2); 
+    S2(1,size(S,2)) = 0; 
+    S2(size(S,1),1) = 0; 
+    A = U*S2*V';
+    
+    
+    svdforc = princeton1.unsmoothed; 
+    svdforc.rho = reshape(A(1,:), size(rho1)); 
+
+    PlotFORC(svdforc);
+    drawnow;
+    
+%     dx = input('dx: '); 
+%     dy = input('dy: '); 
+
+%     factor = exp(-2*pi
+
+    T = table;
+    a = cell2mat(table2cell(T(:,3))); 
 % end
 
 
