@@ -36,92 +36,132 @@
     PlotFORC(princeton.unsmoothed);
     drawnow;
         
-%     SF = input('SF [%]: ') / 100; 
-    
-    rho(isnan(rho)) = 0; 
+M = princeton.grid.M;
+ma = nanmax(M(:)); 
+mi = nanmin(M(:)); 
+[X1, Y1] = size(M);
+M = NaN(2^nextpow2(max(X1,Y1)),2^nextpow2(max(X1,Y1)));
+M(1:X1,end-Y1+1:end) = princeton.grid.M; 
 
-    Na = 2.^nextpow2(size(Ha, 2)); 
-    Nb = 2.^nextpow2(size(Hb, 1)); 
-    Na = max(Na,Nb);
-    Nb = Na; 
-    da = nanmean(reshape(diff(Ha,1,2),[],1));
-    db = nanmean(reshape(diff(Hb,1,1),[],1));
-    a = [-Na/2:Na/2-1];
-    b = [-Nb/2:Nb/2-1];
-    k = 2*pi/(Na*da) * a;
-    j = 2*pi/(Nb*db) * b;
-    [J, K] = meshgrid(j, k); 
-    [B, A] = meshgrid(b, a); 
-    C = B-A; 
-    U = B+A;
-    
-    F = fftshift(fft2(rho, Na, Nb));
-    
-    subplot(2,2,2);
-    IM = FourierImage(F);
-    image(IM);
-    
-    %%
-    
-    SFs = 0:0.1:4; 
-    score = NaN(size(SFs));
-    for s = 1:length(SFs)
-        SF = SFs(s); 
 
-        F2 = F; 
-%         noise = abs(C)+abs(U);
-        noise = sqrt(C.^2+U.^2);
-        noise = sqrt(C.^2+2*U.^2);
-        F2(noise/max(noise(:))>0.5^(SF+1)) = 0;
-%         F2(abs(C)/max(abs(C(:)))>0.5^(SF+1)) = 0;
-%         F2(abs(U)/max(abs(U(:)))>0.5^(SF+1)) = 0;
-%         F2(U<-1 & C<0) = 0;
-%         F2(U>1 & C>0) = 0;
-        
-        score(s) = mean(abs(F(F~=0)).^2)-mean(abs(F2(F2~=0)).^2); 
+for n = 1:size(M, 1)
+    f = find(~isnan(M(n,:)), 1, 'first'); 
+    if ~isempty(f)
+        if f > 1
+            if ~isnan(last)
+                M(n,1:f) = linspace(ma, M(n,f), f); 
+            else
+                M(n,1:f) = M(n,f); 
+            end
+        end
     end
-    
-    best = find(score<0, 1, 'first');
-    if isempty(best)
-        SF = SFs(end);
-    else
-        SF = SFs(best); 
+end
+for n = 1:size(M, 1)
+    f = find(~isnan(M(n,:)), 1, 'last');
+    if ~isempty(f)
+        M(n,f:end) = M(n,f); 
     end
-    SF = input(sprintf('SF (%g): ', SF)); 
-%     SFs = [0 SF-0.5 SF SF+0.5]; 
+end
+M(end,:) = M(end-1,:);
+f = find(~isnan(M(:,1)), 1, 'last'); 
+for n = 1:size(M, 1)
+    if isnan(M(n,1))
+        M(n,:) = M(f,:);
+    end
+end
 
-    F2 = F; 
-%         noise = abs(C)+abs(U);
-    noise = sqrt(C.^2+U.^2);
-    noise = sqrt(C.^2+2*U.^2);
-    F2(noise/max(noise(:))>0.5^(SF+1)) = 0;
-%         F2(abs(C)/max(abs(C(:)))>0.5^(SF+1)) = 0;
-%         F2(abs(U)/max(abs(U(:)))>0.5^(SF+1)) = 0;
-%         F2(U<-1 & C<0) = 0;
-%         F2(U>1 & C>0) = 0;        
+MM = [flipud(M), rot90(M, 2); M, fliplr(M); ]; 
 
-%         F2(U<-1 & C/max(abs(C(:)))<-0.5^(SF+1)) = 0;
-%         F2(U>1 & C/max(abs(C(:)))>0.5^(SF+1)) = 0;
-%         F2(abs(F2)/max(abs(F2(:))) < SF) = 0; 
+[X, Y] = size(MM);
 
-    subplot(2,2,4); 
-    IM = FourierImage(F2);
-    image(IM);
-    BB = length(b);
-    axis([0 BB*0.5^(SF+1) BB*(0.5-0.5^(SF+1)) BB*(0.5+0.5^(SF+1))]); 
+subplot(2,3,1);
+labMM = FourierToLabColors(MM); 
+imagesc(MM);
 
-    rho2 = ifft2(ifftshift(F2), Na, Nb); 
-    rho2 = rho2(1:size(Ha,1),1:size(Ha,2)); 
+subplot(2,3,4);
+f = fft2(MM);
+lab = FourierToLabColors(fftshift(f)); 
+imagesc(lab);
 
-    princeton.smoothed = princeton.unsmoothed; 
-    princeton.smoothed.rho = rho2; 
+%%
 
-    subplot(2,2,3); 
-    PlotFORC(princeton.smoothed);
-    drawnow;
-    title(num2str(SF));
+subplot(2,3,5);
+kx = (-X/2):(X/2-1);
+ky = (-Y/2):(Y/2-1); 
+[KX, KY] = meshgrid(fftshift(kx), fftshift(ky)); 
+KX = KX';
+KY = KY';
+
+as = logspace(-6, -3, 10);
+p  = NaN(size(as));
+np = NaN(size(as));
+
+for n = 1:length(as)
+    a = as(n);
+    filter = exp(-a.*(KX.^2+KY.^2)); 
+    f2 = (2i*pi)^2.*KX.*KY.*f; 
+    f3 = filter.*f2;
+    fn = (1-filter).*f2; 
+    power = abs(f3).^2;
+    npower = abs(fn).^2; 
+    totalpower = abs(f2).^2; 
+    tp = sum(totalpower(:));
+    p(n) = sum(power(:)); 
+    np(n) = sum(npower(:)); 
+    lab2 = FourierToLabColors(fftshift(f3)); 
     
-% end
+    
+    subplot(2,3,5);
+    imagesc(log10(power));
+    
+    subplot(2,3,6)
+    imagesc(log10(totalpower));
+    drawnow
+    
+   
+    subplot(2,3,2);
+    M3 = ifft2(f3); 
+    rho3 = M3((end/2+1):(end/2+X1),(end/2-Y1+1):end/2);
+    forc = princeton.unsmoothed; 
+    forc.maxHu = forc.maxHu*0.9;
+    forc.rho = rho3(1:end-1,1:end-1); 
+    PlotFORC(forc);
+    
+    subplot(2,3,3);
+    semilogx(as, p/tp, 'ob-', as, np/tp, 'or-'); 
+    
+    
+    drawnow
+end
 
+
+%%
+
+subplot(2,3,2);
+M3 = ifft2(f3); 
+labM3 = FourierToLabColors(M3); 
+imagesc(real(M3));
+
+
+
+subplot(2,3,3);
+    rho3 = M3((end/2+1):(end/2+X1),(end/2-Y1+1):end/2);
+labrho = FourierToLabColors(fftshift(rho3)); 
+imagesc(real(rho3));
+colorbar;
+
+
+
+subplot(2,3,6);
+imagesc(rho);
+colorbar;
+
+clf
+    f = princeton.unsmoothed; 
+    f.rho = rho3(1:end-1,1:end-1); 
+
+    PlotFORC(princeton.unsmoothed);
+    drawnow
+    PlotFORC(f);
 
 
