@@ -28,117 +28,92 @@
         Hb = princeton.unsmoothed.Hb; 
         Hc = princeton.unsmoothed.Hc; 
         Hu = princeton.unsmoothed.Hu; 
-%     end
-    
-    %%
-%     clf
-    subplot(2,2,1);
+
+    subplot(3,2,1);
     PlotFORC(princeton.unsmoothed);
-    drawnow;
         
-M = princeton.grid.M;
-ma = nanmax(M(:)); 
-mi = nanmin(M(:)); 
-[X1, Y1] = size(M);
-M = NaN(2^nextpow2(max(X1,Y1)),2^nextpow2(max(X1,Y1)));
-M(1:X1,end-Y1+1:end) = princeton.grid.M; 
-
-
-M = FillNaNs(M);
-
-MM = [flipud(M), rot90(M, 2); M, fliplr(M); ]; 
-
-[X, Y] = size(MM);
-
-subplot(2,3,1);
-labMM = FourierToLabColors(MM); 
-imagesc(MM);
-
-
-%%
-
-subplot(2,3,4);
-f = fft2(MM);
-lab = FourierToLabColors(fftshift(f)); 
-imagesc(lab);
-
-subplot(2,3,5);
-kx = (-X/2):(X/2-1);
-ky = (-Y/2):(Y/2-1); 
-[KX, KY] = meshgrid(fftshift(kx), fftshift(ky)); 
-KX = KX';
-KY = KY';
-
-as = logspace(-4, -3, 50);
-p  = NaN(size(as));
-np = NaN(size(as));
-clf
-for n = 1:length(as)
-    subplot(1,2,1)
-    a = as(n);
-    filter = exp(-a.*(KX.^2+KY.^2)); 
-    f2 = (2i*pi)^2.*KX.*KY.*f; 
-    f3 = filter.*f2;
-    fn = (1-filter).*f2; 
-    power = abs(f3).^2;
-    npower = abs(fn).^2; 
-    totalpower = abs(f2).^2; 
-    tp = sum(totalpower(:));
-    p(n) = sum(power(:)); 
-    np(n) = sum(npower(:)); 
-    lab2 = FourierToLabColors(fftshift(f3)); 
+    M = princeton.grid.M;
+    sz = size(M);
     
+    f = ForcFft(M);
     
-%     subplot(2,3,5);
-%     imagesc(log10(power));
-%     
-%     subplot(2,3,6)
-%     imagesc(log10(totalpower));
-%     drawnow
+    as = logspace(-5, -3, 5);
+    p  = NaN(size(as));
+    np = NaN(size(as));
     
-   
-%     subplot(2,3,2);
-    M3 = ifft2(f3); 
-    rho3 = M3((end/2+1):(end/2+X1),(end/2-Y1+1):end/2);
-    forc = princeton.unsmoothed; 
-    forc.maxHu = forc.maxHu*0.9;
-    forc.rho = rho3(1:end-1,1:end-1); 
-    PlotFORC(forc);
-%     subplot(2,3,3);
-%     semilogx(as, p/tp, 'ob-', as, np/tp, 'or-'); 
+    for n = 1:length(as)
+        subplot(3,2,1+n);
+        SF = as(n);
+        [~, rho3, f3] = SmoothForcFft(f, SF, sz);
+        
+        forc = princeton.unsmoothed; 
+        forc.maxHu = forc.maxHu*0.9;
+        forc.rho = rho3(1:end-1,1:end-1); 
+        [~, h, ax] = PlotFORC(forc);
+        params = struct;
+        params.SF = SF; 
+        params.f = f; 
+        params.sz = sz; 
+        params.forc = forc;
+        if n == 1
+            params.minSF = as(1)/(as(2)/as(1)); 
+        else
+            params.minSF = as(n-1);
+        end
+        if n == length(as)
+            params.maxSF = as(end)*(as(end)/as(end-1)); 
+        else
+            params.maxSF = as(n+1);
+        end
+        
+        h(1).ButtonDownFcn = {@Callback, params}; 
+        title(num2str(log10(SF)));
+    end
 
 
-    drawnow
-end
+    function Callback(ObjectH, EventData, params)
+    
+        if params.minSF < 0.5 * params.maxSF
+    
+            as = logspace(log10(params.minSF), log10(params.maxSF), 5); 
+            for n = 1:length(as)
+                subplot(3,2,1+n);
+                SF = as(n);
+                [~, rho3] = SmoothForcFft(params.f, SF, params.sz);
+                forc = params.forc;
+                forc.rho = rho3(1:end-1,1:end-1);
 
+                [~, h, ax] = PlotFORC(forc);
 
-%%
+                params2 = struct;
+                params2.SF = SF; 
+                params2.f = params.f; 
+                params2.sz = params.sz; 
+                params2.forc = forc;
+                if n == 1
+                    params2.minSF = as(1)/(as(2)/as(1)); 
+                else
+                    params2.minSF = as(n-1);
+                end
+                if n == length(as)
+                    params2.maxSF = as(end)*(as(end)/as(end-1)); 
+                else
+                    params2.maxSF = as(n+1);
+                end
 
-subplot(2,3,2);
-M3 = ifft2(f3); 
-labM3 = FourierToLabColors(M3); 
-imagesc(real(M3));
+                h(1).ButtonDownFcn = {@Callback, params2}; 
+                title(num2str(log10(SF)));
+            end
+            
+        else
+    
 
+            [~, rho3, f3] = SmoothForcFft(params.f, params.SF, params.sz);
+            forc = params.forc;
+            forc.rho = rho3(1:end-1,1:end-1);
 
-
-subplot(2,3,3);
-    rho3 = M3((end/2+1):(end/2+X1),(end/2-Y1+1):end/2);
-labrho = FourierToLabColors(fftshift(rho3)); 
-imagesc(real(rho3));
-colorbar;
-
-
-
-subplot(2,3,6);
-imagesc(rho);
-colorbar;
-
-clf
-    f = princeton.unsmoothed; 
-    f.rho = rho3(1:end-1,1:end-1); 
-
-    PlotFORC(princeton.unsmoothed);
-    drawnow
-    PlotFORC(f);
-
+            clf
+            PlotFORC(forc);
+        end
+    end
 
