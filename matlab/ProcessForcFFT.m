@@ -48,11 +48,7 @@ for n = 1:size(M, 1)
     f = find(~isnan(M(n,:)), 1, 'first'); 
     if ~isempty(f)
         if f > 1
-            if ~isnan(last)
-                M(n,1:f) = linspace(ma, M(n,f), f); 
-            else
-                M(n,1:f) = M(n,f); 
-            end
+            M(n,1:f) = linspace(ma, M(n,f), f); 
         end
     end
 end
