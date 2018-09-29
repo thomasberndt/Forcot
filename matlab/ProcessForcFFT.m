@@ -44,27 +44,7 @@ M = NaN(2^nextpow2(max(X1,Y1)),2^nextpow2(max(X1,Y1)));
 M(1:X1,end-Y1+1:end) = princeton.grid.M; 
 
 
-for n = 1:size(M, 1)
-    f = find(~isnan(M(n,:)), 1, 'first'); 
-    if ~isempty(f)
-        if f > 1
-            M(n,1:f) = linspace(ma, M(n,f), f); 
-        end
-    end
-end
-for n = 1:size(M, 1)
-    f = find(~isnan(M(n,:)), 1, 'last');
-    if ~isempty(f)
-        M(n,f:end) = M(n,f); 
-    end
-end
-M(end,:) = M(end-1,:);
-f = find(~isnan(M(:,1)), 1, 'last'); 
-for n = 1:size(M, 1)
-    if isnan(M(n,1))
-        M(n,:) = M(f,:);
-    end
-end
+M = FillNaNs(M);
 
 MM = [flipud(M), rot90(M, 2); M, fliplr(M); ]; 
 
@@ -74,12 +54,13 @@ subplot(2,3,1);
 labMM = FourierToLabColors(MM); 
 imagesc(MM);
 
+
+%%
+
 subplot(2,3,4);
 f = fft2(MM);
 lab = FourierToLabColors(fftshift(f)); 
 imagesc(lab);
-
-%%
 
 subplot(2,3,5);
 kx = (-X/2):(X/2-1);
@@ -88,10 +69,10 @@ ky = (-Y/2):(Y/2-1);
 KX = KX';
 KY = KY';
 
-as = logspace(-6, -3, 10);
+as = logspace(-5, -3, 100);
 p  = NaN(size(as));
 np = NaN(size(as));
-
+clf
 for n = 1:length(as)
     a = as(n);
     filter = exp(-a.*(KX.^2+KY.^2)); 
@@ -107,15 +88,15 @@ for n = 1:length(as)
     lab2 = FourierToLabColors(fftshift(f3)); 
     
     
-    subplot(2,3,5);
-    imagesc(log10(power));
-    
-    subplot(2,3,6)
-    imagesc(log10(totalpower));
-    drawnow
+%     subplot(2,3,5);
+%     imagesc(log10(power));
+%     
+%     subplot(2,3,6)
+%     imagesc(log10(totalpower));
+%     drawnow
     
    
-    subplot(2,3,2);
+%     subplot(2,3,2);
     M3 = ifft2(f3); 
     rho3 = M3((end/2+1):(end/2+X1),(end/2-Y1+1):end/2);
     forc = princeton.unsmoothed; 
@@ -123,8 +104,8 @@ for n = 1:length(as)
     forc.rho = rho3(1:end-1,1:end-1); 
     PlotFORC(forc);
     
-    subplot(2,3,3);
-    semilogx(as, p/tp, 'ob-', as, np/tp, 'or-'); 
+%     subplot(2,3,3);
+%     semilogx(as, p/tp, 'ob-', as, np/tp, 'or-'); 
     
     
     drawnow
