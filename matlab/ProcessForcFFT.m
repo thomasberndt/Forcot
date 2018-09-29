@@ -69,11 +69,12 @@ ky = (-Y/2):(Y/2-1);
 KX = KX';
 KY = KY';
 
-as = logspace(-5, -3, 100);
+as = logspace(-4, -3, 50);
 p  = NaN(size(as));
 np = NaN(size(as));
 clf
 for n = 1:length(as)
+    subplot(1,2,1)
     a = as(n);
     filter = exp(-a.*(KX.^2+KY.^2)); 
     f2 = (2i*pi)^2.*KX.*KY.*f; 
@@ -103,11 +104,10 @@ for n = 1:length(as)
     forc.maxHu = forc.maxHu*0.9;
     forc.rho = rho3(1:end-1,1:end-1); 
     PlotFORC(forc);
-    
 %     subplot(2,3,3);
 %     semilogx(as, p/tp, 'ob-', as, np/tp, 'or-'); 
-    
-    
+
+
     drawnow
 end
 
