@@ -43,14 +43,14 @@ function [lim, h, ax] = PlotFORC(forc, Hc, Hu, Hcplot, Huplot, limit)
         limit = EstimateForcPeak(forc, Hc, Hu, Hcplot, Huplot);
     end
     
-    forc = forc / limit;
+%     forc = forc / limit;
 %     forccolors = LabColors(0, linspace(0, 1, 101));
     forccolors = ones(101,3); 
     forccolors(1:50,1) = linspace(0, 1, 50); 
     forccolors(1:50,2) = linspace(0, 1, 50); 
     forccolors(52:101,2) = linspace(1, 0, 50); 
     forccolors(52:101,3) = linspace(1, 0, 50); 
-    vl = linspace(-1, 1, 20);  
+    vl = linspace(-limit, limit, 20);  
     [~, h] = contourf(Hc*1000, Hu*1000, forc, vl, 'LineColor', 0.2*[1 1 1]);
     hold on
     axis([0 Hcplot -Huplot Huplot]*1000);
@@ -74,7 +74,8 @@ function [lim, h, ax] = PlotFORC(forc, Hc, Hu, Hcplot, Huplot, limit)
     xlabel('H_c [mT]'); 
     ylabel('H_u [mT]'); 
     colormap(forccolors);
-    caxis([-1 1]);
+    caxis([-1 1]*limit)
+%     caxis([-1 1]);
     lim = limit; 
     h = [h; mygridx; mygridy]; 
     
