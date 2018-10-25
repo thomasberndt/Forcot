@@ -6,12 +6,7 @@ function limit = EstimateForcPeak(rho, Hc, Hu, maxHc, maxHu)
 %
 % OUTPUT: 
 % limit - returns the suggested peak. 
-    minHc = 0.002;
-    f = rho(~isnan(rho) ...
-                & Hc-minHc>0 ...
-                & Hc-minHc>-Hu ...
-                & Hc<maxHc-minHc ...
-                & abs(Hu)<maxHu);
+    f = rho(GetVisibleForcPart(rho, Hc, Hu, maxHc, maxHu, 'cropcorner'));
     if isempty(f)
         limit = max(abs(rho));
     else

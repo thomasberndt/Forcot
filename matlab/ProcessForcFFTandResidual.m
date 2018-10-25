@@ -29,6 +29,8 @@
     Hb = princeton.unsmoothed.Hb; 
     Hc = princeton.unsmoothed.Hc; 
     Hu = princeton.unsmoothed.Hu; 
+    maxHc = princeton.unsmoothed.maxHc;
+    maxHu = princeton.unsmoothed.maxHu;
 
     figure(1)
     subplot(3,4,1);
@@ -56,7 +58,10 @@
     
     %%
     
-    as = logspace(-7, -3, 21);
+    idx = GetVisibleForcPart(rho_unsmoothed, ...
+        princeton.grid.Hc, princeton.grid.Hu, maxHc, maxHu, 0.005);
+    
+    as = logspace(-7, -3, 41);
     tp  = NaN(size(as));
     p  = NaN(size(as));
     np = NaN(size(as));
@@ -64,6 +69,7 @@
     sig = NaN(size(as)); 
     noise = NaN(size(as)); 
     cor = NaN(length(as), 6); 
+    crosscor = NaN(size(as));
     
     figure(2)
     clf
@@ -71,29 +77,34 @@
     for n = 1:length(as)
         SF = as(n);
         [~, rho3, f3, tp(n), p(n), np(n)] = SmoothForcFft(M, Ha, Hb, SF);
-        sig(n) = std(rho3(:)); 
-        res = rho_unsmoothed - rho3;
-        noise(n) = std(res(:)); 
+        rho4 = rho3;
+        rho4(~idx) = NaN; 
+        sig(n) = nanstd(rho4(:)); 
+        res = rho_unsmoothed - rho4;        
+        noise(n) = nanstd(res(:)); 
         
-        cor(n,1) = var(rho3(:)); 
-        A = rho3(:,2:end); 
-        B = rho3(:,1:end-1); 
-        C = cov(A(:), B(:)); 
+        cor(n,1) = nanvar(rho4(:)); 
+        A = rho4(:,2:end); 
+        B = rho4(:,1:end-1); 
+        C = nancov(A(:), B(:)); 
         cor(n,2) = C(1,2);
-        A = rho3(2:end,:); 
-        B = rho3(1:end-1,:); 
-        C = cov(A(:), B(:)); 
+        A = rho4(2:end,:); 
+        B = rho4(1:end-1,:); 
+        C = nancov(A(:), B(:)); 
         cor(n,3) = C(1, 2);
         
-        cor(n,4) = var(res(:)); 
+        cor(n,4) = nanvar(res(:)); 
         A = res(:,2:end); 
         B = res(:,1:end-1); 
-        C = cov(A(:), B(:)); 
+        C = nancov(A(:), B(:)); 
         cor(n,5) = C(1, 2);
         A = res(2:end,:); 
         B = res(1:end-1,:); 
-        C = cov(A(:), B(:)); 
+        C = nancov(A(:), B(:)); 
         cor(n,6) = C(1, 2);
+        
+        C = nancov(rho4(:), res(:)); 
+        crosscor(n) = C(1, 2);
         
         if isempty(edges)
             [N, edges] = histcounts(res(:), 50);
@@ -116,13 +127,13 @@
     xlabel('SF');
     ylabel('Standard deviation of residual');
     legend('sig', 'noise', 'S/N', 'location', 'best');
-    ylim([0 2]);
+    ylim([0 0.1]);
     
     figure(6)
     plot(log10(-as), cor(:,1), 'o-', ...
          log10(-as), cor(:,4), 's-', ...
-         log10(-as), sqrt(cor(:,2).^2+cor(:,3).^2), 'o-', ...
-         log10(-as), sqrt(cor(:,5).^2+cor(:,6).^2), 's-'); 
+         log10(-as), cor(:,2)+cor(:,3), 'o-', ...
+         log10(-as), cor(:,5)+cor(:,6), 's-'); 
     grid on
     xlabel('SF');
     ylabel('Covariance');
@@ -133,8 +144,8 @@
        
     
     figure(7)
-    A = sqrt(cor(:,2).^2+cor(:,3).^2)./cor(:,1); 
-    B = sqrt(cor(:,5).^2+cor(:,6).^2)./cor(:,4);
+    A = (cor(:,2)+cor(:,3))./cor(:,1); 
+    B = (cor(:,5)+cor(:,6))./cor(:,4);
     C = A./B; 
     plot(log10(-as), A, 'o-', ...
          log10(-as), B, 's-', ...
@@ -143,6 +154,13 @@
     xlabel('SF');
     ylabel('Covariance');
     legend('cov(sig)','cov(noise)', 'cov(sig)./cov(noise)', 'location', 'best');
+    
+    
+    figure(8)
+    plot(log10(-as), crosscor, 'o-');
+    grid on
+    xlabel('SF');
+    ylabel('Cross correlation');
     
     
     
@@ -157,10 +175,12 @@
         subplot(3,4,2+n);
         SF = SFs(n);
         [~, rho3, f3] = SmoothForcFft(M, Ha, Hb, SF);
+        rho4 = rho3;
+        rho4(~idx) = NaN; 
         
         forc = princeton.unsmoothed; 
         forc.maxHu = forc.maxHu*0.9;
-        forc.rho = rho3(1:end-1,1:end-1); 
+        forc.rho = rho4(1:end-1,1:end-1); 
         [~, h, ax] = PlotFORC(forc);
         
         title(num2str(log10(SF)));
@@ -169,7 +189,7 @@
         
         subplot(3,4,7+n);
         
-        res = rho_unsmoothed - rho3;
+        res = rho_unsmoothed - rho4;
         forc_res = forc; 
         forc_res.rho = res(1:end-1,1:end-1);
         [~, h, ax] = PlotFORC(forc_res);
