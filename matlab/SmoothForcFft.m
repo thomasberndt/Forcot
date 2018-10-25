@@ -1,4 +1,4 @@
-function [M, rho, f3] = SmoothForcFft(M, Ha, Hb, SF)
+function [M, rho, f3, tp, p, np] = SmoothForcFft(M, Ha, Hb, SF)
     dHa = abs(diff(Ha'));
     dHa = nanmean(dHa(:));
     dHb = abs(diff(Hb));
@@ -22,7 +22,7 @@ function [M, rho, f3] = SmoothForcFft(M, Ha, Hb, SF)
     KX = KX';
     KY = KY';
 
-    filter =1;% exp(-SF.*(KX.^2+KY.^2)); 
+    filter = exp(-SF.*(KX.^2+KY.^2)); 
     f2 = (2i*pi)^2.*KX.*KY.*f; 
     f3 = filter.*f2;
     fn = (1-filter).*f2; 
