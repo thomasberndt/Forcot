@@ -169,7 +169,7 @@
     
     
     figure(1)
-    SFs = logspace(-6, -4, 5);
+    SFs = linspace(0, 4, 5);
     
     for n = 1:length(SFs)
         subplot(3,4,2+n);
