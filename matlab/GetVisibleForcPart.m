@@ -1,5 +1,5 @@
 function idx = GetVisibleForcPart(rho, Hc, Hu, maxHc, maxHu, options)
-    minHc = 0.002;
+    minHc = 0.003;
     if nargin <= 5
         options = '';
     elseif isnumeric(options)

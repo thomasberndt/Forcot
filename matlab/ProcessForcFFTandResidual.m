@@ -47,11 +47,12 @@
     
     %%
     
-    figure(5)
-    subplot(1,2,1);
+    figure(2)
+    clf
+    subplot(3,3,1);
     IM = FourierImage(f_unsmoothed);
     imagesc(IM);
-    subplot(1,2,2);
+    subplot(3,3,2);
     IM = abs(f_unsmoothed).^2;
     imagesc(log10(fftshift(IM)));
     
@@ -61,7 +62,7 @@
     idx = GetVisibleForcPart(rho_unsmoothed, ...
         princeton.grid.Hc, princeton.grid.Hu, maxHc, maxHu, 0.005);
     
-    as = logspace(-7, -3, 41);
+    as = linspace(0, 3, 101);
     tp  = NaN(size(as));
     p  = NaN(size(as));
     np = NaN(size(as));
@@ -71,8 +72,7 @@
     cor = NaN(length(as), 6); 
     crosscor = NaN(size(as));
     
-    figure(2)
-    clf
+    subplot(3,3,3);
     edges = [];
     for n = 1:length(as)
         SF = as(n);
@@ -111,29 +111,31 @@
         else
             N = histcounts(res(:), edges);
         end
-        semilogy(edges(2:end), N, '-'); 
+        semilogy(edges(2:end), N, 'r-'); 
         hold on
         grid on
+        N = histcounts(rho4(:), edges);
+        semilogy(edges(2:end), N, 'b-'); 
         drawnow; 
     end
 
     %% 
-    figure(3)
     
-    plot(log10(-as), sig, 'o-', ...
-         log10(-as), noise, 's-', ...
-         log10(-as), sig./noise, 'd-'); 
+    subplot(3,3,4);
+    plot(as, sig, 'o-', ...
+         as, noise, 's-', ...
+         as, sig./noise, 'd-'); 
     grid on
     xlabel('SF');
     ylabel('Standard deviation of residual');
     legend('sig', 'noise', 'S/N', 'location', 'best');
-    ylim([0 0.1]);
+  
     
-    figure(6)
-    plot(log10(-as), cor(:,1), 'o-', ...
-         log10(-as), cor(:,4), 's-', ...
-         log10(-as), cor(:,2)+cor(:,3), 'o-', ...
-         log10(-as), cor(:,5)+cor(:,6), 's-'); 
+    subplot(3,3,5);
+    plot(as, cor(:,1), 'o-', ...
+         as, cor(:,4), 's-', ...
+         as, cor(:,2)+cor(:,3), 'o-', ...
+         as, cor(:,5)+cor(:,6), 's-'); 
     grid on
     xlabel('SF');
     ylabel('Covariance');
@@ -143,21 +145,21 @@
        
        
     
-    figure(7)
+    subplot(3,3,6);
     A = (cor(:,2)+cor(:,3))./cor(:,1); 
     B = (cor(:,5)+cor(:,6))./cor(:,4);
     C = A./B; 
-    plot(log10(-as), A, 'o-', ...
-         log10(-as), B, 's-', ...
-         log10(-as), C, 'x-'); 
+    plot(as, A, 'o-', ...
+         as, B, 's-', ...
+         as, C, 'x-'); 
     grid on
     xlabel('SF');
-    ylabel('Covariance');
+    ylabel('Normalized Covariance');
     legend('cov(sig)','cov(noise)', 'cov(sig)./cov(noise)', 'location', 'best');
     
     
-    figure(8)
-    plot(log10(-as), crosscor, 'o-');
+    subplot(3,3,7);
+    plot(as, crosscor, 'o-');
     grid on
     xlabel('SF');
     ylabel('Cross correlation');
@@ -169,7 +171,7 @@
     
     
     figure(1)
-    SFs = linspace(0, 4, 5);
+    SFs = [0.2 0.3 0.4 0.5 0.7 1 1.2 1.4 1.6 2];
     
     for n = 1:length(SFs)
         subplot(3,4,2+n);
@@ -180,22 +182,22 @@
         
         forc = princeton.unsmoothed; 
         forc.maxHu = forc.maxHu*0.9;
-        forc.rho = rho4(1:end-1,1:end-1); 
+        forc.rho = rho3(1:end-1,1:end-1); 
         [~, h, ax] = PlotFORC(forc);
         
-        title(num2str(log10(SF)));
+        title(num2str(SF));
         drawnow
         
         
-        subplot(3,4,7+n);
-        
-        res = rho_unsmoothed - rho4;
-        forc_res = forc; 
-        forc_res.rho = res(1:end-1,1:end-1);
-        [~, h, ax] = PlotFORC(forc_res);
-        
-        title(['Res ' num2str(log10(SF))]);
-        drawnow
+%         subplot(3,4,7+n);
+%         
+%         res = rho_unsmoothed - rho4;
+%         forc_res = forc; 
+%         forc_res.rho = res(1:end-1,1:end-1);
+%         [~, h, ax] = PlotFORC(forc_res);
+%         
+%         title(['Res ' num2str(SF)]);
+%         drawnow
     end
 
 
