@@ -22,11 +22,7 @@ function [M, rho, f3, tp, p, np] = SmoothForcFft(M, Ha, Hb, SF)
     KX = KX';
     KY = KY';
 
-    if SF == 0 
-        filter = 1;
-    else
-        filter = sqrt(2*pi)*SF* exp(-2*pi^2*SF^2.*((KX*dHa).^2+(KY*dHb).^2)); 
-    end
+    filter = exp(-2*pi^2*SF^2.*((KX*dHa).^2+(KY*dHb).^2)); 
     f2 = (2i*pi)^2.*KX.*KY.*f; 
     f3 = filter.*f2;
     fn = (1-filter).*f2; 
