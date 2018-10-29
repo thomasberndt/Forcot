@@ -1,4 +1,4 @@
-function [M, rho, SF, f3, KX, KY] = SmoothForcFft(M, Ha, Hb, SF)
+function [M, rho, f3, KX, KY] = SmoothNoiseForcFft(M, Ha, Hb, SF)
     dHa = abs(diff(Ha'));
     dHa = nanmean(dHa(:));
     dHb = abs(diff(Hb));
@@ -24,7 +24,10 @@ function [M, rho, SF, f3, KX, KY] = SmoothForcFft(M, Ha, Hb, SF)
     
     f2 = (2i*pi)^2.*KX.*KY.*f; 
     
-    tic
+    
+    filter = exp(-2*pi^2*SF^2.*((KX*dHa).^2+(KY*dHb).^2)); 
+%     filter = sech(pi^2*SF^2*((KX*dHa).^2+(KY*dHb).^2));
+    
     r = linspace(0, 1, 100); 
     p = zeros(length(r)-1,1);
     pfil = zeros(length(r)-1,1); 
@@ -34,43 +37,29 @@ function [M, rho, SF, f3, KX, KY] = SmoothForcFft(M, Ha, Hb, SF)
         p(n) = log10(mean(abs(f2(idx)).^2)); 
     end
     r(end) = []; 
-    toc
     
-    tic 
     
-    [~, pm] = min(p); 
-    idx = logical(r>r(pm)*0.5 & r<r(pm)*2);
-    pf = polyfit(r(idx), p(idx)', 2); 
-    pd = polyder(pf); 
-    pm = roots(pd); 
-    toc
-    plot(r, p, 'o-', r, polyval(pf, r), '-', pm, polyval(pf, pm), 's'); 
-tic
-    SF = 1./sqrt(2*pm); 
-    if isempty(pm)
-        [~, pm] = min(p); 
-        SF = 1./sqrt(2*r(pm));
-    end
+    SF = 1; 
     
-    filter = exp(-2*pi^2*SF^2.*((KX*dHa).^2+(KY*dHb).^2)); 
-%     filter = sech(pi^2*SF^2*((KX*dHa).^2+(KY*dHb).^2));
-
+    
+    idx = logical(r>0.5);
+    pf = polyfit(r(idx), p(idx)', 1); 
+    
+    
+    plot(r, p, 'o-', r, polyval(pf, r), '-'); 
+    
+    d = sqrt((KX*dHa).^2+(KY*dHb).^2);
+    pp = pf(2) + pf(1)*d;
+    filter = (10.^pp).^-2; 
     f3 = filter.*f2;
     
-    
-    r = linspace(0, 1, 100); 
-    pfil = zeros(length(r)-1,1); 
     for n = 1:length(r)-1
         d = sqrt((KX*dHa).^2+(KY*dHb).^2); 
-        id = logical(r(n) <= d & d < r(n+1)); 
-        pfil(n) = log10(mean(abs(f3(id)).^2)); 
+        idx = logical(r(n) <= d & d < r(n+1)); 
+        pfil(n) = log10(mean(abs(f3(idx)).^2)); 
     end
-    r(end) = []; 
     
-    toc
-    plot(r, p, 'o-', r(idx), polyval(pf, r(idx)), '-', ...
-         pm, polyval(pf, pm), 's', r(pfil>0), pfil(pfil>0), 'x-'); 
-    grid on
+%     plot(r, 10.^p, 'o-', r, 10.^polyval(pf, r), '-', r, 10.^pfil, 'd-'); 
     
     fn = (1-filter).*f2; 
     power = abs(f3).^2;
