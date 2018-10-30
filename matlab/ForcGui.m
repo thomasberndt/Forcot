@@ -22,7 +22,7 @@ function varargout = ForcGui(varargin)
 
 % Edit the above text to modify the response to help ForcGui
 
-% Last Modified by GUIDE v2.5 30-Oct-2018 14:07:57
+% Last Modified by GUIDE v2.5 30-Oct-2018 14:44:02
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -54,7 +54,6 @@ function ForcGui_OpeningFcn(hObject, eventdata, handles, varargin)
 
 % Choose default command line output for ForcGui
 handles.output = hObject;
-
 % Update handles structure
 guidata(hObject, handles);
 
@@ -82,15 +81,18 @@ function OpenButton_Callback(hObject, eventdata, handles)
 [handles.files, handles.pathname, handles.ext, handles.n] = OpenForcDialog();
 set(handles.FileListBox, 'String', handles.files);
 set(handles.FileListBox, 'Value',  handles.n);
-guidata(hObject,handles);
-LoadForc(handles);
-guidata(hObject,handles);
+try
+    LoadForc(handles);
+catch
+end
+SaveState(hObject,handles);
 
 % --- Executes on button press in SaveButton.
 function SaveButton_Callback(hObject, eventdata, handles)
 % hObject    handle to SaveButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
 
 
 % --- Executes on selection change in FileListBox.
@@ -102,7 +104,7 @@ function FileListBox_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns FileListBox contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from FileListBox
 LoadForc(handles);
-guidata(hObject,handles);
+SaveState(hObject,handles);
     
 % --- Executes during object creation, after setting all properties.
 function FileListBox_CreateFcn(hObject, eventdata, handles)
@@ -121,27 +123,34 @@ end
 function LoadForc(handles)
     axes(handles.ForcAxes); 
     cla
-
+    
     handles.n = get(handles.FileListBox, 'Value');
     handles.filename = sprintf('%s%s', handles.pathname, handles.files{handles.n}); 
     try
-        handles.princeton = LoadPrincetonForc(handles.filename); 
-        handles.princeton.correctedM = DriftCorrection(handles.princeton);
-        handles.princeton.grid = RegularizeForcGrid(handles.princeton); 
-        handles.princeton.forc = SmoothForcFft(handles.princeton);
-        handles.princeton.forc.maxHc = 0.9*handles.princeton.forc.maxHc;
-        handles.princeton.forc.maxHu = 0.9*handles.princeton.forc.maxHu;
-
-        axes(handles.PowerAxes); 
-        semilogy(handles.princeton.forc.d, handles.princeton.forc.PowerSpectrum, 'o-');
-        drawnow;
-
-        axes(handles.ForcAxes); 
-        PlotFORC(handles.princeton.forc);
-        [~,name] = fileparts(handles.princeton.filename);
-
-        title(sprintf('%s (SF=%g)', name, handles.princeton.forc.SF));
+        handles.princeton = LoadAndProcessPrincetonForc(handles.filename);        
+        GuiPlotPowerSpectrum(handles);
+        GuiPlotForc(handles);         
     catch ME
         axes(handles.ForcAxes); 
         text(0.1, 0.5 ,ME.message);
     end
+    
+    
+function SaveState(hObject,handles)
+    guidata(hObject,handles);
+    save('programsettings', 'handles'); 
+
+function GuiPlotForc(handles)
+    axes(handles.ForcAxes); 
+    PlotFORC(handles.princeton.forc);
+    [~,name] = fileparts(handles.princeton.filename);
+    title(sprintf('%s (SF=%g)', name, handles.princeton.forc.SF));
+    drawnow;
+
+function GuiPlotPowerSpectrum(handles)
+    axes(handles.PowerAxes); 
+    semilogy(handles.princeton.forc.d, handles.princeton.forc.PowerSpectrum, 'o-');
+    xlabel('Frequency [normalized]'); 
+    ylabel('Power'); 
+    drawnow;
+    
