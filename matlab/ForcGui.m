@@ -92,7 +92,8 @@ function SaveButton_Callback(hObject, eventdata, handles)
 % hObject    handle to SaveButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+SaveFigure(handles); 
+SaveState(hObject,handles);
 
 
 % --- Executes on selection change in FileListBox.
@@ -103,7 +104,7 @@ function FileListBox_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns FileListBox contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from FileListBox
-LoadForc(handles);
+handles = LoadForc(handles);
 SaveState(hObject,handles);
     
 % --- Executes during object creation, after setting all properties.
@@ -120,7 +121,7 @@ end
 
 
 
-function LoadForc(handles)
+function handles = LoadForc(handles)
     axes(handles.ForcAxes); 
     cla
     
@@ -152,5 +153,24 @@ function GuiPlotPowerSpectrum(handles)
     semilogy(handles.princeton.forc.d, handles.princeton.forc.PowerSpectrum, 'o-');
     xlabel('Frequency [normalized]'); 
     ylabel('Power'); 
+    grid on
     drawnow;
+    
+function SaveFigure(handles)
+    [path,name,ext] = fileparts(handles.filename);
+    filetypes = {...
+            '*.png', 'Portable Network Graphics file (*.png)'; ...
+            '*.pdf', 'Portable Document Format (*.pdf)'; ...
+            '*.eps', 'EPS file (*.eps)'; ...
+            '*.jpg', 'JPEG image (*.jpg)'; ...
+            '*.svg', 'Scalable Vector Graphics file (*.svg)'; ...
+            '*.tif', 'TIFF image (*.tif)'; ...
+            '*.bmp', 'Bitmap file (*.bmp)'; ...
+            '*.fig', 'MATLAB Figure (*.fig)'};
+    [file,path,indx] = uiputfile(filetypes, 'File Selection', [path '\' name '.png']);
+    
+    
+    
+    
+    
     
