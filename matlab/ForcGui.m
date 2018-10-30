@@ -167,8 +167,17 @@ function SaveFigure(handles)
             '*.tif', 'TIFF image (*.tif)'; ...
             '*.bmp', 'Bitmap file (*.bmp)'; ...
             '*.fig', 'MATLAB Figure (*.fig)'};
-    [file,path,indx] = uiputfile(filetypes, 'File Selection', [path '\' name '.png']);
-    
+    [file,path,indx] = uiputfile(filetypes, 'File Selection', fullfile(path, [name '.png']));
+    if ~isequal(file,0) && ~isequal(path,0)
+        set(handles.PowerAxes, 'Visible', 'off');
+        axes(handles.PowerAxes);
+        cla;
+        fig = gcf;
+        fig.PaperPositionMode = 'auto';
+        print(fullfile(path,file),'-dpng','-r0', '-noui');
+        set(handles.PowerAxes, 'Visible', 'on');
+        GuiPlotPowerSpectrum(handles);
+    end
     
     
     
