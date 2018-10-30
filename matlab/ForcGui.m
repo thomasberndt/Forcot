@@ -22,7 +22,7 @@ function varargout = ForcGui(varargin)
 
 % Edit the above text to modify the response to help ForcGui
 
-% Last Modified by GUIDE v2.5 30-Oct-2018 09:41:32
+% Last Modified by GUIDE v2.5 30-Oct-2018 14:07:57
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -79,9 +79,10 @@ function OpenButton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-[handles.files, handles.pathname, handles.n] = OpenForcDialog();
+[handles.files, handles.pathname, handles.ext, handles.n] = OpenForcDialog();
 set(handles.FileListBox, 'String', handles.files);
 set(handles.FileListBox, 'Value',  handles.n);
+guidata(hObject,handles);
 LoadForc(handles);
 guidata(hObject,handles);
 
@@ -118,24 +119,29 @@ end
 
 
 function LoadForc(handles)
-axes(handles.ForcAxes); 
-cla
-handles.n = get(handles.FileListBox, 'Value');
-handles.filename = sprintf('%s%s', handles.pathname, handles.files{handles.n}); 
-handles.princeton = LoadPrincetonForc(handles.filename); 
-handles.princeton.correctedM = DriftCorrection(handles.princeton);
-handles.princeton.grid = RegularizeForcGrid(handles.princeton); 
-handles.princeton.forc = SmoothForcFft(handles.princeton);
-handles.princeton.forc.maxHc = 0.9*handles.princeton.forc.maxHc;
-handles.princeton.forc.maxHu = 0.9*handles.princeton.forc.maxHu;
+    axes(handles.ForcAxes); 
+    cla
 
-axes(handles.PowerAxes); 
-semilogy(handles.princeton.forc.d, handles.princeton.forc.PowerSpectrum, 'o-');
-drawnow;
+    handles.n = get(handles.FileListBox, 'Value');
+    handles.filename = sprintf('%s%s', handles.pathname, handles.files{handles.n}); 
+    try
+        handles.princeton = LoadPrincetonForc(handles.filename); 
+        handles.princeton.correctedM = DriftCorrection(handles.princeton);
+        handles.princeton.grid = RegularizeForcGrid(handles.princeton); 
+        handles.princeton.forc = SmoothForcFft(handles.princeton);
+        handles.princeton.forc.maxHc = 0.9*handles.princeton.forc.maxHc;
+        handles.princeton.forc.maxHu = 0.9*handles.princeton.forc.maxHu;
 
-axes(handles.ForcAxes); 
-PlotFORC(handles.princeton.forc);
+        axes(handles.PowerAxes); 
+        semilogy(handles.princeton.forc.d, handles.princeton.forc.PowerSpectrum, 'o-');
+        drawnow;
 
-title(sprintf('%s (SF=%g)', ...
-        handles.princeton.filename, ...
-        handles.princeton.forc.SF));
+        axes(handles.ForcAxes); 
+        PlotFORC(handles.princeton.forc);
+        [~,name] = fileparts(handles.princeton.filename);
+
+        title(sprintf('%s (SF=%g)', name, handles.princeton.forc.SF));
+    catch ME
+        axes(handles.ForcAxes); 
+        text(0.1, 0.5 ,ME.message);
+    end

@@ -181,6 +181,13 @@ function princeton_forc = LoadPrincetonForc(filepath)
     is_calibration = 1; 
     
     N = metadata.script.NForc; 
+    if isnan(N)
+        [~, filename, ext] = fileparts(filepath); 
+        ME = MException('Forc:InvalidFileFormat', ...
+            '%s%s is not a valid Princeton VSM FORC file format', ...
+            filename, ext);
+        throw(ME);
+    end
     measurements.M = NaN*zeros(1,N); 
     measurements.Hb = NaN*zeros(1,N); 
     measurements.T = NaN*zeros(1,N); 
