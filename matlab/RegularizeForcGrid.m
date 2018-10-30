@@ -35,6 +35,9 @@ function grid = RegularizeForcGrid(M, Ha, Hb)
     grid.M = f(grid.Ha, grid.Hb); 
     grid.Ha(isnan(grid.M)) = NaN; 
     grid.Hb(isnan(grid.M)) = NaN; 
-    grid.maxHc = nanmax(grid.Hc(:)); 
-    grid.maxHu = nanmax(grid.Hu(:)); 
+        
+    Hcs = grid.Hc(~isnan(grid.M)); 
+    Hus = grid.Hu(~isnan(grid.M)); 
+    grid.maxHc = max(Hcs(:)); 
+    grid.maxHu = max(Hus(:)); 
 end

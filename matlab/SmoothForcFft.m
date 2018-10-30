@@ -52,56 +52,21 @@ function [rho, SF, M] = SmoothForcFft(M, Ha, Hb, SF)
     
     f2 = (2i*pi)^2.*KX.*KY.*f; 
     
-    r = linspace(0, 1, 100); 
-    p = zeros(length(r)-1,1);
-    pfil = zeros(length(r)-1,1); 
-    for n = 1:length(r)-1
-        d = sqrt((KX*dHa).^2+(KY*dHb).^2); 
-        idx = logical(r(n) <= d & d < r(n+1)); 
-        p(n) = log10(mean(abs(f2(idx)).^2)); 
+    d = sqrt((diag(KX)*dHa).^2+(diag(KY)*dHb).^2); 
+    [~, m] = nanmin(movmean(abs(diag(f2).^2),10));
+    
+    if ~isempty(m)
+        SF = round(1./sqrt(2*d(m)), 2); 
+    else
+        SF = 0;
     end
-    r(end) = []; 
-    p(abs(p)==Inf) = NaN;
-    [~, pm] = nanmin(p); 
-    idx = logical(r>r(pm)*0.5 & r<r(pm)*2);
-    pf = polyfit(r(idx), p(idx)', 2); 
-    pd = polyder(pf); 
-    pm = roots(pd); 
-%     plot(r, p, 'o-', r, polyval(pf, r), '-', pm, polyval(pf, pm), 's'); 
-
-    SF = 1./sqrt(2*pm); 
-    if isempty(pm)
-        [~, pm] = min(p); 
-        SF = 1./sqrt(2*r(pm));
-    end
+    
     
     filter = exp(-2*pi^2*SF^2.*((KX*dHa).^2+(KY*dHb).^2)); 
 %     filter = sech(pi^2*SF^2*((KX*dHa).^2+(KY*dHb).^2));
 
     f3 = filter.*f2;
     
-    
-%     r = linspace(0, 1, 100); 
-%     pfil = zeros(length(r)-1,1); 
-%     for n = 1:length(r)-1
-%         d = sqrt((KX*dHa).^2+(KY*dHb).^2); 
-%         id = logical(r(n) <= d & d < r(n+1)); 
-%         pfil(n) = log10(mean(abs(f3(id)).^2)); 
-%     end
-%     r(end) = []; 
-    
-%     plot(r, p, 'o-', r(idx), polyval(pf, r(idx)), '-', ...
-%          pm, polyval(pf, pm), 's', r(pfil>0), pfil(pfil>0), 'x-'); 
-%     grid on
-    
-%     fn = (1-filter).*f2; 
-%     power = abs(f3).^2;
-%     npower = abs(fn).^2; 
-%     totalpower = abs(f2).^2; 
-%     tp = sum(totalpower(:));
-%     p = sum(power(:)); 
-%     np = sum(npower(:)); 
-
     M = ifft2(f3); 
     rho = M((end/2+1):(end/2+X1),(end/2-Y1+1):end/2);
     
