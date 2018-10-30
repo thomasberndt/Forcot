@@ -1,4 +1,4 @@
-function [rho, SF, M] = SmoothForcFft(M, Ha, Hb, SF)
+function [rho, SF, M, d, ps] = SmoothForcFft(M, Ha, Hb, SF)
 % Smoothes the FORC using FFT algorithm and returns the smooth FORC
 % distribution. 
 %
@@ -52,15 +52,41 @@ function [rho, SF, M] = SmoothForcFft(M, Ha, Hb, SF)
     
     f2 = (2i*pi)^2.*KX.*KY.*f; 
     
-    d = sqrt((diag(KX)*dHa).^2+(diag(KY)*dHb).^2); 
-    [~, m] = nanmin(movmean(abs(diag(f2).^2),10));
+%     d = sqrt((diag(KX)*dHa).^2+(diag(KY)*dHb).^2); 
+%     ps = movmean(abs(diag(f2).^2),10);
+%     [~, m] = nanmin(ps);
+%     
+%     if ~isempty(m)
+%         SF = round(1./(2*d(m)), 2); 
+%     else
+%         SF = 0;
+%     end
+
     
-    if ~isempty(m)
-        SF = round(1./sqrt(2*d(m)), 2); 
-    else
-        SF = 0;
+    r = linspace(0, 1, 40); 
+    p = zeros(length(r)-1,1);
+    pfil = zeros(length(r)-1,1); 
+    for n = 1:length(r)-1
+        d = sqrt((KX*dHa).^2+(KY*dHb).^2); 
+        idx = logical(r(n) <= d & d < r(n+1)); 
+        p(n) = log10(mean(abs(f2(idx)).^2)); 
     end
-    
+    r(end) = []; 
+    p(abs(p)==Inf) = NaN;
+    [~, pm] = nanmin(p); 
+    idx = logical(r>r(pm)*0.5 & r<r(pm)*2);
+    pf = polyfit(r(idx), p(idx)', 2); 
+    pd = polyder(pf); 
+    pm = roots(pd); 
+%     plot(r, p, 'o-', r, polyval(pf, r), '-', pm, polyval(pf, pm), 's'); 
+
+    SF = round(1./sqrt(2*pm), 2); 
+    if isempty(pm)
+        [~, pm] = min(p); 
+        SF = round(1./sqrt(2*r(pm)), 2);
+    end
+    ps = p;
+    d = r;
     
     filter = exp(-2*pi^2*SF^2.*((KX*dHa).^2+(KY*dHb).^2)); 
 %     filter = sech(pi^2*SF^2*((KX*dHa).^2+(KY*dHb).^2));
@@ -75,6 +101,8 @@ function [rho, SF, M] = SmoothForcFft(M, Ha, Hb, SF)
         forc.rho = rho; 
         forc.M = M; 
         forc.SF = SF; 
+        forc.d = d;
+        forc.PowerSpectrum = ps;
         rho = forc;
     end
 end

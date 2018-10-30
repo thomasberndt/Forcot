@@ -82,6 +82,7 @@ function OpenButton_Callback(hObject, eventdata, handles)
 [handles.files, handles.pathname, handles.n] = OpenForcDialog();
 set(handles.FileListBox, 'String', handles.files);
 set(handles.FileListBox, 'Value',  handles.n);
+LoadForc(handles);
 guidata(hObject,handles);
 
 % --- Executes on button press in SaveButton.
@@ -99,19 +100,7 @@ function FileListBox_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns FileListBox contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from FileListBox
-
-handles.n = get(handles.FileListBox, 'Value');
-handles.filename = sprintf('%s%s', handles.pathname, handles.files{handles.n}); 
-disp(handles.filename);
-handles.princeton = LoadPrincetonForc(handles.filename); 
-handles.princeton.correctedM = DriftCorrection(handles.princeton);
-handles.princeton.grid = RegularizeForcGrid(handles.princeton); 
-handles.princeton.forc = SmoothForcFft(handles.princeton);
-PlotFORC(handles.princeton.forc);
-
-title(sprintf('%s (SF=%g)', ...
-        handles.princeton.filename, ...
-        handles.princeton.forc.SF));
+LoadForc(handles);
 guidata(hObject,handles);
     
 % --- Executes during object creation, after setting all properties.
@@ -125,3 +114,28 @@ function FileListBox_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+
+function LoadForc(handles)
+axes(handles.ForcAxes); 
+cla
+handles.n = get(handles.FileListBox, 'Value');
+handles.filename = sprintf('%s%s', handles.pathname, handles.files{handles.n}); 
+handles.princeton = LoadPrincetonForc(handles.filename); 
+handles.princeton.correctedM = DriftCorrection(handles.princeton);
+handles.princeton.grid = RegularizeForcGrid(handles.princeton); 
+handles.princeton.forc = SmoothForcFft(handles.princeton);
+handles.princeton.forc.maxHc = 0.9*handles.princeton.forc.maxHc;
+handles.princeton.forc.maxHu = 0.9*handles.princeton.forc.maxHu;
+
+axes(handles.PowerAxes); 
+semilogy(handles.princeton.forc.d, handles.princeton.forc.PowerSpectrum, 'o-');
+drawnow;
+
+axes(handles.ForcAxes); 
+PlotFORC(handles.princeton.forc);
+
+title(sprintf('%s (SF=%g)', ...
+        handles.princeton.filename, ...
+        handles.princeton.forc.SF));
