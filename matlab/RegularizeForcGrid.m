@@ -7,11 +7,20 @@ function grid = RegularizeForcGrid(M, Ha, Hb)
 % M - raw measurements (matrix) taken on an irregular grid Ha, Hb
 % Ha, Hb - the irregular grid the measurements are taken on (matrices). 
 %
+% Alternatively, only a princtonforc structure can be passed as the single
+% argument. 
+%
 % OUTPUT: 
 % grid - a structure containing the regularized grid & measurements:
 %   grid.M - measurements (matrix) on a regular grid.
 %   grid.Ha, grid.Hb - the regular grid (matrices).
-
+    if nargin == 1
+        princeton = M; 
+        M = princeton.correctedM; 
+        Ha = princeton.measurements.Ha; 
+        Hb = princeton.measurements.Hb; 
+    end
+    
     Ha_space = linspace(Hb(1,1), Hb(1, end), round(size(Hb,2))); 
     Hb_space = linspace(Hb(1, end), max(Hb(end,:)), round(size(Hb,1))); 
     [grid.Ha, grid.Hb] = meshgrid(Ha_space, Hb_space); 
@@ -26,4 +35,6 @@ function grid = RegularizeForcGrid(M, Ha, Hb)
     grid.M = f(grid.Ha, grid.Hb); 
     grid.Ha(isnan(grid.M)) = NaN; 
     grid.Hb(isnan(grid.M)) = NaN; 
+    grid.maxHc = nanmax(grid.Hc(:)); 
+    grid.maxHu = nanmax(grid.Hu(:)); 
 end

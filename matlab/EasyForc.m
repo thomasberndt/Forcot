@@ -13,11 +13,6 @@
     
 %     if nargin < 1
 
-
-    [filename, pathname] = uigetfile('../data/*.frc');
-    files = dir(sprintf('%s/*.frc', pathname)); 
-    files = {files.name};
-    n = find(strcmpi(files, filename)); 
     
     while n < length(files)
         filename = sprintf('%s/%s', pathname, files{n}); 
