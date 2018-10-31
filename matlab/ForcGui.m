@@ -22,7 +22,7 @@ function varargout = ForcGui(varargin)
 
 % Edit the above text to modify the response to help ForcGui
 
-% Last Modified by GUIDE v2.5 30-Oct-2018 14:44:02
+% Last Modified by GUIDE v2.5 31-Oct-2018 08:52:04
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -54,6 +54,17 @@ function ForcGui_OpeningFcn(hObject, eventdata, handles, varargin)
 
 % Choose default command line output for ForcGui
 handles.output = hObject;
+
+handles.ForcFigure = figure(); 
+
+pos = hObject.OuterPosition; 
+
+hObject.OuterPosition = [20 50 pos(3) pos(4)]; 
+pos = hObject.OuterPosition; 
+handles.ForcFigure.OuterPosition = [pos(1)+pos(3) pos(2) pos(4) pos(4)]; 
+handles.ForcAxes = axes;
+
+set(handles.ForcFigure, 'Color', 'w');
 % Update handles structure
 guidata(hObject, handles);
 
@@ -143,8 +154,9 @@ function SaveState(hObject,handles)
 
 function GuiPlotForc(handles)
     axes(handles.ForcAxes); 
-    PlotFORC(handles.princeton.forc);
     [~,name] = fileparts(handles.princeton.filename);
+    title(sprintf('%s', name));
+    PlotFORC(handles.princeton.forc);
     title(sprintf('%s (SF=%g)', name, handles.princeton.forc.SF));
     drawnow;
 
