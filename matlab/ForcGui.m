@@ -64,6 +64,8 @@ pos = hObject.OuterPosition;
 handles.ForcFigure.OuterPosition = [pos(1)+pos(3) pos(2) pos(4) pos(4)]; 
 handles.ForcAxes = axes;
 
+TightAxis(handles); 
+
 set(handles.ForcFigure, 'Color', 'w');
 % Update handles structure
 guidata(hObject, handles);
@@ -150,15 +152,25 @@ function handles = LoadForc(handles)
     
 function SaveState(hObject,handles)
     guidata(hObject,handles);
-    save('programsettings', 'handles'); 
+%     save('programsettings', 'handles'); 
 
 function GuiPlotForc(handles)
     axes(handles.ForcAxes); 
     [~,name] = fileparts(handles.princeton.filename);
     title(sprintf('%s', name));
     PlotFORC(handles.princeton.forc);
-    title(sprintf('%s (SF=%g)', name, handles.princeton.forc.SF));
+    title(sprintf('%s', name));
     drawnow;
+    
+function TightAxis(handles)
+    outerpos = handles.ForcAxes.OuterPosition;
+    ti = handles.ForcAxes.TightInset; 
+    left = outerpos(1) + 2.4*ti(1);
+    bottom = outerpos(2) + 2.5*ti(2);
+    ax_width = outerpos(3) - 2.2*ti(1) - ti(3);
+    ax_height = outerpos(4) - 3*ti(2) - ti(4);
+    handles.ForcAxes.Position = [left bottom ax_width ax_height];
+
 
 function GuiPlotPowerSpectrum(handles)
     axes(handles.PowerAxes); 
@@ -180,15 +192,9 @@ function SaveFigure(handles)
             '*.bmp', 'Bitmap file (*.bmp)'; ...
             '*.fig', 'MATLAB Figure (*.fig)'};
     [file,path,indx] = uiputfile(filetypes, 'File Selection', fullfile(path, [name '.png']));
+    [~,name,ext] = fileparts(file);
     if ~isequal(file,0) && ~isequal(path,0)
-        set(handles.PowerAxes, 'Visible', 'off');
-        axes(handles.PowerAxes);
-        cla;
-        fig = gcf;
-        fig.PaperPositionMode = 'auto';
-        print(fullfile(path,file),'-dpng','-r0', '-noui');
-        set(handles.PowerAxes, 'Visible', 'on');
-        GuiPlotPowerSpectrum(handles);
+        export_fig(handles.ForcFigure, fullfile(path,file), '-m4');
     end
     
     

@@ -14,7 +14,8 @@ function [lim, h, ax] = PlotFORC(forc, Hc, Hu, Hcplot, Huplot, limit)
 % 
 % All these parameters can also be wrapped into a struct and passed as one
 % single argument.
-
+    
+    SF = []; 
     if nargin == 1
         Hc = forc.Hc; 
         Hu = forc.Hu;  
@@ -25,6 +26,7 @@ function [lim, h, ax] = PlotFORC(forc, Hc, Hu, Hcplot, Huplot, limit)
         else 
             limit = [];
         end
+        SF = forc.SF; 
         forc = forc.rho; 
     elseif nargin < 6 
         limit = [];
@@ -78,6 +80,13 @@ function [lim, h, ax] = PlotFORC(forc, Hc, Hu, Hcplot, Huplot, limit)
 %     caxis([-1 1]);
     lim = limit; 
     h = [h; mygridx; mygridy]; 
-    
+    if ~isempty(SF)
+        text(0.99, 0.99, sprintf('SF=%g', SF), ...
+                'Units', 'normalized', ...
+                'BackgroundColor', 'white', ...
+                'FontWeight', 'bold', ...
+                'HorizontalAlignment', 'right', ...
+                'VerticalAlignment', 'top'); 
+    end
     colorbar
 end

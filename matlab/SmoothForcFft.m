@@ -76,7 +76,6 @@ function [rho, SF, M, d, ps] = SmoothForcFft(M, Ha, Hb, SF)
     [~, idx] = sort(p, 'desc', 'MissingPlacement', 'first'); 
     pm = mean(r(idx(end-8:end)));
 %     plot(r, p, 'o-', r(idx(end-8:end)), p(idx(end-8:end)), 'o'); 
-    disp(pm);
     SF = round(1./((2*pm)), 2); 
     ps = p;
     d = r;
