@@ -52,30 +52,21 @@ function [rho, SF, M, d, ps] = SmoothForcFft(M, Ha, Hb, SF)
     
     f2 = (2i*pi)^2.*KX.*KY.*f; 
     
-%     d = sqrt((diag(KX)*dHa).^2+(diag(KY)*dHb).^2); 
-%     ps = movmean(abs(diag(f2).^2),10);
-%     [~, m] = nanmin(ps);
-%     
-%     if ~isempty(m)
-%         SF = round(1./(2*d(m)), 2); 
-%     else
-%         SF = 0;
-%     end
-
-    
-    r = linspace(0, 1, 40); 
+    r = linspace(0, 1, 30).^3; 
     p = zeros(length(r)-1,1);
+    tic
+    d = sqrt((KX*dHa).^2+(KY*dHb).^2); 
     for n = 1:length(r)-1
-        d = sqrt((KX*dHa).^2+(KY*dHb).^2); 
         idx = logical(r(n) <= d & d < r(n+1)); 
         p(n) = log10(mean(abs(f2(idx)).^2)); 
     end
+    toc
     r(end) = []; 
     p(abs(p)==Inf) = NaN;
     [~, idx] = sort(p, 'desc', 'MissingPlacement', 'first'); 
-    pm = mean(r(idx(end-8:end)));
+    pm = mean(r(idx(end-2:end)));
 %     plot(r, p, 'o-', r(idx(end-8:end)), p(idx(end-8:end)), 'o'); 
-    SF = round(1./((2*pm)), 2); 
+    SF = round(1./((2.5*pm)), 2); 
     ps = p;
     d = r;
     

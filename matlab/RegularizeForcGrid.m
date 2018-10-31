@@ -29,8 +29,6 @@ function grid = RegularizeForcGrid(M, Ha, Hb)
     
     idx = ~isnan(Hb); 
     idx = idx(:);
-    disp('regularize'); 
-    tic
     Has = Ha(1,:);
     N = floor(size(Ha,1)/2); 
     N2 = floor(size(Ha,1)+N-size(Ha,2)+1); 
@@ -45,7 +43,6 @@ function grid = RegularizeForcGrid(M, Ha, Hb)
 %         regHb(:,n) = [Hb(1:(size(M,2)-n),end); Hb(:,n); zeros(n,1)];
         regM(:,n) = [NaN(size(M,2)-n,1); M(:,n); NaN(n,1)];
     end
-    toc
     regM = regM(1:length(Hbs),:); 
 %     f = scatteredInterpolant(HB(~isnan(regM)), HA(~isnan(regM)), regM(~isnan(regM)),  'linear', 'none');
     
