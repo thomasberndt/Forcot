@@ -73,18 +73,11 @@ function [rho, SF, M, d, ps] = SmoothForcFft(M, Ha, Hb, SF)
     end
     r(end) = []; 
     p(abs(p)==Inf) = NaN;
-    [~, pm] = nanmin(p); 
-    idx = logical(r>r(pm)*0.5 & r<r(pm)*2);
-    pf = polyfit(r(idx), p(idx)', 2); 
-    pd = polyder(pf); 
-    pm = roots(pd); 
-%     plot(r, p, 'o-', r, polyval(pf, r), '-', pm, polyval(pf, pm), 's'); 
-
-    SF = round(1./sqrt(2*pm), 2); 
-    if isempty(pm)
-        [~, pm] = min(p); 
-        SF = round(1./sqrt(2*r(pm)), 2);
-    end
+    [~, idx] = sort(p, 'desc', 'MissingPlacement', 'first'); 
+    pm = mean(r(idx(end-8:end)));
+%     plot(r, p, 'o-', r(idx(end-8:end)), p(idx(end-8:end)), 'o'); 
+    disp(pm);
+    SF = round(1./((2*pm)), 2); 
     ps = p;
     d = r;
     
