@@ -52,23 +52,25 @@ function [rho, SF, M, d, ps] = SmoothForcFft(M, Ha, Hb, SF)
     
     f2 = (2i*pi)^2.*KX.*KY.*f; 
     
-    r = linspace(0, 1, 30).^3; 
-    p = zeros(length(r)-1,1);
-    tic
-    d = sqrt((KX*dHa).^2+(KY*dHb).^2); 
-    for n = 1:length(r)-1
-        idx = logical(r(n) <= d & d < r(n+1)); 
-        p(n) = log10(mean(abs(f2(idx)).^2)); 
+    if nargin ~= 2
+        r = linspace(0, 1, 30).^3; 
+        p = zeros(length(r)-1,1);
+        tic
+        d = sqrt((KX*dHa).^2+(KY*dHb).^2); 
+        for n = 1:length(r)-1
+            idx = logical(r(n) <= d & d < r(n+1)); 
+            p(n) = log10(mean(abs(f2(idx)).^2)); 
+        end
+        toc
+        r(end) = []; 
+        p(abs(p)==Inf) = NaN;
+        [~, idx] = sort(p, 'desc', 'MissingPlacement', 'first'); 
+        pm = mean(r(idx(end-2:end)));
+    %     plot(r, p, 'o-', r(idx(end-8:end)), p(idx(end-8:end)), 'o'); 
+        SF = round(1./((2.5*pm)), 2); 
+        ps = p;
+        d = r;
     end
-    toc
-    r(end) = []; 
-    p(abs(p)==Inf) = NaN;
-    [~, idx] = sort(p, 'desc', 'MissingPlacement', 'first'); 
-    pm = mean(r(idx(end-2:end)));
-%     plot(r, p, 'o-', r(idx(end-8:end)), p(idx(end-8:end)), 'o'); 
-    SF = round(1./((2.5*pm)), 2); 
-    ps = p;
-    d = r;
     
     filter = exp(-2*pi^2*SF^2.*((KX*dHa).^2+(KY*dHb).^2)); 
 %     filter = sech(pi^2*SF^2*((KX*dHa).^2+(KY*dHb).^2));
@@ -83,8 +85,10 @@ function [rho, SF, M, d, ps] = SmoothForcFft(M, Ha, Hb, SF)
         forc.rho = rho; 
         forc.M = M; 
         forc.SF = SF; 
-        forc.d = d;
-        forc.PowerSpectrum = ps;
+        if nargin ~= 2
+            forc.d = d;
+            forc.PowerSpectrum = ps;
+        end
         rho = forc;
     end
 end

@@ -22,7 +22,7 @@ function varargout = ForcGui(varargin)
 
 % Edit the above text to modify the response to help ForcGui
 
-% Last Modified by GUIDE v2.5 31-Oct-2018 11:01:15
+% Last Modified by GUIDE v2.5 31-Oct-2018 15:14:33
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -139,6 +139,7 @@ function handles = LoadForc(handles)
     handles.n = get(handles.FileListBox, 'Value');
     handles.filename = sprintf('%s%s', handles.pathname, handles.files{handles.n}); 
     try
+        handles.manualSF = [];
         handles.princeton = LoadAndProcessPrincetonForc(handles.filename); 
         set(handles.SFTextBox, 'String', num2str(handles.princeton.forc.SF)); 
         GuiPlotPowerSpectrum(handles);
@@ -210,7 +211,25 @@ function SFTextBox_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of SFTextBox as text
 %        str2double(get(hObject,'String')) returns contents of SFTextBox as a double
-
+    SF = get(handles.SFTextBox, 'String'); 
+    goodSF = true;
+    try 
+        handles.manualSF = str2double(SF);
+    catch ME
+        goodSF = false; 
+        handles.manualSF = [];
+    end
+    if goodSF
+        try
+            handles.princeton.forc = SmoothForcFft(handles.princeton, handles.manualSF);
+            handles.princeton.forc.maxHc = 0.9*handles.princeton.forc.maxHc;
+            handles.princeton.forc.maxHu = 0.9*handles.princeton.forc.maxHu;
+            GuiPlotForc(handles);        
+        catch ME
+            axes(handles.ForcAxes); 
+            text(0.1, 0.5 ,ME.message);
+        end
+    end
 
 % --- Executes during object creation, after setting all properties.
 function SFTextBox_CreateFcn(hObject, eventdata, handles)
@@ -223,3 +242,15 @@ function SFTextBox_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on key press with focus on SFTextBox and none of its controls.
+function SFTextBox_KeyPressFcn(hObject, eventdata, handles)
+% hObject    handle to SFTextBox (see GCBO)
+% eventdata  structure with the following fields (see MATLAB.UI.CONTROL.UICONTROL)
+%	Key: name of the key that was pressed, in lower case
+%	Character: character interpretation of the key(s) that was pressed
+%	Modifier: name(s) of the modifier key(s) (i.e., control, shift) pressed
+% handles    structure with handles and user data (see GUIDATA)
+
+
