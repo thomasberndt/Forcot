@@ -65,7 +65,6 @@ function [rho, SF, M, d, ps] = SmoothForcFft(M, Ha, Hb, SF)
     
     r = linspace(0, 1, 40); 
     p = zeros(length(r)-1,1);
-    pfil = zeros(length(r)-1,1); 
     for n = 1:length(r)-1
         d = sqrt((KX*dHa).^2+(KY*dHb).^2); 
         idx = logical(r(n) <= d & d < r(n+1)); 

@@ -22,7 +22,7 @@ function varargout = ForcGui(varargin)
 
 % Edit the above text to modify the response to help ForcGui
 
-% Last Modified by GUIDE v2.5 31-Oct-2018 08:52:04
+% Last Modified by GUIDE v2.5 31-Oct-2018 11:01:15
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -135,15 +135,14 @@ end
 
 
 function handles = LoadForc(handles)
-    axes(handles.ForcAxes); 
-    cla
-    
+    cla(handles.ForcAxes); 
     handles.n = get(handles.FileListBox, 'Value');
     handles.filename = sprintf('%s%s', handles.pathname, handles.files{handles.n}); 
     try
-        handles.princeton = LoadAndProcessPrincetonForc(handles.filename);        
+        handles.princeton = LoadAndProcessPrincetonForc(handles.filename); 
+        set(handles.SFTextBox, 'String', num2str(handles.princeton.forc.SF)); 
         GuiPlotPowerSpectrum(handles);
-        GuiPlotForc(handles);         
+        GuiPlotForc(handles);        
     catch ME
         axes(handles.ForcAxes); 
         text(0.1, 0.5 ,ME.message);
@@ -201,3 +200,26 @@ function SaveFigure(handles)
     
     
     
+
+
+
+function SFTextBox_Callback(hObject, eventdata, handles)
+% hObject    handle to SFTextBox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of SFTextBox as text
+%        str2double(get(hObject,'String')) returns contents of SFTextBox as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function SFTextBox_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to SFTextBox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end

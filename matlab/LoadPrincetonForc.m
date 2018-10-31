@@ -19,9 +19,10 @@ function princeton_forc = LoadPrincetonForc(filepath)
         [pathname,filename,ext] = fileparts(filepath); 
         filename = sprintf('%s%s', filename, ext); 
     end
-
+    
     col  = 32;
     fid = fopen(filepath); 
+    
     fgetl(fid); 
     fgetl(fid); 
     fgetl(fid); 
@@ -176,7 +177,6 @@ function princeton_forc = LoadPrincetonForc(filepath)
     line = fgetl(fid); 
     line = fgetl(fid); 
     
-    
     line = fgetl(fid); 
     is_calibration = 1; 
     
@@ -246,7 +246,7 @@ function princeton_forc = LoadPrincetonForc(filepath)
         
         line = fgetl(fid);
     end
-        
+    
     fclose(fid);
         
     measurements.Ha = repmat(measurements.Hb(1,:), size(measurements.Hb,1), 1); 

@@ -29,10 +29,33 @@ function grid = RegularizeForcGrid(M, Ha, Hb)
     
     idx = ~isnan(Hb); 
     idx = idx(:);
+    disp('regularize'); 
+    tic
+    Has = Ha(1,:);
+    N = floor(size(Ha,1)/2); 
+    N2 = floor(size(Ha,1)+N-size(Ha,2)+1); 
+    Hbs = [Hb(:,end); Hb(N2+1:end,N+1)]; 
+    [HA, HB] = meshgrid(Has, Hbs); 
+    regM = NaN(sum(size(M)), size(Hb, 2));
+%     regHa = [];
+%     regHb = [];
+    for n = 1:size(Hb, 2)
+%         regHa(:,n) = [Ha(1,n)*ones(size(M,2)-n,1); Ha(:,n); Ha(1,n)*ones(n,1)];
+%         regHa(isnan(regHa(:,n)),n) = Ha(1,n);
+%         regHb(:,n) = [Hb(1:(size(M,2)-n),end); Hb(:,n); zeros(n,1)];
+        regM(:,n) = [NaN(size(M,2)-n,1); M(:,n); NaN(n,1)];
+    end
+    toc
+    regM = regM(1:length(Hbs),:); 
+%     f = scatteredInterpolant(HB(~isnan(regM)), HA(~isnan(regM)), regM(~isnan(regM)),  'linear', 'none');
     
-    f = scatteredInterpolant(Ha(idx), Hb(idx), M(idx), ...
-        'natural', 'none'); 
-    grid.M = f(grid.Ha, grid.Hb); 
+    HA = fliplr(HA); 
+    HB = fliplr(HB); 
+    regM = fliplr(regM); 
+
+    f = griddedInterpolant(HB, HA, regM,  'linear', 'none');
+    
+    grid.M = f(grid.Hb, grid.Ha); 
     grid.Ha(isnan(grid.M)) = NaN; 
     grid.Hb(isnan(grid.M)) = NaN; 
         
