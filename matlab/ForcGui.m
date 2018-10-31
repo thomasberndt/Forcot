@@ -118,6 +118,7 @@ function FileListBox_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns FileListBox contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from FileListBox
 handles = LoadForc(handles);
+figure(handles.output);
 SaveState(hObject,handles);
     
 % --- Executes during object creation, after setting all properties.
