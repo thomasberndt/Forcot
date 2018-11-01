@@ -1,5 +1,5 @@
 function princeton = LoadAndProcessPrincetonForc(filename)
-    princeton = LoadPrincetonForcFast(filename); 
+    princeton = LoadPrincetonForc(filename); 
     princeton.correctedM = DriftCorrection(princeton);
     princeton.grid = RegularizeForcGrid(princeton); 
     princeton.forc = SmoothForcFft(princeton);
