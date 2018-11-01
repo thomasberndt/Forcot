@@ -158,21 +158,59 @@ tic
         GuiPlotForc(handles);       
         toc
     catch ME
-        RaiseIssue(handles, ME); 
         axes(handles.ForcAxes); 
-        text(0.1, 0.5 ,ME.message);
+        text(0.1, 0.5, ...
+            sprintf('%s\nSending diagnostic data to the authors...\nPlease wait', ...
+            ME.message), ...
+            'VerticalAlignment', 'bottom', ...
+            'Color', 'r');
+        drawnow;
+        RaiseIssue(handles, ME); 
+        cla(handles.ForcAxes); 
+        text(0.1, 0.5, ...
+            sprintf('%s\nData sent.\nWe are working hard to fix the problem.', ...
+            ME.message), ...
+            'VerticalAlignment', 'bottom', ...
+            'Color', 'b');
+        drawnow;
     end
     
 function RaiseIssue(handles, ex)
-    url = 'https://api.github.com/repos/thomasberndt/FFT-FORC/issues'; 
+    url = 'https://api.github.com/repos/thomasberndt/FFT-FORC_issues/issues'; 
     opt = weboptions(...
-        'Username', 'thomasberndt', ...
+        'Username', 'pkurockmagbot', ...
         'Password', 'ak5Dfp*6n>s', ...
         'ContentType', 'json', ...
         'HeaderFields', {'Accept' 'application/vnd.github.v3+json'}); 
-    S = webwrite(url, ...
-        'title', ex.message, ...
-        'body', getReport(ex), opt);
+    data = struct();
+    data.title = ex.message;
+    try 
+        data.title = sprintf('%s - %s', data.title, handles.files{handles.n}); 
+    catch
+    end
+    body = getReport(ex);
+    text = []; 
+    N = 150000;
+    try
+        body = sprintf('%s\n\n%s', body, handles.filename);
+    catch
+    end
+    try
+        text = fileread(handles.filename); 
+    catch 
+    end
+    try
+        if ~isempty(text)
+            for n = 1:ceil(length(text)/N)
+                filetext = text((n-1)*N+1:min(end, n*N)); 
+                data.body = sprintf('%s\n\n%s', body, filetext); 
+                S = webwrite(url, data, opt);
+            end
+        else
+            S = webwrite(url, data, opt);
+        end
+    catch
+    end
     
 function SaveState(hObject,handles)
     guidata(hObject,handles);
