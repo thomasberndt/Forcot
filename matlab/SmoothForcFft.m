@@ -55,13 +55,11 @@ function [rho, SF, M, d, ps] = SmoothForcFft(M, Ha, Hb, SF)
     if nargin ~= 2
         r = linspace(0, 1, 30).^3; 
         p = zeros(length(r)-1,1);
-        tic
         d = sqrt((KX*dHa).^2+(KY*dHb).^2); 
         for n = 1:length(r)-1
             idx = logical(r(n) <= d & d < r(n+1)); 
             p(n) = log10(mean(abs(f2(idx)).^2)); 
         end
-        toc
         r(end) = []; 
         p(abs(p)==Inf) = NaN;
         [~, idx] = sort(p, 'desc', 'MissingPlacement', 'first'); 
