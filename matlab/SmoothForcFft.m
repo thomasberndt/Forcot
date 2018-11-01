@@ -87,6 +87,8 @@ function [rho, SF, M, d, ps] = SmoothForcFft(M, Ha, Hb, SF)
             forc.d = d;
             forc.PowerSpectrum = ps;
         end
+        idx = GetVisibleForcPart(rho, forc.Hc, forc.Hu, forc.maxHc*1.1, forc.maxHu, 'keepfirstpoint'); 
+        forc.rho(~idx) = NaN; 
         rho = forc;
     end
 end
