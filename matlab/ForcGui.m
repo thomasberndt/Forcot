@@ -136,20 +136,43 @@ end
 
 
 function handles = LoadForc(handles)
+disp('click');
+tic
     cla(handles.ForcAxes); 
     handles.n = get(handles.FileListBox, 'Value');
     handles.filename = sprintf('%s%s', handles.pathname, handles.files{handles.n}); 
     try
         handles.manualSF = [];
+        toc
+        disp('load and process'); 
+        tic
         handles.princeton = LoadAndProcessPrincetonForc(handles.filename); 
-        set(handles.SFTextBox, 'String', num2str(handles.princeton.forc.SF)); 
+        toc
+        set(handles.SFTextBox, 'String', num2str(handles.princeton.forc.SF));
+        disp('power spectrum');
+        tic
         GuiPlotPowerSpectrum(handles);
-        GuiPlotForc(handles);        
+        toc
+        disp('plotting');
+        tic
+        GuiPlotForc(handles);       
+        toc
     catch ME
+        RaiseIssue(handles, ME); 
         axes(handles.ForcAxes); 
         text(0.1, 0.5 ,ME.message);
     end
     
+function RaiseIssue(handles, ex)
+    url = 'https://api.github.com/repos/thomasberndt/FFT-FORC/issues'; 
+    opt = weboptions(...
+        'Username', 'thomasberndt', ...
+        'Password', 'ak5Dfp*6n>s', ...
+        'ContentType', 'json', ...
+        'HeaderFields', {'Accept' 'application/vnd.github.v3+json'}); 
+    S = webwrite(url, ...
+        'title', ex.message, ...
+        'body', getReport(ex), opt);
     
 function SaveState(hObject,handles)
     guidata(hObject,handles);
