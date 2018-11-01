@@ -175,12 +175,18 @@ function princeton_forc = LoadPrincetonForc(filepath)
     line = fgetl(fid); 
     line = fgetl(fid); 
     line = fgetl(fid); 
-    line = fgetl(fid); 
+    
+    contains_temperature = contains(line, 'Temperature','IgnoreCase',true); 
     
     line = fgetl(fid); 
+    
     is_calibration = 1; 
     
     N = metadata.script.NForc; 
+    numdat = metadata.script.NumberOfData;
+    maxn = (N+.5) - sqrt((N+.5)^2-numdat);
+    maxn = ceil(maxn);
+    
     if isnan(N)
         [~, filename, ext] = fileparts(filepath); 
         ME = MException('Forc:InvalidFileFormat', ...
@@ -197,10 +203,6 @@ function princeton_forc = LoadPrincetonForc(filepath)
     calibration.T = NaN*zeros(1,N); 
     calibration.t = NaN*zeros(1,N); 
     
-    n = 0; 
-    b = 0;
-    time = 0; 
-    last_H = 0; 
     t_rev = metadata.script.PauseReversal; 
     t_sat = metadata.script.PauseSaturation;
     t_cal = metadata.script.PauseCalibration; 
@@ -208,47 +210,49 @@ function princeton_forc = LoadPrincetonForc(filepath)
     t_slew = metadata.script.SlewRate; 
     t_sat_to_cal = (metadata.script.HSat - metadata.script.HCal) / t_slew; 
     
-    while ischar(line) && ~contains(line, 'MicroMag')
-        if isempty(line)
-            is_calibration = ~is_calibration;
-        else
-            C = sscanf(line, '%g,%g,%g');
-            if is_calibration
-                time = time + t_sat + t_sat_to_cal + t_cal; 
-                n = n + 1;
-                b = 0;
-                calibration.H(n) = C(1); 
-                calibration.M(n) = C(2); 
-                calibration.t(n) = time; 
-                if length(C) == 3 
-                    calibration.T(n) = C(3); 
-                end
-                last_H = C(1); 
-                time = time + t_rev; 
-            else
-                time = time + t_slew * abs(last_H - C(1)) + t_avg; 
-                last_H = C(1); 
-                b = b + 1; 
-                if b > size(measurements.M,1) 
-                    measurements.M(b,:) = NaN*zeros(1,N); 
-                    measurements.Hb(b,:) = NaN*zeros(1,N); 
-                    measurements.T(b,:) = NaN*zeros(1,N); 
-                    measurements.t(b,:) = NaN*zeros(1,N); 
-                end
-                measurements.Hb(b,n) = C(1); 
-                measurements.M(b,n) = C(2); 
-                measurements.t(b,n) = time; 
-                if length(C) == 3 
-                    measurements.T(b,n) = C(3); 
-                end
-            end
-        end
-        
-        line = fgetl(fid);
+    if contains_temperature
+        C = fscanf(fid, '%g,%g,%g'); 
+        C = reshape(C, 3, [])'; 
+    else
+        C = fscanf(fid, '%g,%g'); 
+        C = reshape(C, 2, [])'; 
+    end
+    fclose(fid);
+    
+    n = (1:N)-1; 
+    cal = (n.^2 + n + 1)'; 
+    cal(maxn+1:end) = cal(maxn) + (1:(N-maxn)) * (maxn * 2 - 1);
+    calibration.H = C(cal,1)'; 
+    calibration.M = C(cal,2)'; 
+    if contains_temperature
+        calibration.T = C(cal,3)'; 
     end
     
-    fclose(fid);
-        
+    measurements.M = NaN((maxn-1) * 2, N);
+    measurements.Hb = NaN((maxn-1) * 2, N);
+    measurements.T = NaN((maxn-1) * 2, N);
+    for k = 1:N
+        if k == N
+            id = cal(k)+1:numdat;
+        else
+            id = cal(k)+1:cal(k+1)-1;
+        end
+        measurements.M(1:length(id),k) = C(id,2); 
+        measurements.Hb(1:length(id),k) = C(id,1); 
+        if contains_temperature
+            measurements.T(1:length(id),k) = C(id,3); 
+        end        
+    end
+    
+    dt_cal = t_sat + t_sat_to_cal + t_cal;
+    dHb = diff([calibration.H(:)'; measurements.Hb]);
+    dt = t_slew * abs(dHb) + t_avg; 
+    dt(1,:) = dt(1,:) + t_rev; 
+    dt = [dt_cal * ones(1, N); dt]; 
+    t = cumsum(dt) + cumsum(nansum(dt)); 
+    calibration.t = t(1,:); 
+    measurements.t = t(2:end,:);
+    
     measurements.Ha = repmat(measurements.Hb(1,:), size(measurements.Hb,1), 1); 
     measurements.Ha(isnan(measurements.Hb)) = NaN;
     

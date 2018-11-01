@@ -20,7 +20,7 @@ function correctedM = DriftCorrection(M, t, calibration_M, calibration_t)
         calibration_t = princeton.calibration.t;
     end
 
-    f = fit(calibration_t', calibration_M' - mean(calibration_M),  ...
+    f = fit(calibration_t(:), calibration_M(:) - mean(calibration_M),  ...
             'smoothingspline', 'SmoothingParam', 1e-8);
     cor = reshape(feval(f, t), size(t)); 
     correctedM = M - cor;
