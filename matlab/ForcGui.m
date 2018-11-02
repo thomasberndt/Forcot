@@ -208,8 +208,12 @@ function TightAxis(handles)
 
 function GuiPlotPowerSpectrum(handles)
     axes(handles.PowerAxes); 
-    semilogy(handles.princeton.forc.d, handles.princeton.forc.PowerSpectrum, 'o-');
-    xlabel('Frequency [normalized]'); 
+    SFs = handles.princeton.forc.SFs;
+    PowerSpectrum = handles.princeton.forc.PowerSpectrum;
+    n = find(handles.princeton.forc.SFs >= handles.princeton.forc.SF & ...
+        ~isnan(PowerSpectrum), 1, 'first');
+    semilogy(SFs, PowerSpectrum, 'o-', SFs(n), PowerSpectrum(n), 'o');
+    xlabel('SF'); 
     ylabel('Power'); 
     grid on
     drawnow;

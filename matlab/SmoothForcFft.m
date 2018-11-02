@@ -53,21 +53,45 @@ function [rho, SF, M, d, ps] = SmoothForcFft(M, Ha, Hb, SF)
     f2 = (2i*pi)^2.*KX.*KY.*f; 
     
     if nargin ~= 2
-        r = linspace(0, 1, 30).^3; 
-        p = zeros(length(r)-1,1);
+        SFs = [0.1:0.1:3]; 
+        SFs = SFs(end:-1:1);
+        r = linspace(0.2, 1, 35).^3; 
+        r = 1./(2.5*SFs);
+        p = zeros(1,length(r)-1);
+        num = zeros(1,length(r)-1);
         d = sqrt((KX*dHa).^2+(KY*dHb).^2); 
         for n = 1:length(r)-1
             idx = logical(r(n) <= d & d < r(n+1)); 
             p(n) = log10(mean(abs(f2(idx)).^2)); 
+            num(n) = sum(idx(:));
         end
         r(end) = []; 
-        p(abs(p)==Inf) = NaN;
-        [~, idx] = sort(p, 'desc', 'MissingPlacement', 'first'); 
-        pm = mean(r(idx(end-2:end)));
+        SFs(end) = []; 
+%         p(abs(p)==Inf | isnan(p)) = NaN;
+%         outl = isoutlier(p, 'movmean', 5, 'ThresholdFactor',1); 
+        firstone = find(~isnan(p), 1, 'last'); 
+        if p(firstone) < nanmin(p(firstone-3:firstone-1))
+%             outl(firstone) = 1; 
+            p(firstone) = NaN; 
+        end
+%         p(outl) = NaN;
+        psmooth = smooth(p, 'rlowess')'; 
+        pp = sort(psmooth, 'desc', 'MissingPlacement', 'last'); 
+        [~, ~, bin] = histcounts(psmooth, linspace(nanmin(p), nanmean(pp(1:3)), 10)); 
+%         pm = r(bin==1); 
+%         pm = pm(1); 
+%         [~, idx] = sort(p, 'desc', 'MissingPlacement', 'first'); 
+%         pm = mean(r(idx(end-2:end)));
     %     plot(r, p, 'o-', r(idx(end-8:end)), p(idx(end-8:end)), 'o'); 
-        SF = round(1./((2.5*pm)), 2); 
-        ps = p;
-        d = r;
+        nbin = 1; 
+        while ~any(bin==nbin)
+            nbin = nbin + 1;
+        end
+        idx = (bin==nbin); 
+        SF = SFs(idx);
+        SF = nanmedian(SF);
+        ps = psmooth;
+        d = SFs;
     end
     
     filter = exp(-2*pi^2*SF^2.*((KX*dHa).^2+(KY*dHb).^2)); 
@@ -84,8 +108,8 @@ function [rho, SF, M, d, ps] = SmoothForcFft(M, Ha, Hb, SF)
         forc.M = M; 
         forc.SF = SF; 
         if nargin ~= 2
-            forc.d = d;
-            forc.PowerSpectrum = ps;
+            forc.SFs = d(end:-1:1);
+            forc.PowerSpectrum = ps(end:-1:1);
         end
         idx = GetVisibleForcPart(rho, forc.Hc, forc.Hu, forc.maxHc*1.1, forc.maxHu, 'keepfirstpoint'); 
         forc.rho(~idx) = NaN; 
