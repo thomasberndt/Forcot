@@ -136,27 +136,15 @@ end
 
 
 function handles = LoadForc(handles)
-disp('click');
-tic
     cla(handles.ForcAxes); 
     handles.n = get(handles.FileListBox, 'Value');
     handles.filename = sprintf('%s%s', handles.pathname, handles.files{handles.n}); 
     try
         handles.manualSF = [];
-        toc
-        disp('load and process'); 
-        tic
         handles.princeton = LoadAndProcessPrincetonForc(handles.filename); 
-        toc
         set(handles.SFTextBox, 'String', num2str(handles.princeton.forc.SF));
-        disp('power spectrum');
-        tic
-        GuiPlotPowerSpectrum(handles);
-        toc
-        disp('plotting');
-        tic
-        GuiPlotForc(handles);       
-        toc
+        GuiPlotForc(handles);  
+        GuiPlotPowerSpectrum(handles);   
     catch ME
         axes(handles.ForcAxes); 
         text(0.1, 0.5, ...
@@ -199,9 +187,9 @@ function GuiPlotForc(handles)
 function TightAxis(handles)
     outerpos = handles.ForcAxes.OuterPosition;
     ti = handles.ForcAxes.TightInset; 
-    left = outerpos(1) + 2.4*ti(1);
+    left = outerpos(1) + 2.6*ti(1);
     bottom = outerpos(2) + 2.5*ti(2);
-    ax_width = outerpos(3) - 2.2*ti(1) - ti(3);
+    ax_width = outerpos(3) - 2.3*ti(1) - ti(3);
     ax_height = outerpos(4) - 3*ti(2) - ti(4);
     handles.ForcAxes.Position = [left bottom ax_width ax_height];
 
