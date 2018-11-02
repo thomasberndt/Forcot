@@ -184,8 +184,9 @@ function princeton_forc = LoadPrincetonForc(filepath)
     
     N = metadata.script.NForc; 
     numdat = metadata.script.NumberOfData;
-    maxn = (N+.5) - sqrt((N+.5)^2-numdat);
-    maxn = ceil(maxn);
+    maxn1 = (N+.5) - sqrt((N+.5)^2-numdat);
+    maxn = ceil(maxn1);
+    addone = (maxn1 ~= maxn);
     
     if isnan(N)
         [~, filename, ext] = fileparts(filepath); 
@@ -221,16 +222,16 @@ function princeton_forc = LoadPrincetonForc(filepath)
     
     n = (1:N)-1; 
     cal = (n.^2 + n + 1)'; 
-    cal(maxn+1:end) = cal(maxn) + (1:(N-maxn)) * (maxn * 2 - 1);
+    cal(maxn+1:end) = cal(maxn) + (1:(N-maxn)) * (maxn * 2 - addone);
     calibration.H = C(cal,1)'; 
     calibration.M = C(cal,2)'; 
     if contains_temperature
         calibration.T = C(cal,3)'; 
     end
     
-    measurements.M = NaN((maxn-1) * 2, N);
-    measurements.Hb = NaN((maxn-1) * 2, N);
-    measurements.T = NaN((maxn-1) * 2, N);
+    measurements.M = NaN((maxn-1) * 2+1-addone, N);
+    measurements.Hb = NaN((maxn-1) * 2+1-addone, N);
+    measurements.T = NaN((maxn-1) * 2+1-addone, N);
     for k = 1:N
         if k == N
             id = cal(k)+1:numdat;
