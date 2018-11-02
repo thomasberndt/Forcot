@@ -165,52 +165,24 @@ tic
             'VerticalAlignment', 'bottom', ...
             'Color', 'r');
         drawnow;
-        RaiseIssue(handles, ME); 
+        sent = RaiseIssue(handles, ME); 
         cla(handles.ForcAxes); 
-        text(0.1, 0.5, ...
-            sprintf('%s\nData sent.\nWe are working hard to fix the problem.', ...
-            ME.message), ...
-            'VerticalAlignment', 'bottom', ...
-            'Color', 'b');
+        if sent
+            text(0.1, 0.5, ...
+                sprintf('%s\nData sent.\nWe are working hard to fix the problem.', ...
+                ME.message), ...
+                'VerticalAlignment', 'bottom', ...
+                'Color', 'b');
+        else
+            text(0.1, 0.5, ...
+                sprintf('%s\nDiagnosic data could not be sent.\nYou can help improve this software by sending the FORC diagram \n to the authors at thomas.andreas.berndt@gmail.com', ...
+                ME.message), ...
+                'VerticalAlignment', 'bottom', ...
+                'Color', [125 125 0]);
+        end
         drawnow;
     end
     
-function RaiseIssue(handles, ex)
-    url = 'https://api.github.com/repos/thomasberndt/FFT-FORC_issues/issues'; 
-    opt = weboptions(...
-        'Username', 'pkurockmagbot', ...
-        'Password', 'ak5Dfp*6n>s', ...
-        'ContentType', 'json', ...
-        'HeaderFields', {'Accept' 'application/vnd.github.v3+json'}); 
-    data = struct();
-    data.title = ex.message;
-    try 
-        data.title = sprintf('%s - %s', data.title, handles.files{handles.n}); 
-    catch
-    end
-    body = getReport(ex);
-    text = []; 
-    N = 150000;
-    try
-        body = sprintf('%s\n\n%s', body, handles.filename);
-    catch
-    end
-    try
-        text = fileread(handles.filename); 
-    catch 
-    end
-    try
-        if ~isempty(text)
-            for n = 1:ceil(length(text)/N)
-                filetext = text((n-1)*N+1:min(end, n*N)); 
-                data.body = sprintf('%s\n\n%s', body, filetext); 
-                S = webwrite(url, data, opt);
-            end
-        else
-            S = webwrite(url, data, opt);
-        end
-    catch
-    end
     
 function SaveState(hObject,handles)
     guidata(hObject,handles);
