@@ -47,14 +47,30 @@ function [lim, h, ax] = PlotFORC(forc, Hc, Hu, Hcplot, Huplot, limit)
     
 %     forc = forc / limit;
 %     forccolors = LabColors(0, linspace(0, 1, 101));
-    forccolors = ones(101,3); 
-    forccolors(1:50,1) = linspace(0, 1, 50); 
-    forccolors(1:50,2) = linspace(0, 1, 50); 
-    forccolors(52:101,2) = linspace(1, 0, 50); 
-    forccolors(52:101,3) = linspace(1, 0, 50); 
-    vl = linspace(-limit, limit, 20);  
-    [~, h] = contourf(Hc*1000, Hu*1000, forc, vl, 'LineColor', 0.2*[1 1 1]);
+    forccolors = ones(1001,3); 
+    w = 3;
+    m = -1.5; 
+%     forccolors(1:50,1) = linspace(0, 1, 50).^w; 
+%     forccolors(1:50,2) = linspace(0, 1, 50).^w; 
+%     forccolors(52:101,2) = linspace(1, 0, 50).^w; 
+%     forccolors(52:101,3) = linspace(1, 0, 50).^w; 
+    
+    forccolors(1:500,1) = logspace(m, 0, 500); 
+    forccolors(1:500,2) = logspace(m, 0, 500); 
+    forccolors(502:1001,2) = logspace(0, m, 500); 
+    forccolors(502:1001,3) = logspace(0, m, 500); 
+    ls = logspace(-3, 0, 30); 
+    vl = limit * [-ls(end:-1:1) ls(1:end)]; 
+%     [~, h] = contourf(Hc*1000, Hu*1000, forc, vl, 'EdgeColor', 0.2*[1 1 1]);
+    h = pcolor(Hc*1000, Hu*1000, forc); 
+    set(h, 'EdgeColor', 'none');
+    shading interp
     hold on
+    
+    ls = [10^-1.5 logspace(-1, 0, 10)]; 
+    vl = limit * [-ls(end:-1:1) ls(1:end)]; 
+    [~, h] = contour(Hc*1000, Hu*1000, forc, vl, 'EdgeColor', 0*[1 1 1]);
+    shading interp
     axis([0 Hcplot -Huplot Huplot]*1000);
     ax = gca; 
     x_gridx = repmat(ax.XTick, 2, 1); 
