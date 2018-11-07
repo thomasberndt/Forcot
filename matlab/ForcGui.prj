@@ -1,19 +1,19 @@
 <deployment-project plugin="plugin.ezdeploy" plugin-version="1.0">
-  <configuration build-checksum="3034194413" file="C:\Users\Think\Dropbox\Documents\Studies\Semester 14 Beijing Fall\FFT-FORC_priv\matlab\ForcGui.prj" location="C:\Users\Think\Dropbox\Documents\Studies\Semester 14 Beijing Fall\FFT-FORC_priv\matlab" name="ForcGui" preferred-package-location="C:\Users\Think\Dropbox\Documents\Studies\Semester 14 Beijing Fall\FFT-FORC_priv\matlab\ForcGui\for_redistribution" preferred-package-type="package.type.exe" target="target.ezdeploy.standalone" target-name="Application Compiler">
+  <configuration build-checksum="3957010721" file="C:\Users\Think\Dropbox\Documents\Studies\Semester 14 Beijing Fall\FFT-FORC_priv\matlab\ForcGui.prj" location="C:\Users\Think\Dropbox\Documents\Studies\Semester 14 Beijing Fall\FFT-FORC_priv\matlab" name="ForcGui" preferred-package-location="C:\Users\Think\Dropbox\Documents\Studies\Semester 14 Beijing Fall\FFT-FORC_priv\matlab\ForcGui\for_redistribution" preferred-package-type="package.type.exe" target="target.ezdeploy.standalone" target-name="Application Compiler">
     <param.appname>Forc</param.appname>
     <param.icon />
     <param.icons />
-    <param.version>1.0</param.version>
+    <param.version>0.1</param.version>
     <param.authnamewatermark>Thomas A. Berndt</param.authnamewatermark>
     <param.email>thomas.andreas.berndt@gmail.com</param.email>
     <param.company />
     <param.summary />
     <param.description />
-    <param.screenshot />
+    <param.screenshot>${PROJECT_ROOT}\splash.png</param.screenshot>
     <param.guid />
     <param.installpath.string>\Forc\</param.installpath.string>
     <param.installpath.combo>option.installpath.programfiles</param.installpath.combo>
-    <param.logo />
+    <param.logo>${PROJECT_ROOT}\splash.png</param.logo>
     <param.install.notes />
     <param.target.install.notes />
     <param.intermediate>${PROJECT_ROOT}\ForcGui\for_testing</param.intermediate>
@@ -40,15 +40,12 @@
     <unset>
       <param.icon />
       <param.icons />
-      <param.version />
       <param.company />
       <param.summary />
       <param.description />
-      <param.screenshot />
       <param.guid />
       <param.installpath.string />
       <param.installpath.combo />
-      <param.logo />
       <param.install.notes />
       <param.target.install.notes />
       <param.intermediate />

@@ -22,7 +22,7 @@ function varargout = ForcGui(varargin)
 
 % Edit the above text to modify the response to help ForcGui
 
-% Last Modified by GUIDE v2.5 02-Nov-2018 16:19:06
+% Last Modified by GUIDE v2.5 05-Nov-2018 15:27:12
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -59,8 +59,11 @@ handles.ForcFigure = figure();
 
 pos = hObject.OuterPosition; 
 
-hObject.OuterPosition = [20 50 pos(3) pos(4)]; 
+myunits = get(hObject, 'Units');  
+hObject.OuterPosition = [10 10 pos(3) pos(4)]; 
+set(hObject, 'Units', 'pixels'); 
 pos = hObject.OuterPosition; 
+set(hObject, 'Units', myunits); 
 handles.ForcFigure.OuterPosition = [pos(1)+pos(3) pos(2) pos(4) pos(4)]; 
 handles.ForcAxes = axes;
 
@@ -186,25 +189,28 @@ function handles = LoadForc(handles)
     
     
 function handles = LoadState(handles)
-    stufftoload = load('programsettings.mat'); 
-    stufftoload = stufftoload.stufftosave; 
-    if isfield(stufftoload, 'pathname')
-        handles.pathname = stufftoload.pathname; 
-    end
-    if isfield(stufftoload, 'files')
-        handles.files = stufftoload.files; 
-        set(handles.FileListBox, 'String', handles.files);        
-    end
-    if isfield(stufftoload, 'ext')
-        handles.ext = stufftoload.ext; 
-    end
-    if isfield(stufftoload, 'n')
-        handles.n = stufftoload.n; 
-        set(handles.FileListBox, 'Value',  handles.n);
-        try
-            LoadForc(handles);
-        catch
+    try
+        stufftoload = load('programsettings.mat'); 
+        stufftoload = stufftoload.stufftosave; 
+        if isfield(stufftoload, 'pathname')
+            handles.pathname = stufftoload.pathname; 
         end
+        if isfield(stufftoload, 'files')
+            handles.files = stufftoload.files; 
+            set(handles.FileListBox, 'String', handles.files);        
+        end
+        if isfield(stufftoload, 'ext')
+            handles.ext = stufftoload.ext; 
+        end
+        if isfield(stufftoload, 'n')
+            handles.n = stufftoload.n; 
+            set(handles.FileListBox, 'Value',  handles.n);
+            try
+                LoadForc(handles);
+            catch
+            end
+        end
+    catch
     end
     
 function SaveState(hObject,handles)
@@ -288,8 +294,8 @@ function SFTextBox_Callback(hObject, eventdata, handles)
     if goodSF
         try
             handles.princeton.forc = SmoothForcFft(handles.princeton, handles.manualSF);
-            handles.princeton.forc.maxHc = str2double(get(handles.Hc_TextBox, 'string'));
-            handles.princeton.forc.maxHu = str2double(get(handles.Hu_TextBox, 'string'));
+            handles.princeton.forc.maxHc = str2double(get(handles.Hc_TextBox, 'string'))/1000;
+            handles.princeton.forc.maxHu = str2double(get(handles.Hu_TextBox, 'string'))/1000;
             GuiPlotForc(handles);        
         catch ME
             axes(handles.ForcAxes); 
@@ -344,8 +350,8 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 function handles = SetAxisLimits(handles)
-    handles.princeton.forc.maxHc = str2double(get(handles.Hc_TextBox, 'string'));
-    handles.princeton.forc.maxHu = str2double(get(handles.Hu_TextBox, 'string'));
+    handles.princeton.forc.maxHc = str2double(get(handles.Hc_TextBox, 'string'))/1000;
+    handles.princeton.forc.maxHu = str2double(get(handles.Hu_TextBox, 'string'))/1000;
     axis(handles.ForcAxes, [0 handles.princeton.forc.maxHc ...
         -handles.princeton.forc.maxHu handles.princeton.forc.maxHu]); 
 
