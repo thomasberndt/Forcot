@@ -35,6 +35,13 @@ function princeton_forc = LoadPrincetonForc(filepath)
         metadata.instrument.SoftwareVersion = line(col:end);
         line = fgetl(fid); 
         metadata.instrument.UnitsOfMeasure = line(col:end);
+        if strcmpi(metadata.instrument.UnitsOfMeasure, 'cgs')
+            unitsH = 1e-4; 
+            unitsM = 1e-3; 
+        else
+            unitsH = 1;
+            unitsM = 1; 
+        end
         if ~contains(metadata.instrument.Configuration, 'AGM', 'IgnoreCase', true)
             line = fgetl(fid); 
             metadata.instrument.TemperatureIn = line(col:end);
@@ -50,19 +57,19 @@ function princeton_forc = LoadPrincetonForc(filepath)
         line = fgetl(fid); 
         metadata.script.AveragingTime = str2double(line(col:end));
         line = fgetl(fid); 
-        metadata.script.Hb1 = str2double(line(col:end));
+        metadata.script.Hb1 = str2double(line(col:end)) * unitsH;
         line = fgetl(fid); 
-        metadata.script.Hb2 = str2double(line(col:end));
+        metadata.script.Hb2 = str2double(line(col:end)) * unitsH;
         line = fgetl(fid); 
-        metadata.script.Hc1 = str2double(line(col:end));
+        metadata.script.Hc1 = str2double(line(col:end)) * unitsH;
         line = fgetl(fid); 
-        metadata.script.Hc2 = str2double(line(col:end));
+        metadata.script.Hc2 = str2double(line(col:end)) * unitsH;
         line = fgetl(fid); 
-        metadata.script.HCal = str2double(line(col:end));
+        metadata.script.HCal = str2double(line(col:end)) * unitsH;
         line = fgetl(fid); 
         metadata.script.HNcr = str2double(line(col:end));
         line = fgetl(fid); 
-        metadata.script.HSat = str2double(line(col:end));
+        metadata.script.HSat = str2double(line(col:end)) * unitsH;
         line = fgetl(fid); 
         metadata.script.NForc = str2double(line(col:end));
         line = fgetl(fid); 
@@ -72,16 +79,16 @@ function princeton_forc = LoadPrincetonForc(filepath)
         line = fgetl(fid); 
         metadata.script.PauseSaturation = str2double(line(col:end));
         line = fgetl(fid); 
-        metadata.script.SlewRate = str2double(line(col:end));
+        metadata.script.SlewRate = str2double(line(col:end)) * unitsH;
         line = fgetl(fid); 
         metadata.script.Smoothing = str2double(line(col:end));
         
         fgetl(fid); 
         
         line = fgetl(fid); 
-        metadata.settings.FieldRange = str2double(line(col:end));
+        metadata.settings.FieldRange = str2double(line(col:end)) * unitsH;
         line = fgetl(fid); 
-        metadata.settings.MomentRange = str2double(line(col:end));
+        metadata.settings.MomentRange = str2double(line(col:end)) * unitsM;
         line = fgetl(fid); 
         metadata.measurement.TemperatureMeasured = line(col:end);
         contains_temperature = ~contains(line, 'N/A','IgnoreCase',true); 
@@ -91,9 +98,9 @@ function princeton_forc = LoadPrincetonForc(filepath)
         metadata.measurement.ElapsedTime = str2double(line(col:end));
         if ~contains(metadata.instrument.Configuration, 'AGM', 'IgnoreCase', true)
             line = fgetl(fid); 
-            metadata.processing.SlopeCorrection = line(col:end);
+            metadata.processing.SlopeCorrection = line(col:end) * unitsH;
             line = fgetl(fid); 
-            metadata.characterization.Saturation = line(col:end);
+            metadata.characterization.Saturation = line(col:end) * unitsM;
         end
         line = fgetl(fid); 
         metadata.script.NumberOfData = str2double(line(col:end));
@@ -115,6 +122,13 @@ function princeton_forc = LoadPrincetonForc(filepath)
         metadata.instrument.SoftwareVersion = line(col:end);
         line = fgetl(fid); 
         metadata.instrument.UnitsOfMeasure = line(col:end);
+        if strcmpi(metadata.instrument.UnitsOfMeasure, 'cgs')
+            unitsH = 1e-4; 
+            unitsM = 1e-3; 
+        else
+            unitsH = 1;
+            unitsM = 1; 
+        end
         line = fgetl(fid); 
         metadata.instrument.TemperatureIn = line(col:end);
         line = fgetl(fid); 
@@ -128,11 +142,11 @@ function princeton_forc = LoadPrincetonForc(filepath)
         line = fgetl(fid); 
         line = fgetl(fid); 
         line = fgetl(fid); 
-        metadata.settings.FieldRange = str2double(line(col:end));
+        metadata.settings.FieldRange = str2double(line(col:end)) * unitsH;
         line = fgetl(fid); 
-        metadata.settings.FieldCommand = str2double(line(col:end));
+        metadata.settings.FieldCommand = str2double(line(col:end)) * unitsH;
         line = fgetl(fid); 
-        metadata.settings.MomentRange = str2double(line(col:end));
+        metadata.settings.MomentRange = str2double(line(col:end)) * unitsM;
         line = fgetl(fid); 
         metadata.settings.AveragingTime = str2double(line(col:end));
         line = fgetl(fid); 
@@ -158,7 +172,7 @@ function princeton_forc = LoadPrincetonForc(filepath)
         line = fgetl(fid); 
         metadata.measurement.Description = line(col:end);
         line = fgetl(fid); 
-        metadata.measurement.FieldMeasured = str2double(line(col:end));
+        metadata.measurement.FieldMeasured = str2double(line(col:end)) * unitsH;
         line = fgetl(fid); 
         metadata.measurement.TemperatureMeasured = str2double(line(col:end));
         line = fgetl(fid); 
@@ -218,19 +232,19 @@ function princeton_forc = LoadPrincetonForc(filepath)
         line = fgetl(fid); 
         metadata.script.AveragingTime = str2double(line(col:end));
         line = fgetl(fid); 
-        metadata.script.Hb1 = str2double(line(col:end));
+        metadata.script.Hb1 = str2double(line(col:end)) * unitsH;
         line = fgetl(fid); 
-        metadata.script.Hb2 = str2double(line(col:end));
+        metadata.script.Hb2 = str2double(line(col:end)) * unitsH;
         line = fgetl(fid); 
-        metadata.script.Hc1 = str2double(line(col:end));
+        metadata.script.Hc1 = str2double(line(col:end)) * unitsH;
         line = fgetl(fid); 
-        metadata.script.Hc2 = str2double(line(col:end));
+        metadata.script.Hc2 = str2double(line(col:end)) * unitsH;
         line = fgetl(fid); 
-        metadata.script.HCal = str2double(line(col:end));
+        metadata.script.HCal = str2double(line(col:end)) * unitsH;
         line = fgetl(fid); 
         metadata.script.HNcr = str2double(line(col:end));
         line = fgetl(fid); 
-        metadata.script.HSat = str2double(line(col:end));
+        metadata.script.HSat = str2double(line(col:end)) * unitsH;
         line = fgetl(fid); 
         metadata.script.NForc = str2double(line(col:end));
         line = fgetl(fid); 
@@ -240,7 +254,7 @@ function princeton_forc = LoadPrincetonForc(filepath)
         line = fgetl(fid); 
         metadata.script.PauseSaturation = str2double(line(col:end));
         line = fgetl(fid); 
-        metadata.script.SlewRate = str2double(line(col:end));
+        metadata.script.SlewRate = str2double(line(col:end)) * unitsH;
         line = fgetl(fid); 
         metadata.script.Smoothing = str2double(line(col:end));
         line = fgetl(fid); 
@@ -263,10 +277,14 @@ function princeton_forc = LoadPrincetonForc(filepath)
     end
     
     is_calibration = 1; 
-    
+        
     N = metadata.script.NForc; 
     numdat = metadata.script.NumberOfData;
-    Nsmooth = metadata.script.Smoothing; 
+    if ~contains(metadata.instrument.Configuration, 'AGM', 'IgnoreCase', true)
+         Nsmooth = 0; 
+    else
+         Nsmooth = metadata.script.Smoothing; 
+    end
     maxn1 = (N+.5) - sqrt((N+.5+Nsmooth)^2-numdat);
     maxn = ceil(maxn1);
     addone = (maxn1 ~= maxn);
@@ -306,8 +324,8 @@ function princeton_forc = LoadPrincetonForc(filepath)
     n = (1:N)-1; 
     cal = (n.^2 + n*(1+2*Nsmooth) + 1)'; 
     cal(maxn+1:end) = cal(maxn) + (1:(N-maxn)) * ((maxn+Nsmooth) * 2 - addone);
-    calibration.H = C(cal,1)'; 
-    calibration.M = C(cal,2)'; 
+    calibration.H = C(cal,1)' * unitsH; 
+    calibration.M = C(cal,2)' * unitsM; 
     if contains_temperature
         calibration.T = C(cal,3)'; 
     end
@@ -321,8 +339,8 @@ function princeton_forc = LoadPrincetonForc(filepath)
         else
             id = cal(k)+1:cal(k+1)-1;
         end
-        measurements.M(1:length(id),k) = C(id,2); 
-        measurements.Hb(1:length(id),k) = C(id,1); 
+        measurements.M(1:length(id),k) = C(id,2) * unitsM; 
+        measurements.Hb(1:length(id),k) = C(id,1) * unitsH; 
         if contains_temperature
             measurements.T(1:length(id),k) = C(id,3); 
         end        
