@@ -106,7 +106,7 @@ end
 set(handles.FileListBox, 'String', handles.files);
 set(handles.FileListBox, 'Value',  handles.n);
 try
-    LoadForc(handles);
+    handles = LoadForc(handles);
 catch
 end
 SaveState(hObject,handles);
@@ -149,7 +149,7 @@ end
 function handles = LoadForc(handles)
     cla(handles.ForcAxes); 
     handles.n = get(handles.FileListBox, 'Value');
-    handles.filename = sprintf('%s%s', handles.pathname, handles.files{handles.n}); 
+    handles.filename = fullfile(handles.pathname, handles.files{handles.n}); 
     [~,name] = fileparts(handles.filename);
     set(handles.TitleTextBox, 'String', name); 
     try
@@ -192,33 +192,24 @@ function handles = LoadState(handles)
     try
         stufftoload = load('programsettings.mat'); 
         stufftoload = stufftoload.stufftosave; 
-        if isfield(stufftoload, 'pathname')
-            handles.pathname = stufftoload.pathname; 
-        end
-        if isfield(stufftoload, 'files')
-            handles.files = stufftoload.files; 
-            set(handles.FileListBox, 'String', handles.files);        
-        end
-        if isfield(stufftoload, 'ext')
-            handles.ext = stufftoload.ext; 
-        end
-        if isfield(stufftoload, 'n')
-            handles.n = stufftoload.n; 
-            set(handles.FileListBox, 'Value',  handles.n);
-            try
-                LoadForc(handles);
-            catch
-            end
+        if isfield(stufftoload, 'filename')
+            handles.filename = stufftoload.filename; 
+            [handles.pathname, name, handles.ext] = fileparts(handles.filename);
+            files = dir(sprintf('%s/*%s', handles.pathname, handles.ext)); 
+            handles.files = {files.name};
+            set(handles.FileListBox, 'String', handles.files);
+            handles.n = find(strcmpi(handles.files, [name handles.ext])); 
+            if ~isempty(handles.n)
+                set(handles.FileListBox, 'Value',  handles.n);
+                handles = LoadForc(handles);
+            end  
         end
     catch
     end
     
 function SaveState(hObject,handles)
     stufftosave = struct(); 
-    stufftosave.pathname = handles.pathname; 
-    stufftosave.files = handles.files; 
-    stufftosave.ext = handles.ext; 
-    stufftosave.n = handles.n; 
+    stufftosave.filename = handles.filename; 
     guidata(hObject,handles);
     save('programsettings', 'stufftosave'); 
 
