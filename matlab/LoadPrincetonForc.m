@@ -266,7 +266,8 @@ function princeton_forc = LoadPrincetonForc(filepath)
     
     N = metadata.script.NForc; 
     numdat = metadata.script.NumberOfData;
-    maxn1 = (N+.5) - sqrt((N+.5)^2-numdat);
+    Nsmooth = metadata.script.Smoothing; 
+    maxn1 = (N+.5) - sqrt((N+.5+Nsmooth)^2-numdat);
     maxn = ceil(maxn1);
     addone = (maxn1 ~= maxn);
     
@@ -303,8 +304,8 @@ function princeton_forc = LoadPrincetonForc(filepath)
     fclose(fid);
     
     n = (1:N)-1; 
-    cal = (n.^2 + n + 1)'; 
-    cal(maxn+1:end) = cal(maxn) + (1:(N-maxn)) * (maxn * 2 - addone);
+    cal = (n.^2 + n*(1+2*Nsmooth) + 1)'; 
+    cal(maxn+1:end) = cal(maxn) + (1:(N-maxn)) * ((maxn+Nsmooth) * 2 - addone);
     calibration.H = C(cal,1)'; 
     calibration.M = C(cal,2)'; 
     if contains_temperature
