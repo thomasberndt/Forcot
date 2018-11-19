@@ -53,10 +53,10 @@ function [rho, SF, M, d, ps] = SmoothForcFft(M, Ha, Hb, SF)
     f2 = (2i*pi)^2.*KX.*KY.*f; 
     
     if nargin ~= 2
-        SFs = [0.1:0.1:3]; 
+        SFs = [0.2:0.2:6]; 
         SFs = SFs(end:-1:1);
         r = linspace(0.2, 1, 35).^3; 
-        r = 1./(2.5*SFs);
+        r = 1.2./SFs;
         p = zeros(1,length(r)-1);
         num = zeros(1,length(r)-1);
         d = sqrt((KX*dHa).^2+(KY*dHb).^2); 
@@ -94,7 +94,7 @@ function [rho, SF, M, d, ps] = SmoothForcFft(M, Ha, Hb, SF)
         d = SFs;
     end
     
-    filter = exp(-2*pi^2*SF^2.*((KX*dHa).^2+(KY*dHb).^2)); 
+    filter = exp(-pi^2*SF^2.*((KX*dHa).^2+(KY*dHb).^2)/2); 
 %     filter = sech(pi^2*SF^2*((KX*dHa).^2+(KY*dHb).^2));
 
     f3 = filter.*f2;
