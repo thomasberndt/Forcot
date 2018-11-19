@@ -226,8 +226,8 @@ function TightAxis(handles)
     ti = handles.ForcAxes.TightInset; 
     left = outerpos(1) + 2.6*ti(1);
     bottom = outerpos(2) + 2.5*ti(2);
-    ax_width = outerpos(3) - 2.3*ti(1) - ti(3);
-    ax_height = outerpos(4) - 3*ti(2) - ti(4);
+    ax_width = outerpos(3) - 2.6*ti(1) - ti(3);
+    ax_height = outerpos(4) - 3.1*ti(2) - ti(4);
     handles.ForcAxes.Position = [left bottom ax_width ax_height];
 
 
