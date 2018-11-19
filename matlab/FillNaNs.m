@@ -6,7 +6,9 @@ function M = FillNaNs(M, method)
     ma = nanmax(M(:)); 
     mi = nanmin(M(:)); 
     
-    if strcmpi(method, 'mirror')
+    if strcmpi(method, 'zeros')
+        M(isnan(M)) = 0; 
+    elseif strcmpi(method, 'mirror')
         for n = 1:size(M, 2)
             f = find(~isnan(M(:,n)), 1, 'first'); 
             if ~isempty(f)
