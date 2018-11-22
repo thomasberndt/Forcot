@@ -62,8 +62,8 @@ function [rho, SF, M, d, ps] = SmoothForcFft(M, Ha, Hb, SF)
         d = sqrt((KX*dHa).^2+(KY*dHb).^2); 
         for n = 1:length(r)-1
             idx = logical(r(n) <= d & d < r(n+1)); 
-            p(n) = log10(mean(abs(f2(idx)).^2)); 
-            num(n) = sum(idx(:));
+            p(n) = log10(nanmean(abs(f2(idx)).^2)); 
+            num(n) = nansum(idx(:));
         end
         r(end) = []; 
         SFs(end) = []; 
@@ -89,7 +89,7 @@ function [rho, SF, M, d, ps] = SmoothForcFft(M, Ha, Hb, SF)
         end
         idx = (bin==nbin); 
         SF = SFs(idx);
-        SF = nanmedian(SF);
+        SF = nanmin(SF);
         ps = psmooth;
         d = SFs;
     end

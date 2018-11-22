@@ -237,7 +237,7 @@ function GuiPlotPowerSpectrum(handles)
     PowerSpectrum = handles.princeton.forc.PowerSpectrum;
     n = find(handles.princeton.forc.SFs >= handles.princeton.forc.SF & ...
         ~isnan(PowerSpectrum), 1, 'first');
-    semilogy(SFs, PowerSpectrum, 'o-', SFs(n), PowerSpectrum(n), 'o');
+    plot(SFs, PowerSpectrum, 'o-', SFs(n), PowerSpectrum(n), 'o');
     xlabel('SF'); 
     ylabel('Power'); 
     grid on
