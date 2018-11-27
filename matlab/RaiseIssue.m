@@ -1,4 +1,7 @@
 function success = RaiseIssue(handles, ex)
+    if nargin < 2
+        ex = handles.ME; 
+    end
     
     opt = weboptions(...
         'Username', 'pkurockmagbot', ...

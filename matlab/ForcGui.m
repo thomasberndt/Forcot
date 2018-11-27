@@ -70,7 +70,7 @@ handles.ForcAxes = axes;
 TightAxis(handles); 
 
 set(handles.ForcFigure, 'Color', 'w');
-handles = LoadState(handles);
+handles = LoadState(hObject, handles);
 
 % Update handles structure
 guidata(hObject, handles);
@@ -87,7 +87,11 @@ function varargout = ForcGui_OutputFcn(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Get default command line output from handles structure
-varargout{1} = handles.output;
+if isfield(handles, 'output')
+    varargout{1} = handles.output;
+else 
+    varargout{1} = '';
+end
 
 
 % --- Executes on button press in OpenButton.
@@ -106,7 +110,7 @@ end
 set(handles.FileListBox, 'String', handles.files);
 set(handles.FileListBox, 'Value',  handles.n);
 try
-    handles = LoadForc(handles);
+    handles = LoadForc(hObject, handles);
 catch
 end
 SaveState(hObject,handles);
@@ -128,7 +132,7 @@ function FileListBox_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns FileListBox contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from FileListBox
-handles = LoadForc(handles);
+handles = LoadForc(hObject, handles);
 figure(handles.output);
 SaveState(hObject,handles);
     
@@ -146,7 +150,7 @@ end
 
 
 
-function handles = LoadForc(handles)
+function handles = LoadForc(hObject, handles)
     cla(handles.ForcAxes); 
     handles.n = get(handles.FileListBox, 'Value');
     handles.filename = fullfile(handles.pathname, handles.files{handles.n}); 
@@ -161,34 +165,55 @@ function handles = LoadForc(handles)
         GuiPlotForc(handles);  
         GuiPlotPowerSpectrum(handles);   
     catch ME
-        axes(handles.ForcAxes); 
-        text(0.1, 0.5, ...
-            sprintf('%s\nSending diagnostic data to the authors...\nPlease wait', ...
+        axes(handles.ForcAxes);
+        handles.ME = ME; 
+        handles.MessageText = text(0.1, 0.5, ...
+            sprintf('%s\n\nWould you like to send data to the authors to assist fixing the problem?', ...
             ME.message), ...
             'VerticalAlignment', 'bottom', ...
             'Color', 'r');
-        drawnow;
-        sent = RaiseIssue(handles, ME); 
-        cla(handles.ForcAxes); 
-        if sent
-            text(0.1, 0.5, ...
-                sprintf('%s\nData sent.\nWe are working hard to fix the problem.', ...
-                ME.message), ...
-                'VerticalAlignment', 'bottom', ...
-                'Color', 'b');
-        else
-            text(0.1, 0.5, ...
-                sprintf('%s\nDiagnosic data could not be sent.\nYou can help improve this software by sending the FORC diagram \n to the authors at thomas.andreas.berndt@gmail.com', ...
-                ME.message), ...
-                'VerticalAlignment', 'bottom', ...
-                'Color', [125 125 0]);
-        end
+        handles.SendDiagnosticDataButton = uicontrol('Style','pushbutton',...
+             'String','Send data to authors', ...
+             'Units', 'normalized', ...
+             'Position',[0.15,0.3,0.25,0.08], ...
+             'Callback',{@(source, eventdata) SendDiagnosticData_Callback(source, eventdata, handles)});
+        guidata(hObject, handles);
         drawnow;
     end
     
     
+function SendDiagnosticData_Callback(source, eventdata, handles) 
+    delete(handles.MessageText);
+    delete(source); 
+    axes(handles.ForcAxes);
+    handles.MessageText = text(0.1, 0.5, ...
+            sprintf('%s\n\nSending diagnostic data to authors... please wait', ...
+            handles.ME.message), ...
+            'VerticalAlignment', 'bottom', ...
+            'Color', [.5 .5 0]);
+    drawnow;
+    try
+        sent = RaiseIssue(handles); 
+    catch
+        sent = false; 
+    end
+    delete(handles.MessageText);
+    if sent
+        handles.MessageText = text(0.1, 0.5, ...
+            sprintf('%s\nData sent.\nWe are working hard to fix the problem.', ...
+            handles.ME.message), ...
+            'VerticalAlignment', 'bottom', ...
+            'Color', 'b');
+    else
+        handles.MessageText = text(0.1, 0.5, ...
+            sprintf('%s\n\nDiagnosic data could not be sent.\nYou can help improve this software by sending the FORC diagram \n to the authors at thomas.andreas.berndt@gmail.com', ...
+            handles.ME.message), ...
+            'VerticalAlignment', 'bottom', ...
+            'Color', [1 0 0]);
+    end
+    drawnow;
     
-function handles = LoadState(handles)
+function handles = LoadState(hObject, handles)
     try
         stufftoload = load('programsettings.mat'); 
         stufftoload = stufftoload.stufftosave; 
@@ -201,13 +226,13 @@ function handles = LoadState(handles)
             handles.n = find(strcmpi(handles.files, [name handles.ext])); 
             if ~isempty(handles.n)
                 set(handles.FileListBox, 'Value',  handles.n);
-                handles = LoadForc(handles);
+                handles = LoadForc(hObject, handles);
             end  
         end
     catch
     end
     
-function SaveState(hObject,handles)
+function SaveState(hObject, handles)
     stufftosave = struct(); 
     stufftosave.filename = handles.filename; 
     guidata(hObject,handles);
@@ -411,7 +436,7 @@ function SaveAllButton_Callback(hObject, eventdata, handles)
     if ~isequal(file,0) && ~isequal(path,0)
         for n = 1:length(handles.files)
             set(handles.FileListBox, 'Value', n);
-            LoadForc(handles); 
+            LoadForc(hObject, handles); 
             file = [handles.files{n} ext]; 
             export_fig(handles.ForcFigure, fullfile(path,file), '-m4');
         end
