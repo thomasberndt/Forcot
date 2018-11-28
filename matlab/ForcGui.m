@@ -111,6 +111,7 @@ else
 end
 set(handles.FileListBox, 'String', handles.files);
 set(handles.FileListBox, 'Value',  handles.n);
+drawnow;
 try
     handles = LoadForc(hObject, handles);
 catch
@@ -215,6 +216,7 @@ function SendDiagnosticData_Callback(source, eventdata, handles)
         sent = false; 
     end
     DeleteThing(handles.MessageText);
+    DeleteThing(handles.SendDiagnosticDataButton);
     if sent
         handles.MessageText = text(0.1, 0.5, ...
             sprintf('%s\nData sent.\nWe are working hard to fix the problem.', ...
