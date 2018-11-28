@@ -55,6 +55,8 @@ function ForcGui_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for ForcGui
 handles.output = hObject;
 
+handles.MessageText = [];
+handles.SendDiagnosticDataButton = [];
 handles.ForcFigure = figure(); 
 
 pos = hObject.OuterPosition; 
@@ -148,25 +150,40 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-
+function DeleteThing(thing)
+    try
+        delete(thing);
+    catch
+    end
+    
 
 function handles = LoadForc(hObject, handles)
     cla(handles.ForcAxes); 
+    DeleteThing(handles.MessageText);
+    DeleteThing(handles.SendDiagnosticDataButton);
     handles.n = get(handles.FileListBox, 'Value');
     handles.filename = fullfile(handles.pathname, handles.files{handles.n}); 
     [~,name] = fileparts(handles.filename);
     set(handles.TitleTextBox, 'String', name); 
+    title(handles.ForcAxes, name); 
+    handles.MessageText = text(handles.ForcAxes, 0.1, 0.5, ...
+            'Loading FORC', ...
+            'VerticalAlignment', 'bottom', ...
+            'Color', 'b');
+    drawnow
     try
         handles.manualSF = [];
         handles.princeton = LoadAndProcessPrincetonForc(handles.filename); 
         set(handles.SFTextBox, 'String', num2str(handles.princeton.forc.SF));
         set(handles.Hu_TextBox, 'String', num2str(round(handles.princeton.forc.maxHu*1000)));
         set(handles.Hc_TextBox, 'String', num2str(round(handles.princeton.forc.maxHc*1000)));
+        DeleteThing(handles.MessageText);
         GuiPlotForc(handles);  
         GuiPlotPowerSpectrum(handles);   
     catch ME
         axes(handles.ForcAxes);
         handles.ME = ME; 
+        DeleteThing(handles.MessageText);
         handles.MessageText = text(0.1, 0.5, ...
             sprintf('%s\n\nWould you like to send data to the authors to assist fixing the problem?', ...
             ME.message), ...
@@ -183,8 +200,8 @@ function handles = LoadForc(hObject, handles)
     
     
 function SendDiagnosticData_Callback(source, eventdata, handles) 
-    delete(handles.MessageText);
-    delete(source); 
+    DeleteThing(handles.MessageText);
+    DeleteThing(source); 
     axes(handles.ForcAxes);
     handles.MessageText = text(0.1, 0.5, ...
             sprintf('%s\n\nSending diagnostic data to authors... please wait', ...
@@ -197,7 +214,7 @@ function SendDiagnosticData_Callback(source, eventdata, handles)
     catch
         sent = false; 
     end
-    delete(handles.MessageText);
+    DeleteThing(handles.MessageText);
     if sent
         handles.MessageText = text(0.1, 0.5, ...
             sprintf('%s\nData sent.\nWe are working hard to fix the problem.', ...
@@ -241,7 +258,6 @@ function SaveState(hObject, handles)
 function GuiPlotForc(handles)
     axes(handles.ForcAxes); 
     [~,name] = fileparts(handles.princeton.filename);
-    title(sprintf('%s', name));
     PlotFORC(handles.princeton.forc);
     title(sprintf('%s', name));
     drawnow;
