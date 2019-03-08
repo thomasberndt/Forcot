@@ -55,9 +55,9 @@ function [lim, h, ax] = PlotFORC(forc, Hc, Hu, Hcplot, Huplot, limit, PlotFirstP
     forc = squeeze(forc);
     if ~isempty(SF)
         minHc = abs(Hc(2,2)-Hc(1,1))*SF*1.5; 
-        if ~PlotFirstPointArtifact
-            forc(Hc <= minHc) = NaN;
-        end
+%         if ~PlotFirstPointArtifact
+%             forc(Hc <= minHc) = NaN;
+%         end
     end
     
     if isempty(limit)
@@ -80,6 +80,13 @@ function [lim, h, ax] = PlotFORC(forc, Hc, Hu, Hcplot, Huplot, limit, PlotFirstP
     [~, h] = contour(Hc*1000, Hu*1000, forc, vl, 'EdgeColor', 0*[1 1 1]);
     shading interp
     axis([0 Hcplot -Huplot Huplot]*1000);
+    
+    if ~isempty(SF) && ~PlotFirstPointArtifact
+        patch([0 minHc minHc 0]*1200 , ...
+            [-Huplot -Huplot Huplot Huplot]*1000, ...
+            [1 1 1], ...
+            'EdgeColor', [1 1 1]); 
+    end
     ax = gca; 
     x_gridx = repmat(ax.XTick, 2, 1); 
     x_gridy = repmat([-Huplot; Huplot]*1000, 1, length(ax.XTick));
