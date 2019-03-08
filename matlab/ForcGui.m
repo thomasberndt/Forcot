@@ -123,7 +123,7 @@ function SaveButton_Callback(hObject, eventdata, handles)
 % hObject    handle to SaveButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-SaveFigure(handles); 
+handles = SaveFigure(hObject,handles); 
 SaveState(hObject,handles);
 
 
@@ -239,6 +239,9 @@ function handles = LoadState(hObject, handles)
         if isfield(stufftoload, 'PlotFirstPointArtifact')
             handles.PlotFirstPointArtifact = stufftoload.PlotFirstPointArtifact;
         end
+        if isfield(stufftoload, 'FigurePath')
+            handles.FigurePath = stufftoload.FigurePath;
+        end
         if isfield(stufftoload, 'filename')
             handles.filename = stufftoload.filename; 
             [handles.pathname, name, handles.ext] = fileparts(handles.filename);
@@ -257,7 +260,12 @@ function handles = LoadState(hObject, handles)
 function SaveState(hObject, handles)
     stufftosave = struct(); 
     stufftosave.filename = handles.filename; 
-    stufftosave.PlotFirstPointArtifact = handles.PlotFirstPointArtifact; 
+    if isfield(handles, 'PlotFirstPointArtifact')
+        stufftosave.PlotFirstPointArtifact = handles.PlotFirstPointArtifact; 
+    end
+    if isfield(handles, 'FigurePath')
+        stufftosave.FigurePath = handles.FigurePath; 
+    end
     guidata(hObject,handles);
     save('programsettings', 'stufftosave'); 
 
@@ -294,8 +302,15 @@ function GuiPlotPowerSpectrum(handles)
     grid on
     drawnow;
     
-function SaveFigure(handles)
-    [path,name,ext] = fileparts(handles.filename);
+    function handles = SaveFigure(hObject, handles)
+
+    [defaultpath,name,ext] = fileparts(handles.filename);
+    
+    if isfield(handles, 'FigurePath') 
+        if ~isempty(handles.FigurePath) && exist(handles.FigurePath, 'dir')
+            defaultpath = handles.FigurePath;
+        end
+    end
     filetypes = {...
             '*.png', 'Portable Network Graphics file (*.png)'; ...
             '*.pdf', 'Portable Document Format (*.pdf)'; ...
@@ -305,10 +320,20 @@ function SaveFigure(handles)
             '*.tif', 'TIFF image (*.tif)'; ...
             '*.bmp', 'Bitmap file (*.bmp)'; ...
             '*.fig', 'MATLAB Figure (*.fig)'};
-    [file,path,indx] = uiputfile(filetypes, 'File Selection', fullfile(path, [name '.png']));
-    [~,name,ext] = fileparts(file);
+    [file,path,indx] = uiputfile(filetypes, 'File Selection', fullfile(defaultpath, [name '.png']));
+    
     if ~isequal(file,0) && ~isequal(path,0)
-        export_fig(handles.ForcFigure, fullfile(path,file), '-m4');
+        [~,name,ext] = fileparts(file);
+        filepath = fullfile(path,file);
+        
+        handles.FigurePath = path;
+        SaveState(hObject, handles);
+        
+        export_fig(handles.ForcFigure, filepath, '-m4');
+%         handles.ForcFigure.PaperPositionMode = 'auto'; 
+%         print(handles.ForcFigure, ...
+%              filepath, ['-d' ext(2:end)],'-r0', '-bestfit')
+
     end
     
     
