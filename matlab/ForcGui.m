@@ -391,8 +391,8 @@ end
 function handles = SetAxisLimits(handles)
     handles.princeton.forc.maxHc = str2double(get(handles.Hc_TextBox, 'string'))/1000;
     handles.princeton.forc.maxHu = str2double(get(handles.Hu_TextBox, 'string'))/1000;
-    axis(handles.ForcAxes, [0 handles.princeton.forc.maxHc ...
-        -handles.princeton.forc.maxHu handles.princeton.forc.maxHu]); 
+    axis(handles.ForcAxes, [0 handles.princeton.forc.maxHc*1000 ...
+        -handles.princeton.forc.maxHu*1000 handles.princeton.forc.maxHu*1000]); 
 
 function Hc_TextBox_Callback(hObject, eventdata, handles)
 % hObject    handle to Hc_TextBox (see GCBO)
