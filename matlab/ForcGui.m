@@ -236,6 +236,9 @@ function handles = LoadState(hObject, handles)
     try
         stufftoload = load('programsettings.mat'); 
         stufftoload = stufftoload.stufftosave; 
+        if isfield(stufftoload, 'PlotFirstPointArtifact')
+            handles.PlotFirstPointArtifact = stufftoload.PlotFirstPointArtifact;
+        end
         if isfield(stufftoload, 'filename')
             handles.filename = stufftoload.filename; 
             [handles.pathname, name, handles.ext] = fileparts(handles.filename);
@@ -254,6 +257,7 @@ function handles = LoadState(hObject, handles)
 function SaveState(hObject, handles)
     stufftosave = struct(); 
     stufftosave.filename = handles.filename; 
+    stufftosave.PlotFirstPointArtifact = handles.PlotFirstPointArtifact; 
     guidata(hObject,handles);
     save('programsettings', 'stufftosave'); 
 
