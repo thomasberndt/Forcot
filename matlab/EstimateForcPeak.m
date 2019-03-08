@@ -1,4 +1,4 @@
-function limit = EstimateForcPeak(rho, Hc, Hu, maxHc, maxHu) 
+function limit = EstimateForcPeak(rho, Hc, Hu, maxHc, maxHu, minHc) 
 % Estimates the peak of the FORC that should be used for normalization. 
 % rho - The FORC distribution (matrix)
 % Hc, Hu - the grid of the FORC distribution (matrices)
@@ -6,7 +6,10 @@ function limit = EstimateForcPeak(rho, Hc, Hu, maxHc, maxHu)
 %
 % OUTPUT: 
 % limit - returns the suggested peak. 
-    f = rho(GetVisibleForcPart(rho, Hc, Hu, maxHc, maxHu, 'cropcorner'));
+    if nargin < 6
+        minHc = 0.003;
+    end
+    f = rho(GetVisibleForcPart(rho, Hc, Hu, maxHc, maxHu, 'cropcorner', minHc));
     if isempty(f)
         limit = nanmax(abs(rho));
     else

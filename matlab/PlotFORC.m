@@ -38,11 +38,16 @@ function [lim, h, ax] = PlotFORC(forc, Hc, Hu, Hcplot, Huplot, limit)
     if nargin == 3 || isempty(Huplot)
         Huplot = max(Hu(:));
     end
+    minHc = 0.003; 
     
     forc = squeeze(forc);
+    if ~isempty(SF)
+        minHc = abs(Hc(2,2)-Hc(1,1))*SF*1.5; 
+%         forc(Hc <= minHc) = NaN;
+    end
     
     if isempty(limit)
-        limit = EstimateForcPeak(forc, Hc, Hu, Hcplot, Huplot);
+        limit = EstimateForcPeak(forc, Hc, Hu, Hcplot, Huplot, minHc);
     end
     
 %     forc = forc / limit;
@@ -54,6 +59,7 @@ function [lim, h, ax] = PlotFORC(forc, Hc, Hu, Hcplot, Huplot, limit)
     set(h, 'EdgeColor', 'none');
     shading interp
     hold on
+    caxis(limit * [-1 1]);
     
     ls = [10^-1.5 logspace(-1, 0, 10)]; 
     vl = limit * [-ls(end:-1:1) ls(1:end)]; 
