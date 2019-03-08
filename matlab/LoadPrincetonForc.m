@@ -121,7 +121,7 @@ function princeton_forc = LoadPrincetonForc(filepath)
         line = fgetl(fid); 
         metadata.instrument.SoftwareVersion = line(col:end);
         line = fgetl(fid); 
-        metadata.instrument.UnitsOfMeasure = line(col:end);
+        metadata.instrument.UnitsOfMeasure = strtrim(line(col:end));
         if strcmpi(metadata.instrument.UnitsOfMeasure, 'cgs')
             unitsH = 1e-4; 
             unitsM = 1e-3; 
