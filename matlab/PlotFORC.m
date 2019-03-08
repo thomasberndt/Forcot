@@ -1,4 +1,4 @@
-function [lim, h, ax] = PlotFORC(forc, Hc, Hu, Hcplot, Huplot, limit)
+function [lim, h, ax] = PlotFORC(forc, Hc, Hu, Hcplot, Huplot, limit, PlotFirstPointArtifact)
 % Plots the FORC. 
 % forc - the FORC distribution (matrix)
 % Hc, Hu - the grid (regular or irregular) of the FORC in Tesla. 
@@ -6,6 +6,8 @@ function [lim, h, ax] = PlotFORC(forc, Hc, Hu, Hcplot, Huplot, limit)
 % Hcplot and from -Huplot to +Huplot. 
 % limit - Optional. Sets a value used for normalization. If not given, the
 % FORC is normalized by its peak value. 
+% PlotFirstPointArtifact - Optional. If 1, plots first point artifact, if 0 plots
+% first point artifact white. Default is 1.
 %
 % OUTPUT: 
 % lim - Returns the value used for normalization. 
@@ -26,10 +28,20 @@ function [lim, h, ax] = PlotFORC(forc, Hc, Hu, Hcplot, Huplot, limit)
         else 
             limit = [];
         end
+        if isfield(forc, 'PlotFirstPointArtifact')
+            PlotFirstPointArtifact = forc.PlotFirstPointArtifact; 
+        else 
+            PlotFirstPointArtifact = 1;
+        end
         SF = forc.SF; 
         forc = forc.rho; 
-    elseif nargin < 6 
-        limit = [];
+    else
+        if nargin < 6
+            limit = [];
+        end 
+        if nargin < 7
+            PlotFirstPointArtifact = 1; 
+        end
     end
     
     if nargin == 3 || isempty(Hcplot)
@@ -43,7 +55,9 @@ function [lim, h, ax] = PlotFORC(forc, Hc, Hu, Hcplot, Huplot, limit)
     forc = squeeze(forc);
     if ~isempty(SF)
         minHc = abs(Hc(2,2)-Hc(1,1))*SF*1.5; 
-%         forc(Hc <= minHc) = NaN;
+        if ~PlotFirstPointArtifact
+            forc(Hc <= minHc) = NaN;
+        end
     end
     
     if isempty(limit)

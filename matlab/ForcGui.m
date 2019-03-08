@@ -22,7 +22,7 @@ function varargout = ForcGui(varargin)
 
 % Edit the above text to modify the response to help ForcGui
 
-% Last Modified by GUIDE v2.5 05-Nov-2018 15:27:12
+% Last Modified by GUIDE v2.5 08-Mar-2019 12:35:14
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -258,6 +258,10 @@ function SaveState(hObject, handles)
     save('programsettings', 'stufftosave'); 
 
 function GuiPlotForc(handles)
+    if ~isfield(handles, 'PlotFirstPointArtifact')
+        handles.PlotFirstPointArtifact = 1;
+    end
+    handles.princeton.forc.PlotFirstPointArtifact = handles.PlotFirstPointArtifact;
     axes(handles.ForcAxes); 
     [~,name] = fileparts(handles.princeton.filename);
     PlotFORC(handles.princeton.forc);
@@ -331,6 +335,7 @@ function SFTextBox_Callback(hObject, eventdata, handles)
             handles.princeton.forc.maxHc = str2double(get(handles.Hc_TextBox, 'string'))/1000;
             handles.princeton.forc.maxHu = str2double(get(handles.Hu_TextBox, 'string'))/1000;
             GuiPlotForc(handles);        
+            SaveState(hObject, handles);
         catch ME
             axes(handles.ForcAxes); 
             text(0.1, 0.5 ,ME.message);
@@ -465,3 +470,21 @@ function SaveAllButton_Callback(hObject, eventdata, handles)
     
     
     
+
+
+% --- Executes on button press in CheckFirstPointArtifact.
+function CheckFirstPointArtifact_Callback(hObject, eventdata, handles)
+% hObject    handle to CheckFirstPointArtifact (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of CheckFirstPointArtifact
+    handles.PlotFirstPointArtifact = get(hObject,'Value'); 
+    try
+        SaveState(hObject,handles); 
+        GuiPlotForc(handles);        
+    catch ME
+        axes(handles.ForcAxes); 
+        text(0.1, 0.5 ,ME.message);
+    end
+
