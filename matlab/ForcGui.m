@@ -338,11 +338,15 @@ function GuiPlotPowerSpectrum(handles)
             '*.pdf', 'Portable Document Format (*.pdf)'; ...
             '*.eps', 'EPS file (*.eps)'; ...
             '*.jpg', 'JPEG image (*.jpg)'; ...
-            '*.svg', 'Scalable Vector Graphics file (*.svg)'; ...
             '*.tif', 'TIFF image (*.tif)'; ...
             '*.bmp', 'Bitmap file (*.bmp)'; ...
             '*.fig', 'MATLAB Figure (*.fig)'};
-    [file,path,indx] = uiputfile(filetypes, 'File Selection', fullfile(defaultpath, [name defaultext]));
+    
+    default_idx = strcmpi(filetypes(:,1), ['*' defaultext]); 
+    filetypes = vertcat(filetypes(default_idx,:), filetypes(~default_idx,:)); 
+    
+    [file,path,indx] = uiputfile(filetypes, 'File Selection', ...
+            fullfile(defaultpath, [name defaultext]));
     
     if ~isequal(file,0) && ~isequal(path,0)
         [~,name,ext] = fileparts(file);
@@ -359,8 +363,30 @@ function GuiPlotPowerSpectrum(handles)
         siz = [p(3) p(4)]; 
         ratio = siz(2) / siz(1); 
         handles.ForcFigure.PaperSize = 21*[1 ratio]; 
-        print(handles.ForcFigure, ...
-             filepath, ['-d' ext(2:end)],'-r0', '-bestfit')
+        if strcmpi(ext, '.pdf')
+            print(handles.ForcFigure, ...
+                 filepath, '-dpdf','-r0', '-bestfit');
+        elseif strcmpi(ext, '.png')
+            print(handles.ForcFigure, ...
+                 filepath, '-dpng','-r300');
+        elseif strcmpi(ext, '.eps')
+            print(handles.ForcFigure, ...
+                 filepath, '-depsc','-r300');
+        elseif strcmpi(ext, '.jpg')
+            print(handles.ForcFigure, ...
+                 filepath, '-djpeg','-r300');
+        elseif strcmpi(ext, '.svg')
+            print(handles.ForcFigure, ...
+                 filepath, '-dsvg','-r0');
+        elseif strcmpi(ext, '.tif')
+            print(handles.ForcFigure, ...
+                 filepath, '-dtiff','-r300');
+        elseif strcmpi(ext, '.bmp')
+            print(handles.ForcFigure, ...
+                 filepath, '-dbmp','-r0');
+        elseif strcmpi(ext, '.fig')
+            savefig(handles.ForcFigure, filepath);
+        end
 
     end
     
