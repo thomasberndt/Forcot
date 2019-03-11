@@ -242,6 +242,9 @@ function handles = LoadState(hObject, handles)
         if isfield(stufftoload, 'FigurePath')
             handles.FigurePath = stufftoload.FigurePath;
         end
+        if isfield(stufftoload, 'FigureExt')
+            handles.FigureExt = stufftoload.FigureExt;
+        end
         if isfield(stufftoload, 'filename')
             handles.filename = stufftoload.filename; 
             [handles.pathname, name, handles.ext] = fileparts(handles.filename);
@@ -265,6 +268,9 @@ function SaveState(hObject, handles)
     end
     if isfield(handles, 'FigurePath')
         stufftosave.FigurePath = handles.FigurePath; 
+    end
+    if isfield(handles, 'FigureExt')
+        stufftosave.FigureExt = handles.FigureExt; 
     end
     guidata(hObject,handles);
     save('programsettings', 'stufftosave'); 
@@ -315,10 +321,16 @@ function GuiPlotPowerSpectrum(handles)
     function handles = SaveFigure(hObject, handles)
 
     [defaultpath,name,ext] = fileparts(handles.filename);
+    defaultext = '.png'; 
     
     if isfield(handles, 'FigurePath') 
         if ~isempty(handles.FigurePath) && exist(handles.FigurePath, 'dir')
             defaultpath = handles.FigurePath;
+        end
+    end
+    if isfield(handles, 'FigureExt') 
+        if ~isempty(handles.FigureExt) && exist(handles.FigureExt, 'dir')
+            defaultext = handles.FigureExt;
         end
     end
     filetypes = {...
@@ -330,13 +342,14 @@ function GuiPlotPowerSpectrum(handles)
             '*.tif', 'TIFF image (*.tif)'; ...
             '*.bmp', 'Bitmap file (*.bmp)'; ...
             '*.fig', 'MATLAB Figure (*.fig)'};
-    [file,path,indx] = uiputfile(filetypes, 'File Selection', fullfile(defaultpath, [name '.png']));
+    [file,path,indx] = uiputfile(filetypes, 'File Selection', fullfile(defaultpath, [name defaultext]));
     
     if ~isequal(file,0) && ~isequal(path,0)
         [~,name,ext] = fileparts(file);
         filepath = fullfile(path,file);
         
         handles.FigurePath = path;
+        handles.FigureExt = ext; 
         SaveState(hObject, handles);
         
 %         export_fig(handles.ForcFigure, filepath, '-m4');
@@ -347,7 +360,7 @@ function GuiPlotPowerSpectrum(handles)
         ratio = siz(2) / siz(1); 
         handles.ForcFigure.PaperSize = 21*[1 ratio]; 
         print(handles.ForcFigure, ...
-             filepath, ['-d' ext(2:end)],'-r150', '-bestfit')
+             filepath, ['-d' ext(2:end)],'-r0', '-bestfit')
 
     end
     
