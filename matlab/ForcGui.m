@@ -180,6 +180,7 @@ function handles = LoadForc(hObject, handles)
         set(handles.Hc_TextBox, 'String', num2str(round(handles.princeton.forc.maxHc*1000)));
         DeleteThing(handles.MessageText);
         GuiPlotForc(handles);  
+        TightAxis(handles);
         GuiPlotPowerSpectrum(handles);   
     catch ME
         axes(handles.ForcAxes);
@@ -318,7 +319,7 @@ function GuiPlotPowerSpectrum(handles)
     grid on
     drawnow;
     
-    function handles = SaveFigure(hObject, handles)
+function handles = SaveFigure(hObject, handles)
 
     [defaultpath,name,ext] = fileparts(handles.filename);
     defaultext = '.png'; 
@@ -345,52 +346,49 @@ function GuiPlotPowerSpectrum(handles)
     default_idx = strcmpi(filetypes(:,1), ['*' defaultext]); 
     filetypes = vertcat(filetypes(default_idx,:), filetypes(~default_idx,:)); 
     
-    [file,path,indx] = uiputfile(filetypes, 'File Selection', ...
+    [file,path,~] = uiputfile(filetypes, 'File Selection', ...
             fullfile(defaultpath, [name defaultext]));
     
     if ~isequal(file,0) && ~isequal(path,0)
-        [~,name,ext] = fileparts(file);
+        [~,~,ext] = fileparts(file);
         filepath = fullfile(path,file);
-        
         handles.FigurePath = path;
         handles.FigureExt = ext; 
         SaveState(hObject, handles);
-        
-%         export_fig(handles.ForcFigure, filepath, '-m4');
-        handles.ForcFigure.PaperPositionMode = 'auto'; 
-        handles.ForcFigure.PaperUnits = 'centimeters'; 
-        p = handles.ForcFigure.Position; 
-        siz = [p(3) p(4)]; 
-        ratio = siz(2) / siz(1); 
-        handles.ForcFigure.PaperSize = 21*[1 ratio]; 
-        if strcmpi(ext, '.pdf')
-            print(handles.ForcFigure, ...
-                 filepath, '-dpdf','-r0', '-bestfit');
-        elseif strcmpi(ext, '.png')
-            print(handles.ForcFigure, ...
-                 filepath, '-dpng','-r300');
-        elseif strcmpi(ext, '.eps')
-            print(handles.ForcFigure, ...
-                 filepath, '-depsc','-r300');
-        elseif strcmpi(ext, '.jpg')
-            print(handles.ForcFigure, ...
-                 filepath, '-djpeg','-r300');
-        elseif strcmpi(ext, '.svg')
-            print(handles.ForcFigure, ...
-                 filepath, '-dsvg','-r0');
-        elseif strcmpi(ext, '.tif')
-            print(handles.ForcFigure, ...
-                 filepath, '-dtiff','-r300');
-        elseif strcmpi(ext, '.bmp')
-            print(handles.ForcFigure, ...
-                 filepath, '-dbmp','-r0');
-        elseif strcmpi(ext, '.fig')
-            savefig(handles.ForcFigure, filepath);
-        end
-
+        SaveOneFigure(handles, filepath, ext);
     end
     
-    
+function SaveOneFigure(handles, filepath, ext)
+    handles.ForcFigure.PaperPositionMode = 'auto'; 
+    handles.ForcFigure.PaperUnits = 'centimeters'; 
+    p = handles.ForcFigure.Position; 
+    siz = [p(3) p(4)]; 
+    ratio = siz(2) / siz(1); 
+    handles.ForcFigure.PaperSize = 21*[1 ratio]; 
+    if strcmpi(ext, '.pdf')
+        print(handles.ForcFigure, ...
+             filepath, '-dpdf','-r0', '-bestfit');
+    elseif strcmpi(ext, '.png')
+        print(handles.ForcFigure, ...
+             filepath, '-dpng','-r300');
+    elseif strcmpi(ext, '.eps')
+        print(handles.ForcFigure, ...
+             filepath, '-depsc','-r300');
+    elseif strcmpi(ext, '.jpg')
+        print(handles.ForcFigure, ...
+             filepath, '-djpeg','-r300');
+    elseif strcmpi(ext, '.svg')
+        print(handles.ForcFigure, ...
+             filepath, '-dsvg','-r0');
+    elseif strcmpi(ext, '.tif')
+        print(handles.ForcFigure, ...
+             filepath, '-dtiff','-r300');
+    elseif strcmpi(ext, '.bmp')
+        print(handles.ForcFigure, ...
+             filepath, '-dbmp','-r0');
+    elseif strcmpi(ext, '.fig')
+        savefig(handles.ForcFigure, filepath);
+    end
     
     
     
@@ -528,27 +526,50 @@ function SaveAllButton_Callback(hObject, eventdata, handles)
 % hObject    handle to SaveAllButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+    [defaultpath,name,ext] = fileparts(handles.filename);
+    defaultext = '.png'; 
+    
+    if isfield(handles, 'FigurePath') 
+        if ~isempty(handles.FigurePath) && exist(handles.FigurePath, 'dir')
+            defaultpath = handles.FigurePath;
+        end
+    end
+    if isfield(handles, 'FigureExt') 
+        if ~isempty(handles.FigureExt)
+            defaultext = handles.FigureExt;
+        end
+    end
     filetypes = {...
             '*.png', 'Portable Network Graphics file (*.png)'; ...
             '*.pdf', 'Portable Document Format (*.pdf)'; ...
             '*.eps', 'EPS file (*.eps)'; ...
             '*.jpg', 'JPEG image (*.jpg)'; ...
-            '*.svg', 'Scalable Vector Graphics file (*.svg)'; ...
             '*.tif', 'TIFF image (*.tif)'; ...
             '*.bmp', 'Bitmap file (*.bmp)'; ...
             '*.fig', 'MATLAB Figure (*.fig)'};
-    [file,path,indx] = uiputfile(filetypes, 'File Selection', fullfile(handles.pathname, 'forcs.png'));
-    [~,~,ext] = fileparts(file);
+    
+    default_idx = strcmpi(filetypes(:,1), ['*' defaultext]); 
+    filetypes = vertcat(filetypes(default_idx,:), filetypes(~default_idx,:)); 
+    
+    [file,path,~] = uiputfile(filetypes, 'File Selection', ...
+            fullfile(defaultpath, [name defaultext]));
+    
     if ~isequal(file,0) && ~isequal(path,0)
+        [~,~,ext] = fileparts(file);
+        handles.FigurePath = path;
+        handles.FigureExt = ext; 
+        SaveState(hObject, handles);
+        
         for n = 1:length(handles.files)
             set(handles.FileListBox, 'Value', n);
             LoadForc(hObject, handles); 
             file = [handles.files{n} ext]; 
-            export_fig(handles.ForcFigure, fullfile(path,file), '-m4');
+            filepath = fullfile(path,file);
+            SaveOneFigure(handles, filepath, ext);
         end
     end
-    
-    
+
+  
     
     
     
