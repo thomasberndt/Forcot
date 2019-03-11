@@ -1,6 +1,7 @@
 
 issues
 *.pdf
+*.eps
 *.mat
 *.png
 ~*.tmp
