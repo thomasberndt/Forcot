@@ -57,7 +57,8 @@ handles.output = hObject;
 
 handles.MessageText = [];
 handles.SendDiagnosticDataButton = [];
-handles.ForcFigure = figure(); 
+handles.ForcFigure = figure();
+set(handles.ForcFigure, 'SizeChangedFcn', {@resizeForcFigure, handles.output}); 
 
 pos = hObject.OuterPosition; 
 
@@ -69,10 +70,9 @@ set(hObject, 'Units', myunits);
 handles.ForcFigure.OuterPosition = [pos(1)+pos(3) pos(2) pos(4) pos(4)]; 
 handles.ForcAxes = axes;
 
-TightAxis(handles); 
-
 set(handles.ForcFigure, 'Color', 'w');
 handles = LoadState(hObject, handles);
+TightAxis(handles); 
 
 % Update handles structure
 guidata(hObject, handles);
@@ -281,13 +281,23 @@ function GuiPlotForc(handles)
     drawnow;
     
 function TightAxis(handles)
-    outerpos = handles.ForcAxes.OuterPosition;
+    myunits = get(handles.ForcAxes, 'Units');  
+    set(handles.ForcAxes, 'Units', 'pixels'); 
     ti = handles.ForcAxes.TightInset; 
-    left = outerpos(1) + 2.4*ti(1);
-    bottom = outerpos(2) + 2.5*ti(2);
-    ax_width = outerpos(3) - 2.8*ti(1) - ti(3);
-    ax_height = outerpos(4) - 3.1*ti(2) - ti(4);
-    handles.ForcAxes.Position = [left bottom ax_width ax_height];
+    width = handles.ForcFigure.Position(3);
+    height = handles.ForcFigure.Position(4);
+    handles.ForcAxes.Position = [...
+        ti(1) ...
+        ti(2) ...
+        width-ti(3)-ti(1)-75 ....
+        height-ti(4)-ti(2)]; 
+    set(handles.ForcAxes, 'Units', myunits); 
+    
+function resizeForcFigure(hObject, event, mainfig)
+    handles = guidata(mainfig);
+    if isfield(handles, 'ForcAxes')
+        TightAxis(handles); 
+    end
 
 
 function GuiPlotPowerSpectrum(handles)
@@ -329,10 +339,15 @@ function GuiPlotPowerSpectrum(handles)
         handles.FigurePath = path;
         SaveState(hObject, handles);
         
-        export_fig(handles.ForcFigure, filepath, '-m4');
-%         handles.ForcFigure.PaperPositionMode = 'auto'; 
-%         print(handles.ForcFigure, ...
-%              filepath, ['-d' ext(2:end)],'-r0', '-bestfit')
+%         export_fig(handles.ForcFigure, filepath, '-m4');
+        handles.ForcFigure.PaperPositionMode = 'auto'; 
+        handles.ForcFigure.PaperUnits = 'centimeters'; 
+        p = handles.ForcFigure.Position; 
+        siz = [p(3) p(4)]; 
+        ratio = siz(2) / siz(1); 
+        handles.ForcFigure.PaperSize = 21*[1 ratio]; 
+        print(handles.ForcFigure, ...
+             filepath, ['-d' ext(2:end)],'-r150', '-bestfit')
 
     end
     
