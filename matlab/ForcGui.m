@@ -329,7 +329,7 @@ function GuiPlotPowerSpectrum(handles)
         end
     end
     if isfield(handles, 'FigureExt') 
-        if ~isempty(handles.FigureExt) && exist(handles.FigureExt, 'dir')
+        if ~isempty(handles.FigureExt)
             defaultext = handles.FigureExt;
         end
     end
