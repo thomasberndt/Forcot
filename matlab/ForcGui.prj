@@ -1,9 +1,9 @@
 <deployment-project plugin="plugin.ezdeploy" plugin-version="1.0">
-  <configuration build-checksum="3957010721" file="C:\Users\Think\Dropbox\Documents\Studies\Semester 14 Beijing Fall\FFT-FORC_priv\matlab\ForcGui.prj" location="C:\Users\Think\Dropbox\Documents\Studies\Semester 14 Beijing Fall\FFT-FORC_priv\matlab" name="ForcGui" preferred-package-location="C:\Users\Think\Dropbox\Documents\Studies\Semester 14 Beijing Fall\FFT-FORC_priv\matlab\ForcGui\for_redistribution" preferred-package-type="package.type.exe" target="target.ezdeploy.standalone" target-name="Application Compiler">
+  <configuration build-checksum="1060649274" file="C:\Users\Think\Dropbox\Documents\Studies\Semester 14 Beijing Fall\FFT-FORC_priv\matlab\ForcGui.prj" location="C:\Users\Think\Dropbox\Documents\Studies\Semester 14 Beijing Fall\FFT-FORC_priv\matlab" name="ForcGui" preferred-package-location="C:\Users\Think\Dropbox\Documents\Studies\Semester 14 Beijing Fall\FFT-FORC_priv\matlab\ForcGui\for_redistribution" preferred-package-type="package.type.exe" target="target.ezdeploy.standalone" target-name="Application Compiler">
     <param.appname>Forc</param.appname>
     <param.icon />
     <param.icons />
-    <param.version>0.1</param.version>
+    <param.version>0.12</param.version>
     <param.authnamewatermark>Thomas A. Berndt</param.authnamewatermark>
     <param.email>thomas.andreas.berndt@gmail.com</param.email>
     <param.company />
@@ -76,24 +76,11 @@
     <fileset.resources />
     <fileset.package />
     <fileset.depfun>
-      <file>C:\Users\Think\Documents\MATLAB\Add-Ons\Toolboxes\altmany-export_fig-cafc7c5\code\copyfig.m</file>
-      <file>C:\Users\Think\Documents\MATLAB\Add-Ons\Toolboxes\altmany-export_fig-cafc7c5\code\crop_borders.m</file>
-      <file>C:\Users\Think\Documents\MATLAB\Add-Ons\Toolboxes\altmany-export_fig-cafc7c5\code\eps2pdf.m</file>
-      <file>C:\Users\Think\Documents\MATLAB\Add-Ons\Toolboxes\altmany-export_fig-cafc7c5\code\export_fig.m</file>
-      <file>C:\Users\Think\Documents\MATLAB\Add-Ons\Toolboxes\altmany-export_fig-cafc7c5\code\fix_lines.m</file>
-      <file>C:\Users\Think\Documents\MATLAB\Add-Ons\Toolboxes\altmany-export_fig-cafc7c5\code\ghostscript.m</file>
-      <file>C:\Users\Think\Documents\MATLAB\Add-Ons\Toolboxes\altmany-export_fig-cafc7c5\code\isolate_axes.m</file>
-      <file>C:\Users\Think\Documents\MATLAB\Add-Ons\Toolboxes\altmany-export_fig-cafc7c5\code\pdf2eps.m</file>
-      <file>C:\Users\Think\Documents\MATLAB\Add-Ons\Toolboxes\altmany-export_fig-cafc7c5\code\pdftops.m</file>
-      <file>C:\Users\Think\Documents\MATLAB\Add-Ons\Toolboxes\altmany-export_fig-cafc7c5\code\print2array.m</file>
-      <file>C:\Users\Think\Documents\MATLAB\Add-Ons\Toolboxes\altmany-export_fig-cafc7c5\code\print2eps.m</file>
-      <file>C:\Users\Think\Documents\MATLAB\Add-Ons\Toolboxes\altmany-export_fig-cafc7c5\code\read_write_entire_textfile.m</file>
-      <file>C:\Users\Think\Documents\MATLAB\Add-Ons\Toolboxes\altmany-export_fig-cafc7c5\code\user_string.m</file>
-      <file>C:\Users\Think\Documents\MATLAB\Add-Ons\Toolboxes\altmany-export_fig-cafc7c5\code\using_hg2.m</file>
       <file>${PROJECT_ROOT}\base64encode.m</file>
       <file>${PROJECT_ROOT}\DriftCorrection.m</file>
       <file>${PROJECT_ROOT}\EstimateForcPeak.m</file>
       <file>${PROJECT_ROOT}\FillNaNs.m</file>
+      <file>${PROJECT_ROOT}\GetForcColors.m</file>
       <file>${PROJECT_ROOT}\GetVisibleForcPart.m</file>
       <file>${PROJECT_ROOT}\gzipencode.m</file>
       <file>${PROJECT_ROOT}\LoadAndProcessPrincetonForc.m</file>
