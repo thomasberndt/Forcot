@@ -55,6 +55,17 @@ function ForcGui_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for ForcGui
 handles.output = hObject;
 
+thisversion = 'Forcot_WebInstaller_v0.1.3-alpha.exe';
+
+latestversion = CheckLatestVersion(); 
+if ~strcmpi(thisversion, latestversion)
+    answer = questdlg('A new version of Forcot is available. Do you want to install it?');
+    if strcmpi(answer, 'Yes')
+        filepath = DownloadLatestVersion(latestversion); 
+        InstallLatestVersion(filepath);
+    end
+end
+
 handles.MessageText = [];
 handles.SendDiagnosticDataButton = [];
 handles.ForcFigure = figure();
