@@ -238,12 +238,14 @@ function SendDiagnosticData_Callback(source, eventdata, handles)
     
 function handles = LoadState(hObject, handles)
     try
-        stufftoload = load('programsettings.mat'); 
+        stufftoload = load(fullfile(tempdir, 'Forcot_programsettings.mat')); 
         stufftoload = stufftoload.stufftosave; 
         if isfield(stufftoload, 'PlotFirstPointArtifact')
             handles.PlotFirstPointArtifact = stufftoload.PlotFirstPointArtifact;
-            set(handles.CheckFirstPointArtifact, 'value', handles.PlotFirstPointArtifact);
+        else
+            handles.PlotFirstPointArtifact = 0;
         end
+        set(handles.CheckFirstPointArtifact, 'value', handles.PlotFirstPointArtifact);
         if isfield(stufftoload, 'FigurePath')
             handles.FigurePath = stufftoload.FigurePath;
         end
@@ -261,7 +263,7 @@ function handles = LoadState(hObject, handles)
         if isfield(stufftoload, 'filename')
             handles.filename = stufftoload.filename; 
             [handles.pathname, name, handles.ext] = fileparts(handles.filename);
-            files = dir(sprintf('%s/*%s', handles.pathname, handles.ext)); 
+            files = dir(fullfile(handles.pathname, sprintf('*%s', handles.ext))); 
             handles.files = {files.name};
             set(handles.FileListBox, 'String', handles.files);
             handles.n = find(strcmpi(handles.files, [name handles.ext])); 
@@ -289,7 +291,10 @@ function SaveState(hObject, handles)
         stufftosave.ColorScheme = handles.ColorScheme; 
     end
     guidata(hObject,handles);
-    save('programsettings', 'stufftosave'); 
+    try
+        save(fullfile(tempdir, 'Forcot_programsettings.mat'), 'stufftosave'); 
+    catch
+    end
 
 function GuiPlotForc(handles)
     if ~isfield(handles, 'PlotFirstPointArtifact')

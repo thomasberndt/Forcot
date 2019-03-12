@@ -4,3 +4,5 @@ Forcot is a new First-Order Reversal-Curve (FORC) processing software that uses 
 
 When using the software to produce figures, or when using any of the code, theory, figures, data, please cite the corresponding paper 
 Berndt, T. A. & Chang, L. (2019). Waiting for Forcot: Accelerating FORC Processing 10x using a Fast-Fourier-Transform Algorithm. Submitted to: Geochemistry, Geophysics, Geosystems.
+
+(Go to Forcot Web-Page)[https://thomasberndt.github.io/Forcot/]
