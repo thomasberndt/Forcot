@@ -178,6 +178,7 @@ function handles = LoadForc(hObject, handles)
         handles.manualSF = [];
         handles.princeton = LoadAndProcessPrincetonForc(handles.filename); 
         set(handles.SFTextBox, 'String', num2str(handles.princeton.forc.SF));
+        handles.princeton.forc.maxHu = handles.princeton.forc.maxHu * .9; 
         set(handles.Hu_TextBox, 'String', num2str(round(handles.princeton.forc.maxHu*1000)));
         set(handles.Hc_TextBox, 'String', num2str(round(handles.princeton.forc.maxHc*1000)));
         DeleteThing(handles.MessageText);
@@ -301,7 +302,8 @@ function GuiPlotForc(handles)
     handles.princeton.forc.ColorScheme = handles.ColorScheme;
     axes(handles.ForcAxes); 
     [~,name] = fileparts(handles.princeton.filename);
-    PlotFORC(handles.princeton.forc);
+    forc = handles.princeton.forc;
+    PlotFORC(forc);
     title(sprintf('%s', name));
     drawnow;
     
