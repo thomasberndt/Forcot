@@ -55,43 +55,51 @@ function ForcGui_OpeningFcn(hObject, eventdata, handles, varargin)
 % Choose default command line output for ForcGui
 handles.output = hObject;
 
-thisversion = 'Forcot_WebInstaller_v0.1.3-alpha.exe';
+thisversion = GetCurrentVersion(); 
 
+installing = 0;
 latestversion = CheckLatestVersion(); 
 if ~strcmpi(thisversion, latestversion)
-    answer = questdlg('A new version of Forcot is available. Do you want to install it?');
+    answer = questdlg('A new version of Forcot is available. Do you want to install it?', ...
+                'New Version', 'Yes', 'No', 'Don''t ask again', 'Yes');
     if strcmpi(answer, 'Yes')
         filepath = DownloadLatestVersion(latestversion); 
-        InstallLatestVersion(filepath);
+        installing = InstallLatestVersion(filepath);
+    elseif strcmpi(answer, 'Don''t ask again')
+        SetCurrentVersion(latestversion);
     end
 end
 
-handles.MessageText = [];
-handles.SendDiagnosticDataButton = [];
-handles.ForcFigure = figure();
-set(handles.ForcFigure, 'SizeChangedFcn', {@resizeForcFigure, handles.output}); 
-set(handles.ForcFigure, 'Name', 'Forcot'); 
-set(handles.ForcFigure, 'NumberTitle', 'off'); 
+if installing
+    close all; 
+else
+    handles.MessageText = [];
+    handles.SendDiagnosticDataButton = [];
+    handles.ForcFigure = figure();
+    set(handles.ForcFigure, 'SizeChangedFcn', {@resizeForcFigure, handles.output}); 
+    set(handles.ForcFigure, 'Name', 'Forcot'); 
+    set(handles.ForcFigure, 'NumberTitle', 'off'); 
 
-pos = hObject.OuterPosition; 
+    pos = hObject.OuterPosition; 
 
-myunits = get(hObject, 'Units');  
-hObject.OuterPosition = [10 10 pos(3) pos(4)]; 
-set(hObject, 'Units', 'pixels'); 
-pos = hObject.OuterPosition; 
-set(hObject, 'Units', myunits); 
-handles.ForcFigure.OuterPosition = [pos(1)+pos(3) pos(2) pos(4) pos(4)]; 
-handles.ForcAxes = axes;
+    myunits = get(hObject, 'Units');  
+    hObject.OuterPosition = [10 10 pos(3) pos(4)]; 
+    set(hObject, 'Units', 'pixels'); 
+    pos = hObject.OuterPosition; 
+    set(hObject, 'Units', myunits); 
+    handles.ForcFigure.OuterPosition = [pos(1)+pos(3) pos(2) pos(4) pos(4)]; 
+    handles.ForcAxes = axes;
 
-set(handles.ForcFigure, 'Color', 'w');
-handles = LoadState(hObject, handles);
-TightAxis(handles); 
+    set(handles.ForcFigure, 'Color', 'w');
+    handles = LoadState(hObject, handles);
+    TightAxis(handles); 
 
-% Update handles structure
-guidata(hObject, handles);
+    % Update handles structure
+    guidata(hObject, handles);
 
-% UIWAIT makes ForcGui wait for user response (see UIRESUME)
-% uiwait(handles.figure1);
+    % UIWAIT makes ForcGui wait for user response (see UIRESUME)
+    % uiwait(handles.figure1);
+end
 
 
 % --- Outputs from this function are returned to the command line.

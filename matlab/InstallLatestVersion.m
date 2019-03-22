@@ -1,7 +1,9 @@
-function InstallLatestVersion(filepath)
+function installing = InstallLatestVersion(filepath)
     try
+        installing = 0; 
         if exist(filepath, 'file')
-            [status,cmdout] = system([filepath ' &']);
+            installing = 1;
+            open(filepath);
         end
     catch 
     end
