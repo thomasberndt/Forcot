@@ -2,9 +2,9 @@ function version = GetCurrentVersion()
 
     thisversion = '';
     if ismac 
-        thisversion = 'Forcot_MacInstaller_v0.1.5-alpha.exe';
+        thisversion = 'Forcot_MacInstaller_v0.1.6-alpha.exe';
     elseif ispc
-        thisversion = 'Forcot_WebInstaller_v0.1.5-alpha.exe';
+        thisversion = 'Forcot_WebInstaller_v0.1.6-alpha.exe';
     end
 
     try
