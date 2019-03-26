@@ -345,6 +345,7 @@ function princeton_forc = LoadPrincetonForc(filepath)
     n = (1:N)-1; 
     a1 = size(C1,1)-1; 
     C = [C1; C]; 
+    numdat = length(C(:,1));
     maxn1 = (N+.5) - sqrt((N+.5)^2-numdat+N*(a1-1));
     maxn2 = N - sqrt(N^2-numdat+N*a1);
     if abs(maxn1-round(maxn1))>abs(maxn2-round(maxn2))
