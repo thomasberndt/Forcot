@@ -78,7 +78,10 @@ function [lim, h, ax] = PlotFORC(forc, Hc, Hu, Hcplot, Huplot, limit, PlotFirstP
     ls = logspace(-3, 0, 30); 
     vl = limit * [-ls(end:-1:1) ls(1:end)]; 
 %     [~, h] = contourf(Hc*1000, Hu*1000, forc, vl, 'EdgeColor', 0.2*[1 1 1]);
-    h = pcolor(Hc*1000, Hu*1000, forc); 
+    res = 2;
+    h = pcolor(Hc(1:res:end,1:res:end)*1000, ...
+               Hu(1:res:end,1:res:end)*1000, ...
+               forc(1:res:end,1:res:end)); 
     set(h, 'EdgeColor', 'none');
     shading interp
     hold on

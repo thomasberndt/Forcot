@@ -416,13 +416,13 @@ function SaveOneFigure(handles, filepath, ext)
     handles.ForcFigure.PaperSize = 21*[1 ratio]; 
     if strcmpi(ext, '.pdf')
         print(handles.ForcFigure, ...
-             filepath, '-dpdf','-r0', '-bestfit');
+             filepath, '-painters', '-dpdf','-r0', '-bestfit');
     elseif strcmpi(ext, '.png')
         print(handles.ForcFigure, ...
              filepath, '-dpng','-r300');
     elseif strcmpi(ext, '.eps')
         print(handles.ForcFigure, ...
-             filepath, '-depsc','-r300');
+             filepath, '-depsc','-r0');
     elseif strcmpi(ext, '.jpg')
         print(handles.ForcFigure, ...
              filepath, '-djpeg','-r300');
