@@ -124,20 +124,25 @@ function OpenButton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 if isfield(handles, 'pathname')
-    [handles.files, handles.pathname, handles.ext, handles.n] = ...
-        OpenForcDialog(handles.pathname);
-else
-    [handles.files, handles.pathname, handles.ext, handles.n] = ...
-        OpenForcDialog();
+    pathname = handles.pathname;
+else 
+    pathname = []; 
 end
-set(handles.FileListBox, 'String', handles.files);
-set(handles.FileListBox, 'Value',  handles.n);
-drawnow;
-try
-    handles = LoadForc(hObject, handles);
-catch
+[files, pathname, ext, n] = OpenForcDialog(pathname);
+if ~isempty(files)
+    handles.files = files;
+    handles.pathname = pathname; 
+    handles.ext = ext;
+    handles.n = n;
+    set(handles.FileListBox, 'String', handles.files);
+    set(handles.FileListBox, 'Value',  handles.n);
+    drawnow;
+    try
+        handles = LoadForc(hObject, handles);
+    catch
+    end
+    SaveState(hObject,handles);
 end
-SaveState(hObject,handles);
 
 % --- Executes on button press in SaveButton.
 function SaveButton_Callback(hObject, eventdata, handles)

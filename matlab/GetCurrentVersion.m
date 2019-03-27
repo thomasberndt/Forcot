@@ -8,7 +8,7 @@ function version = GetCurrentVersion()
     end
 
     try
-        stufftoload = load(fullfile(tempdir, 'Forcot_version.mat')); 
+        stufftoload = load(fullfile(tempdir, 'Forcot_version_v0.1.6-alpha.mat')); 
         version = stufftoload.version; 
     catch
         version = thisversion; 

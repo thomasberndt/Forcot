@@ -5,8 +5,15 @@ function [files, pathname, ext, n] = OpenForcDialog(pathname)
         mask = '*.frc'; 
     end
     [filename, pathname] = uigetfile(mask);
-    [~, ~, ext] = fileparts(filename); 
-    files = dir(sprintf('%s/*%s', pathname, ext)); 
-    files = {files.name};
-    n = find(strcmpi(files, filename)); 
+    if filename == 0
+        files = []; 
+        pathname = [];
+        ext = [];
+        n = [];
+    else
+        [~, ~, ext] = fileparts(filename); 
+        files = dir(sprintf('%s/*%s', pathname, ext)); 
+        files = {files.name};
+        n = find(strcmpi(files, filename));
+    end
 end
