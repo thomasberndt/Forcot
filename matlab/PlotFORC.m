@@ -89,31 +89,55 @@ function [lim, h, ax] = PlotFORC(forc, Hc, Hu, Hcplot, Huplot, limit, PlotFirstP
     forccolors = GetForcColors(ColorScheme);
     ls = logspace(-3, 0, 30); 
     vl = limit * [-ls(end:-1:1) ls(1:end)]; 
-%     [~, h] = contourf(Hc*1000, Hu*1000, forc, vl, 'EdgeColor', 0.2*[1 1 1]);
-    if min(size(Hc)) > 600
-        res = 5;
-    elseif min(size(Hc)) > 450
-        res = 4;
-    elseif min(size(Hc)) > 300
-        res = 3;
-    elseif min(size(Hc)) > 150
-        res = 2;
-    else
-        res = 1;
-    end
-    h = pcolor(Hc(1:res:end,1:res:end)*1000, ...
-               Hu(1:res:end,1:res:end)*1000, ...
-               forc(1:res:end,1:res:end)); 
-    set(h, 'EdgeColor', 'none');
-    shading interp
-    hold on
+    
+    Ha = fliplr(Hu - Hc); 
+    Hb = fliplr(Hu + Hc); 
+    background = fliplr(forc);
+    
+    da = Ha(1,2)-Ha(1,1);
+    db = Hb(2,1)-Hb(1,1);
+    
+    pix = 2000/min(size(background)); 
+    background(isnan(background)) = 0;   
+    tform = affine2d([pix*da/(da+db) 0 0; ...
+                      0 pix*db/(da+db) 0; ...
+                      0 0 1] * ...
+                     [-1 -1 0; ...
+                      1 -1 0; ...
+                      0 0 1]);
+    background2 = imwarp(background, tform);
+    Ha2 = imwarp(Ha, tform);
+    Hb2 = imwarp(Hb, tform);
+    Hu2 = (Hb2 + Ha2) / 2;
+    Hc2 = (Hb2 - Ha2) / 2;
+    mask = and(Hc2==0, Hu2==0);
+    Hc2(mask) = NaN; 
+    Hu2(mask) = NaN; 
+    Hc3 = linspace(nanmin(Hc2(:)), nanmax(Hc2(:)), size(Hc2, 2));
+    Hu3 = linspace(nanmin(Hu2(:)), nanmax(Hu2(:)), size(Hu2, 1));
+    left   = find(Hc3>=0, 1, 'first'); 
+    right  = find(Hc3<=Hcplot, 1, 'last'); 
+    top    = size(Hu2, 1)-find(Hu3>=-Huplot, 1, 'first'); 
+    bottom = size(Hu2, 1)-find(Hu3<=Huplot, 1, 'last'); 
+    background3 = background2(top:-1:bottom,left:right);
+
+    
+    imagesc(1000*[0, Hcplot], 1000*[-Huplot, Huplot], background3);
     caxis(limit * [-1 1]);
+    set(gca,'YDir','normal')
+    
+    
+    
+    hold on
+    
     
     ls = [10^-1.5 logspace(-1, 0, 10)]; 
     vl = limit * [-ls(end:-1:1) ls(1:end)]; 
     [~, h] = contour(Hc*1000, Hu*1000, forc, vl, 'EdgeColor', 0*[1 1 1]);
     shading interp
     axis([0 Hcplot -Huplot Huplot]*1000);
+    
+    
     
     if ~isempty(SF) && ~PlotFirstPointArtifact
         patch([0 minHc minHc 0]*1200 , ...

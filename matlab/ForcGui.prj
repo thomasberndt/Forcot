@@ -3,7 +3,7 @@
     <param.appname>Forcot</param.appname>
     <param.icon />
     <param.icons />
-    <param.version>0.20</param.version>
+    <param.version>0.21</param.version>
     <param.authnamewatermark>Thomas A. Berndt</param.authnamewatermark>
     <param.email>thomas.andreas.berndt@gmail.com</param.email>
     <param.company />
@@ -27,7 +27,7 @@
     <param.web.mcr>true</param.web.mcr>
     <param.package.mcr>false</param.package.mcr>
     <param.no.mcr>false</param.no.mcr>
-    <param.web.mcr.name>Forcot_WebInstaller_v0.2.0-alpha</param.web.mcr.name>
+    <param.web.mcr.name>Forcot_WebInstaller_v0.2.1-alpha</param.web.mcr.name>
     <param.package.mcr.name>MyAppInstaller_mcr</param.package.mcr.name>
     <param.no.mcr.name>MyAppInstaller_app</param.no.mcr.name>
     <param.windows.command.prompt>true</param.windows.command.prompt>
