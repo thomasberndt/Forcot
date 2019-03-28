@@ -90,12 +90,16 @@ function [lim, h, ax] = PlotFORC(forc, Hc, Hu, Hcplot, Huplot, limit, PlotFirstP
     ls = logspace(-3, 0, 30); 
     vl = limit * [-ls(end:-1:1) ls(1:end)]; 
 %     [~, h] = contourf(Hc*1000, Hu*1000, forc, vl, 'EdgeColor', 0.2*[1 1 1]);
-    res = 1;
-    if min(size(Hc)) > 200
-        res = 2;
-    end
-    if min(size(Hc)) > 400
+    if min(size(Hc)) > 600
+        res = 5;
+    elseif min(size(Hc)) > 450
+        res = 4;
+    elseif min(size(Hc)) > 300
         res = 3;
+    elseif min(size(Hc)) > 150
+        res = 2;
+    else
+        res = 1;
     end
     h = pcolor(Hc(1:res:end,1:res:end)*1000, ...
                Hu(1:res:end,1:res:end)*1000, ...
