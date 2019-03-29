@@ -88,7 +88,9 @@ else
     pos = hObject.OuterPosition; 
     set(hObject, 'Units', myunits); 
     handles.ForcFigure.OuterPosition = [pos(1)+pos(3) pos(2) pos(4) pos(4)]; 
-    handles.ForcAxes = axes;
+    handles.ForcAxes = axes;    
+    set(handles.ForcFigure, 'DefaultAxesFontSize', 18); 
+    set(handles.ForcAxes, 'FontSize', 18); 
 
     set(handles.ForcFigure, 'Color', 'w');
     handles = LoadState(hObject, handles);
@@ -345,7 +347,7 @@ function TightAxis(handles)
     handles.ForcAxes.Position = [...
         ti(1) ...
         ti(2) ...
-        width-ti(3)-ti(1)-75 ....
+        width-ti(3)-ti(1)-95 ....
         height-ti(4)-ti(2)]; 
     set(handles.ForcAxes, 'Units', myunits); 
     

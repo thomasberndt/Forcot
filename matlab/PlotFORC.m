@@ -73,6 +73,18 @@ function [lim, h, ax] = PlotFORC(forc, Hc, Hu, Hcplot, Huplot, limit, PlotFirstP
         limit = EstimateForcPeak(forc, Hc, Hu, Hcplot, Huplot, minHc);
     end
     
+    if abs(limit) < 100e-6
+        limit = limit / 1e-6; 
+        forc = forc / 1e-6; 
+        forcunits = '\mu';
+    elseif abs(limit) < 100e-3
+        limit = limit / 1e-3; 
+        forc = forc / 1e-3; 
+        forcunits = 'm';
+    else
+        forcunits = '';
+    end
+    
 %     forc = forc / limit;
     forccolors = GetForcColors(ColorScheme);
     ls = logspace(-3, 0, 30); 
@@ -134,8 +146,10 @@ function [lim, h, ax] = PlotFORC(forc, Hc, Hu, Hcplot, Huplot, limit, PlotFirstP
                 'Units', 'normalized', ...
                 'BackgroundColor', 'white', ...
                 'FontWeight', 'bold', ...
+                'FontSize', 18, ...
                 'HorizontalAlignment', 'right', ...
                 'VerticalAlignment', 'top'); 
     end
-    colorbar
+    h = colorbar;
+    set(get(h,'title'),'string',sprintf('%sAm^2/T^2', forcunits));
 end
