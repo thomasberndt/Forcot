@@ -1,1 +1,1 @@
-Forcot_MacInstaller_v0.1.8-alpha.exe
+Forcot_MacInstaller_v0.2.2-alpha.exe
