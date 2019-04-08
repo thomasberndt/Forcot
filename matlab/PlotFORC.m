@@ -61,14 +61,7 @@ function [lim, h, ax] = PlotFORC(forc, Hc, Hu, Hcplot, Huplot, limit, PlotFirstP
     end
     minHc = 0.003; 
     
-    
-    pos = get(gcf, 'OuterPosition');
-    myunits = get(gcf, 'Units');
-    set(gcf, 'Units', 'Pixels');
-    myheight = 0.96*pos(3)/Hcplot*2*Huplot + 100;
-    myheight = min(myheight, pos(3));
-    set(gcf, 'OuterPosition', [pos(1) pos(2)+pos(4)-myheight pos(3) myheight]);
-    set(gcf, 'Units', myunits);
+    AdjustFigureSize(gcf, Hcplot, Huplot);
     
     forc = squeeze(forc);
     if ~isempty(SF)

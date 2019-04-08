@@ -12,6 +12,7 @@ When using the software to produce figures, or when using any of the code, theor
 Berndt, T. A. & Chang, L. (2019). Waiting for Forcot: Accelerating FORC Processing 10x using a Fast-Fourier-Transform Algorithm. Submitted to: Geochemistry, Geophysics, Geosystems.
 
 
-[Download windows installer v0.2.2-alpha](Forcot_WebInstaller_v0.2.2-alpha)
+[Download windows installer v0.2.3-alpha](Forcot_WebInstaller_v0.2.3-alpha.exe)
+[Download mac installer v0.2.3-alpha](Forcot_MacInstaller_v0.2.3-alpha.zip)
 
 

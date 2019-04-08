@@ -506,6 +506,7 @@ function Hu_TextBox_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of Hu_TextBox as text
 %        str2double(get(hObject,'String')) returns contents of Hu_TextBox as a double
     handles = SetAxisLimits(handles);
+    AdjustFigureSize(handles.ForcFigure, handles.princeton.forc.maxHc, handles.princeton.forc.maxHu);
     SaveState(hObject,handles); 
 
 % --- Executes during object creation, after setting all properties.
@@ -534,6 +535,7 @@ function Hc_TextBox_Callback(hObject, eventdata, handles)
 % Hints: get(hObject,'String') returns contents of Hc_TextBox as text
 %        str2double(get(hObject,'String')) returns contents of Hc_TextBox as a double
     handles = SetAxisLimits(handles);
+    AdjustFigureSize(handles.ForcFigure, handles.princeton.forc.maxHc, handles.princeton.forc.maxHu);
     SaveState(hObject,handles); 
 
 % --- Executes during object creation, after setting all properties.
