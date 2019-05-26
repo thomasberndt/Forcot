@@ -24,9 +24,12 @@ function princeton_forc = LoadPrincetonForc(filepath)
     
     firstline = fgetl(fid); 
     if strcmpi(firstline, 'MicroMag 2900/3900 Data File (Series 0015)') || ...
-            strcmpi(firstline, 'MicroMag 2900/3900 Data File')
+            strcmpi(firstline, 'MicroMag 2900/3900 Data File') || ...
+            strcmpi(firstline, 'MicroMag 2900/3900 Data File (Series 0015)First-order reversal curves')
         col = 20;
-        fgetl(fid); 
+        if ~strcmpi(firstline, 'MicroMag 2900/3900 Data File (Series 0015)First-order reversal curves')
+            fgetl(fid); 
+        end
         line = fgetl(fid); 
         metadata.instrument.Configuration = line(col:end);
         line = fgetl(fid); 
@@ -42,19 +45,21 @@ function princeton_forc = LoadPrincetonForc(filepath)
             unitsH = 1;
             unitsM = 1; 
         end
-        if ~contains(metadata.instrument.Configuration, 'AGM', 'IgnoreCase', true)
-            line = fgetl(fid); 
-            metadata.instrument.TemperatureIn = line(col:end);
-        end
         line = fgetl(fid); 
+        if contains(line, 'Temperature', 'IgnoreCase', true)
+            metadata.instrument.TemperatureIn = line(col:end);
+            line = fgetl(fid); 
+        end
         metadata.measurement.MeasuredOn = line;
         line = fgetl(fid); 
         metadata.measurement.Description = line;
         
-        fgetl(fid); 
+        line = fgetl(fid); 
         
         col = 18;
-        line = fgetl(fid); 
+        if ~contains(line, 'time', 'IgnoreCase', true)
+            line = fgetl(fid); 
+        end
         metadata.script.AveragingTime = str2double(line(col:end));
         line = fgetl(fid); 
         metadata.script.Hb1 = str2double(line(col:end)) * unitsH;
@@ -96,23 +101,25 @@ function princeton_forc = LoadPrincetonForc(filepath)
         metadata.settings.Orientation = str2double(line(col:end));
         line = fgetl(fid); 
         metadata.measurement.ElapsedTime = str2double(line(col:end));
-        if ~contains(metadata.instrument.Configuration, 'AGM', 'IgnoreCase', true)
-            line = fgetl(fid); 
+        line = fgetl(fid);
+        if contains(line, 'Slope cor', 'IgnoreCase', true)             
             metadata.processing.SlopeCorrection = line(col:end) * unitsH;
             line = fgetl(fid); 
-            metadata.characterization.Saturation = line(col:end) * unitsM;
         end
-        line = fgetl(fid); 
+        if contains(line, 'Saturation', 'IgnoreCase', true) 
+            metadata.characterization.Saturation = line(col:end) * unitsM;
+            line = fgetl(fid); 
+        end
         metadata.script.NumberOfData = str2double(line(col:end));
 
         line = fgetl(fid); 
         
     else
-        col  = 32;
-        fgetl(fid); 
-        fgetl(fid); 
-        fgetl(fid); 
+        col  = 32;        
         line = fgetl(fid); 
+        while ~contains(line, 'Configuration', 'IgnoreCase', true) 
+            line = fgetl(fid); 
+        end
         metadata.instrument.Configuration = line(col:end);
         line = fgetl(fid); 
         metadata.instrument.TemperatureControl = line(col:end); 
@@ -156,12 +163,38 @@ function princeton_forc = LoadPrincetonForc(filepath)
         line = fgetl(fid); 
         metadata.settings.Orientation = str2double(line(col:end));
         line = fgetl(fid); 
-        metadata.settings.VibrationAmplitude = str2double(line(col:end));
-        line = fgetl(fid); 
-        metadata.settings.CalibrationFactor = str2double(line(col:end));
-        line = fgetl(fid); 
-        metadata.settings.OperatingFrequency = str2double(line(col:end));
-        line = fgetl(fid); 
+        if contains(line, 'Gradient', 'IgnoreCase', true) 
+            metadata.settings.Gradient = line(col:end);
+            line = fgetl(fid); 
+        end
+        if contains(line, 'Probe factor', 'IgnoreCase', true) 
+            metadata.settings.ProbeFactor = line(col:end);
+            line = fgetl(fid); 
+        end
+        if contains(line, 'Probe Q', 'IgnoreCase', true) 
+            metadata.settings.ProbeQ = line(col:end);
+            line = fgetl(fid); 
+        end
+        if contains(line, 'Probe resonance', 'IgnoreCase', true) 
+            metadata.settings.ProbeResonance = line(col:end);
+            line = fgetl(fid); 
+        end        
+        if contains(line, 'Operating frequency', 'IgnoreCase', true) 
+            metadata.settings.OperatingFrequency = str2double(line(col:end));
+            line = fgetl(fid); 
+        end
+        if contains(line, 'Vibration amplitude', 'IgnoreCase', true) 
+            metadata.settings.VibrationAmplitude = line(col:end);
+            line = fgetl(fid); 
+        end        
+        if contains(line, 'Calibration factor', 'IgnoreCase', true) 
+            metadata.settings.CalibrationFactor = str2double(line(col:end));
+            line = fgetl(fid); 
+        end
+        if contains(line, 'Operating frequency', 'IgnoreCase', true) 
+            metadata.settings.OperatingFrequency = str2double(line(col:end));
+            line = fgetl(fid); 
+        end
         metadata.settings.SweepMode = line(col:end);
         line = fgetl(fid); 
         if contains(line, 'Pause', 'IgnoreCase', true)
