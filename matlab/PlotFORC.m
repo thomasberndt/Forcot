@@ -65,7 +65,7 @@ function [lim, h, ax] = PlotFORC(forc, Hc, Hu, Hcplot, Huplot, limit, PlotFirstP
     
     forc = squeeze(forc);
     if ~isempty(SF)
-        minHc = abs(Hc(2,2)-Hc(1,1))*SF*1.5; 
+        minHc = abs(Hc(2,2)-Hc(1,1))*SF*0.75; 
 %         if ~PlotFirstPointArtifact
 %             forc(Hc <= minHc) = NaN;
 %         end

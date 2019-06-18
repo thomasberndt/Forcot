@@ -660,6 +660,24 @@ function ColorSchemeDropdown_Callback(hObject, eventdata, handles)
         handles.ColorScheme = 'redyellowblue';
     elseif idx == 2
         handles.ColorScheme = 'redblue'; 
+    elseif idx == 3
+        handles.ColorScheme = colorcet('D1'); 
+    elseif idx == 4
+        handles.ColorScheme = colorcet('D1A'); 
+    elseif idx == 5
+        handles.ColorScheme = colorcet('I1'); 
+    elseif idx == 6
+        handles.ColorScheme = colorcet('I2'); 
+    elseif idx == 7
+        handles.ColorScheme = colorcet('L1'); 
+    elseif idx == 8
+        handles.ColorScheme = flipud(colorcet('L3')); 
+    elseif idx == 9
+        handles.ColorScheme = colorcet('L16'); 
+    elseif idx == 10
+        handles.ColorScheme = colorcet('R1'); 
+    elseif idx == 11
+        handles.ColorScheme = colorcet('R3'); 
     end
     GuiPlotForc(handles);       
     SaveState(hObject,handles); 
