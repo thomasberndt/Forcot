@@ -22,7 +22,7 @@ function varargout = ForcGui(varargin)
 
 % Edit the above text to modify the response to help ForcGui
 
-% Last Modified by GUIDE v2.5 11-Jul-2019 11:20:23
+% Last Modified by GUIDE v2.5 11-Jul-2019 11:22:14
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -696,3 +696,11 @@ function ColorSchemeDropdown_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes during object deletion, before destroying properties.
+function figure1_DeleteFcn(hObject, eventdata, handles)
+% hObject    handle to figure1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+    delete(handles.ForcFigure)
