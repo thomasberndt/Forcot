@@ -83,7 +83,7 @@ else
     pos = hObject.OuterPosition; 
 
     myunits = get(hObject, 'Units');  
-    hObject.OuterPosition = [10 10 pos(3) pos(4)]; 
+    hObject.OuterPosition = [50 50 pos(3) pos(4)]; 
     set(hObject, 'Units', 'pixels'); 
     pos = hObject.OuterPosition; 
     set(hObject, 'Units', myunits); 
