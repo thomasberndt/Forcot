@@ -52,11 +52,6 @@ function [rho, SF, M, d, ps] = SmoothForcFft(M, Ha, Hb, SF)
     
     f2 = (2i*pi)^2.*KX.*KY.*f; 
     
-    SF2 = 1e5;
-    intens = 1;
-    filter2a = 1-intens.*exp(-pi^2*SF2^2.*(((KX*dHa.^2-KY*dHb.^2)).^2)/2);
-    f2f = f2.*filter2a; 
-    
     if nargin ~= 2
         SFs = [0.2:0.2:6]; 
         SFs = SFs(end:-1:1);
@@ -67,27 +62,18 @@ function [rho, SF, M, d, ps] = SmoothForcFft(M, Ha, Hb, SF)
         d = sqrt((KX*dHa).^2+(KY*dHb).^2); 
         for n = 1:length(r)-1
             idx = logical(r(n) <= d & d < r(n+1)); 
-            p(n) = log10(nanmean(abs(f2f(idx)).^2)); 
+            p(n) = log10(nanmean(abs(f2(idx)).^2)); 
             num(n) = nansum(idx(:));
         end
         r(end) = []; 
         SFs(end) = []; 
-%         p(abs(p)==Inf | isnan(p)) = NaN;
-%         outl = isoutlier(p, 'movmean', 5, 'ThresholdFactor',1); 
         firstone = find(~isnan(p), 1, 'last'); 
         if p(firstone) < nanmin(p(firstone-3:firstone-1))
-%             outl(firstone) = 1; 
             p(firstone) = NaN; 
         end
-%         p(outl) = NaN;
         psmooth = smooth(p, 'rlowess')'; 
         pp = sort(psmooth, 'desc', 'MissingPlacement', 'last'); 
         [~, ~, bin] = histcounts(psmooth, linspace(nanmin(p), nanmean(pp(1:3)), 10)); 
-%         pm = r(bin==1); 
-%         pm = pm(1); 
-%         [~, idx] = sort(p, 'desc', 'MissingPlacement', 'first'); 
-%         pm = mean(r(idx(end-2:end)));
-    %     plot(r, p, 'o-', r(idx(end-8:end)), p(idx(end-8:end)), 'o'); 
         nbin = 1; 
         while ~any(bin==nbin)
             nbin = nbin + 1;
@@ -103,7 +89,6 @@ function [rho, SF, M, d, ps] = SmoothForcFft(M, Ha, Hb, SF)
 %     filter = sech(pi^2*SF^2*((KX*dHa).^2+(KY*dHb).^2));
 
     f3 = filter.*f2;
-    f4 = f3.*filter2a;
     f4 = f3;
     
     M = ifft2(f4); 
