@@ -4,11 +4,11 @@ function version = GetCurrentVersion()
     if ismac 
         thisversion = 'Forcot_MacInstaller_v1.0.0.exe';
     elseif ispc
-        thisversion = 'Forcot_WebInstaller_v1.0.0.exe';
+        thisversion = 'Forcot_WebInstaller_v1.0.1-alpha.exe';
     end
 
     try
-        stufftoload = load(fullfile(tempdir, 'Forcot_version_v1.0.0.mat')); 
+        stufftoload = load(fullfile(tempdir, 'Forcot_version_v1.0.1-alpha.mat')); 
         version = stufftoload.version; 
     catch
         version = thisversion; 
