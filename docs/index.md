@@ -12,8 +12,8 @@ When using the software to produce figures, or when using any of the code, theor
 Berndt, T. A. & Chang, L. (2019). Waiting for Forcot: Accelerating FORC Processing 100x using a Fast-Fourier-Transform Algorithm. Geochemistry, Geophysics, Geosystems.
 
 
-* [Download windows installer v1.0.1](Forcot_WebInstaller_v1.0.0.exe)
-* [Download mac installer v1.0.1](Forcot_MacInstaller_v1.0.1.zip)
+* [Download windows installer v1.0.2](https://github.com/thomasberndt/Forcot/releases/download/v1.0.2/Forcot_WebInstaller_v1.0.2.exe)
+* [Download mac installer v1.0.2](https://github.com/thomasberndt/Forcot/releases/download/v1.0.2/Forcot_MacInstaller_v1.0.2.zip)
 
-For the Mac version, you may have to use the command  `sudo xattr -d com.apple.quarantine Forcot_MacInstaller_v1.0.1.app` to allow installing the app. Alternatively, you can download the [Matlab version](https://github.com/thomasberndt/Forcot/releases/latest) (this requires the curve fitting toolbox, the image toolbox, and the statistics toolbox).
+For the Mac version, you may have to use the command  `sudo xattr -d com.apple.quarantine Forcot_MacInstaller_v1.0.2.app` to allow installing the app. Alternatively, you can download the [Matlab version](https://github.com/thomasberndt/Forcot/releases/latest) (this requires the curve fitting toolbox, the image toolbox, and the statistics toolbox).
 

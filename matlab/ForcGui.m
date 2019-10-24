@@ -58,15 +58,16 @@ handles.output = hObject;
 thisversion = GetCurrentVersion(); 
 
 installing = 0;
-latestversion = CheckLatestVersion(); 
-if ~strcmpi(thisversion, latestversion)
-    answer = questdlg('A new version of Forcot is available. Do you want to install it?', ...
+[latestversion, latestlink] = CheckLatestVersion(); 
+if ~strcmpi(thisversion, latestversion) && ~IsSkippedVersion(latestversion) 
+    answer = questdlg(sprintf('A new version of Forcot is available. Do you want to install it? Current version: %s, New version: %s.', ...
+                thisversion, latestversion), ...
                 'New Version', 'Yes', 'No', 'Don''t ask again', 'Yes');
     if strcmpi(answer, 'Yes')
-        filepath = DownloadLatestVersion(latestversion); 
+        filepath = DownloadLatestVersion(latestlink); 
         installing = InstallLatestVersion(filepath);
     elseif strcmpi(answer, 'Don''t ask again')
-        SetCurrentVersion(latestversion);
+        SkipVersion(latestversion);
     end
 end
 

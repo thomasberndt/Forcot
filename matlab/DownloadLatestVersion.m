@@ -1,17 +1,14 @@
-function filepath = DownloadLatestVersion(version)
+function filepath = DownloadLatestVersion(link)
     if nargin < 1
-        version = CheckLatestVersion(); 
+        [~, link] = CheckLatestVersion();
     end
     
     
     try
-        url = ['https://thomasberndt.github.io/Forcot/' version]; 
-        data = webread(url);
-        
-        filepath = fullfile(tempdir, version); 
-        fileID = fopen(filepath, 'w');
-        fwrite(fileID, data); 
-        fclose(fileID); 
+        [~, filename, ext] = fileparts(link);
+        filepath = fullfile(tempdir, [filename ext]);         
+        opt = weboptions('Timeout', 300); 
+        filepath = websave(filepath, link, opt);
     catch
         filepath = []; 
     end

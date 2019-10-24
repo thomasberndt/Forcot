@@ -1,9 +1,9 @@
 <deployment-project plugin="plugin.ezdeploy" plugin-version="1.0">
-  <configuration build-checksum="1805520107" file="C:\Users\Think\Dropbox\Documents\Studies\Semester 14 Beijing Fall\FFT-FORC_priv\matlab\ForcGui.prj" location="C:\Users\Think\Dropbox\Documents\Studies\Semester 14 Beijing Fall\FFT-FORC_priv\matlab" name="ForcGui" preferred-package-location="C:\Users\Think\Dropbox\Documents\Studies\Semester 14 Beijing Fall\FFT-FORC_priv\matlab\ForcGui\for_redistribution" preferred-package-type="package.type.exe" target="target.ezdeploy.standalone" target-name="Application Compiler">
+  <configuration build-checksum="1241548296" file="C:\Users\Think\Dropbox\Documents\Studies\Semester 14 Beijing Fall\FFT-FORC_priv\matlab\ForcGui.prj" location="C:\Users\Think\Dropbox\Documents\Studies\Semester 14 Beijing Fall\FFT-FORC_priv\matlab" name="ForcGui" preferred-package-location="C:\Users\Think\Dropbox\Documents\Studies\Semester 14 Beijing Fall\FFT-FORC_priv\matlab\ForcGui\for_redistribution" preferred-package-type="package.type.exe" target="target.ezdeploy.standalone" target-name="Application Compiler">
     <param.appname>Forcot</param.appname>
     <param.icon />
     <param.icons />
-    <param.version>1.01</param.version>
+    <param.version>1.02</param.version>
     <param.authnamewatermark>Thomas A. Berndt</param.authnamewatermark>
     <param.email>thomas.andreas.berndt@gmail.com</param.email>
     <param.company />
@@ -27,7 +27,7 @@
     <param.web.mcr>true</param.web.mcr>
     <param.package.mcr>false</param.package.mcr>
     <param.no.mcr>false</param.no.mcr>
-    <param.web.mcr.name>Forcot_WebInstaller_v1.0.1-alpha</param.web.mcr.name>
+    <param.web.mcr.name>Forcot_WebInstaller_v1.0.2</param.web.mcr.name>
     <param.package.mcr.name>MyAppInstaller_mcr</param.package.mcr.name>
     <param.no.mcr.name>MyAppInstaller_app</param.no.mcr.name>
     <param.windows.command.prompt>true</param.windows.command.prompt>
@@ -85,16 +85,18 @@
       <file>${PROJECT_ROOT}\FillNaNs.m</file>
       <file>${PROJECT_ROOT}\GetCurrentVersion.m</file>
       <file>${PROJECT_ROOT}\GetForcColors.m</file>
+      <file>${PROJECT_ROOT}\GetSkippedVersions.m</file>
       <file>${PROJECT_ROOT}\GetVisibleForcPart.m</file>
       <file>${PROJECT_ROOT}\gzipencode.m</file>
       <file>${PROJECT_ROOT}\InstallLatestVersion.m</file>
+      <file>${PROJECT_ROOT}\IsSkippedVersion.m</file>
       <file>${PROJECT_ROOT}\LoadAndProcessPrincetonForc.m</file>
       <file>${PROJECT_ROOT}\LoadPrincetonForc.m</file>
       <file>${PROJECT_ROOT}\OpenForcDialog.m</file>
       <file>${PROJECT_ROOT}\PlotFORC.m</file>
       <file>${PROJECT_ROOT}\RaiseIssue.m</file>
       <file>${PROJECT_ROOT}\RegularizeForcGrid.m</file>
-      <file>${PROJECT_ROOT}\SetCurrentVersion.m</file>
+      <file>${PROJECT_ROOT}\SkipVersion.m</file>
       <file>${PROJECT_ROOT}\SmoothForcFft.m</file>
     </fileset.depfun>
     <build-deliverables>
