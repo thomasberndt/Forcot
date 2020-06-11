@@ -16,12 +16,21 @@ function correctedM = DriftCorrection(M, t, calibration_M, calibration_t)
         princeton = M; 
         M = princeton.measurements.M;
         t = princeton.measurements.t; 
-        calibration_M = princeton.calibration.M; 
-        calibration_t = princeton.calibration.t;
+        if ~isempty(princeton.calibration)
+            calibration_M = princeton.calibration.M; 
+            calibration_t = princeton.calibration.t;
+        else
+            calibration_M = []; 
+            calibration_t = [];
+        end
     end
 
-    f = fit(calibration_t(:), calibration_M(:) - mean(calibration_M),  ...
-            'smoothingspline', 'SmoothingParam', 1e-8);
-    cor = reshape(feval(f, t), size(t)); 
-    correctedM = M - cor;
+    if ~isempty(calibration_M)
+        f = fit(calibration_t(:), calibration_M(:) - mean(calibration_M),  ...
+                'smoothingspline', 'SmoothingParam', 1e-8);
+        cor = reshape(feval(f, t), size(t)); 
+        correctedM = M - cor;
+    else
+        correctedM = M;
+    end
 end
