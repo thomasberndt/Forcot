@@ -10,6 +10,7 @@ issues
 ~*.tmp
 ~$*
 
+matlab/ForcGui/PackagingLog.html
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
