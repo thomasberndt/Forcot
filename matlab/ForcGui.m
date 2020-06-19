@@ -22,7 +22,7 @@ function varargout = ForcGui(varargin)
 
 % Edit the above text to modify the response to help ForcGui
 
-% Last Modified by GUIDE v2.5 02-Aug-2019 15:43:11
+% Last Modified by GUIDE v2.5 19-Jun-2020 17:31:24
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -338,6 +338,9 @@ function GuiPlotForc(handles)
     PlotFORC(forc);
     title(sprintf('%s', name));
     drawnow;
+    if isfield(handles, 'AdvancedDialog') && ~isempty(handles.AdvancedDialog) && isvalid(handles.AdvancedDialog)
+        delete(handles.AdvancedDialog);
+    end
     
 function TightAxis(handles)
     myunits = get(handles.ForcAxes, 'Units');  
@@ -705,3 +708,13 @@ function figure1_DeleteFcn(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
     delete(handles.ForcFigure)
+
+
+
+% --- Executes on button press in AdvancedDialogButton.
+function AdvancedDialogButton_Callback(hObject, eventdata, handles)
+% hObject    handle to AdvancedDialogButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+    handles.AdvancedDialog = AdvancedDialog(handles);
+    SaveState(hObject,handles); 

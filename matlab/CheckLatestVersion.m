@@ -2,7 +2,8 @@ function [version, link] = CheckLatestVersion(os)
     if nargin < 1
         os = [];
     end
-    
+    link = [];
+    version = [];
     try
         mac = ''; 
         win = ''; 
