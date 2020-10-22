@@ -22,7 +22,7 @@ function varargout = AdvancedDialog(varargin)
 
 % Edit the above text to modify the response to help AdvancedDialog
 
-% Last Modified by GUIDE v2.5 19-Jun-2020 13:57:42
+% Last Modified by GUIDE v2.5 22-Oct-2020 16:49:35
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -200,23 +200,28 @@ end
 
 
 function PlotEverything(hObject, handles)
+    data = guidata(handles.forc.output);
     axes(handles.axes1);
-    cla;
-    rho = handles.forc.princeton.forc.rho;
-    Ha = handles.forc.princeton.forc.Ha; 
-    Hb = handles.forc.princeton.forc.Hb; 
-    Hc = handles.forc.princeton.forc.Hc; 
-    Hu = handles.forc.princeton.forc.Hu; 
+    if handles.AddToPlots.Value
+        hold on
+    else
+        cla;
+    end
+    rho = data.princeton.forc.rho;
+    Ha = data.princeton.forc.Ha; 
+    Hb = data.princeton.forc.Hb; 
+    Hc = data.princeton.forc.Hc; 
+    Hu = data.princeton.forc.Hu; 
     
-    hcs = linspace(0, handles.forc.princeton.forc.maxHc);
-    hus = linspace(-handles.forc.princeton.forc.maxHu, handles.forc.princeton.forc.maxHu);
+    hcs = linspace(0, data.princeton.forc.maxHc);
+    hus = linspace(-data.princeton.forc.maxHu, data.princeton.forc.maxHu);
     [hc, hu] = meshgrid(hcs, hus);
     if handles.PlotCoercivityDistribution || handles.PlotInteractionDistribution
-        if ~isfield(handles.forc.princeton, 'rhoInterpolant') || isempty(handles.forc.princeton.rhoInterpolant)
-            handles.forc.princeton.rhoInterpolant = scatteredInterpolant(Hc(:), Hu(:), rho(:));
-            guidata(hObject, handles);
-        end
-        r = handles.forc.princeton.rhoInterpolant(hc, hu);
+%         if ~isfield(handles.forc.princeton, 'rhoInterpolant') || isempty(handles.forc.princeton.rhoInterpolant)
+            data.princeton.rhoInterpolant = scatteredInterpolant(Hc(:), Hu(:), rho(:));
+%             guidata(hObject, handles);
+%         end
+        r = data.princeton.rhoInterpolant(hc, hu);
         CoercivityDistribution = sum(r, 1);
         CoercivityDistribution = CoercivityDistribution / nansum(CoercivityDistribution);
         InteractionDistribution = sum(r, 2);
@@ -226,7 +231,7 @@ function PlotEverything(hObject, handles)
     if handles.PlotCoercivityDistribution
         n = max(abs(CoercivityDistribution))*handles.Normalize + (1-handles.Normalize);
         plot(hcs*1e3, CoercivityDistribution/n, 'DisplayName', ...
-            sprintf('Coercivity distribution \n(Intergral)'), ...
+            sprintf('H_c (%s)', data.TitleTextBox.String), ...
             'LineWidth', 2);
         hold on
     end
@@ -236,14 +241,16 @@ function PlotEverything(hObject, handles)
         r = rho(ind);
         n = max(abs(r))*handles.Normalize + (1-handles.Normalize);
         plot(Hc(ind)*1e3, r/n, 'DisplayName', ...
-            sprintf('Coercivity distribution \nat H_u=%g mT', handles.Hu_cross*1e3), ...
+            sprintf('H_c at H_u=%g mT (%s)', ...
+            handles.Hu_cross*1e3, ...
+            data.TitleTextBox.String), ...
             'LineWidth', 2);
         hold on
     end
     if handles.PlotInteractionDistribution
         n = max(abs(InteractionDistribution))*handles.Normalize + (1-handles.Normalize);
         plot(hus*1e3, InteractionDistribution/n, 'DisplayName', ...
-            sprintf('Interaction field \ndistribution (Intergral)'), ...
+            sprintf('H_u (%s)', data.TitleTextBox.String), ...
             'LineWidth', 2);
         hold on
     end
@@ -253,14 +260,16 @@ function PlotEverything(hObject, handles)
         r = rho(ind);
         n = max(abs(r))*handles.Normalize + (1-handles.Normalize);
         plot(Hu(ind)*1e3, r/n, 'DisplayName', ...
-            sprintf('Interaction field \ndistribution at H_c=%g mT', handles.Hc_cross*1e3), ...
+            sprintf('H_u at H_c=%g mT (%s)', ...
+            handles.Hc_cross*1e3, ...
+            data.TitleTextBox.String), ...
             'LineWidth', 2);
         hold on
     end
     grid on
     xlabel('Field [mT]');
     ylabel('Distribution \rho'); 
-    legend('location', 'best');
+    legend('location', 'northeastoutside');
     if handles.PlotInteractionDistribution || handles.PlotInteractionCrosssection
         minH = -handles.forc.princeton.forc.maxHu;
     else
@@ -412,8 +421,8 @@ function SaveFigure_Callback(hObject, eventdata, handles)
     defaultext = '.png'; 
     
     if isfield(handles.forc, 'FigurePath') 
-        if ~isempty(handles.FigurePath) && exist(handles.FigurePath, 'dir')
-            defaultpath = handles.FigurePath;
+        if ~isempty(handles.forc.FigurePath) && exist(handles.forc.FigurePath, 'dir')
+            defaultpath = handles.forc.FigurePath;
         end
     end
     filetypes = {...
@@ -446,8 +455,8 @@ function ExportCsv_Callback(hObject, eventdata, handles)
     defaultext = '.csv'; 
     
     if isfield(handles.forc, 'FigurePath') 
-        if ~isempty(handles.FigurePath) && exist(handles.FigurePath, 'dir')
-            defaultpath = handles.FigurePath;
+        if ~isempty(handles.forc.FigurePath) && exist(handles.forc.FigurePath, 'dir')
+            defaultpath = handles.forc.FigurePath;
         end
     end
     filetypes = {...
@@ -511,3 +520,70 @@ function ExportCsv_Callback(hObject, eventdata, handles)
         fprintf(f, '%g,%g\n', [Hu(ind); rho(ind)]);
         fclose(f);
     end
+
+
+% --- Executes on button press in PlotButton.
+function PlotButton_Callback(hObject, eventdata, handles)
+% hObject    handle to PlotButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+    PlotEverything(hObject, handles);
+
+
+% --- Executes on button press in AddToPlots.
+function AddToPlots_Callback(hObject, eventdata, handles)
+% hObject    handle to AddToPlots (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of AddToPlots
+
+
+
+function YFrom_Callback(hObject, eventdata, handles)
+% hObject    handle to YFrom (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of YFrom as text
+%        str2double(get(hObject,'String')) returns contents of YFrom as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function YFrom_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to YFrom (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function YTo_Callback(hObject, eventdata, handles)
+% hObject    handle to YTo (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of YTo as text
+%        str2double(get(hObject,'String')) returns contents of YTo as a double
+    axes(handles.axes1);
+    try
+        ylim([str2double(handles.YFrom.String) str2double(handles.YTo.String)])
+    catch
+    end
+
+% --- Executes during object creation, after setting all properties.
+function YTo_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to YTo (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end

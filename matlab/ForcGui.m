@@ -339,7 +339,8 @@ function GuiPlotForc(handles)
     title(sprintf('%s', name));
     drawnow;
     if isfield(handles, 'AdvancedDialog') && ~isempty(handles.AdvancedDialog) && isvalid(handles.AdvancedDialog)
-        delete(handles.AdvancedDialog);
+%         delete(handles.AdvancedDialog);
+%         handles.AdvancedDialog.handles.forc = handles.forc;
     end
     
 function TightAxis(handles)
