@@ -22,7 +22,7 @@ function varargout = AdvancedDialog(varargin)
 
 % Edit the above text to modify the response to help AdvancedDialog
 
-% Last Modified by GUIDE v2.5 22-Oct-2020 16:49:35
+% Last Modified by GUIDE v2.5 27-Oct-2020 19:54:31
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -155,7 +155,6 @@ function CoercivityDistribution_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of CoercivityDistribution
     handles.PlotCoercivityDistribution = get(handles.CoercivityDistribution, 'Value');
     SaveState(hObject, handles);
-    PlotEverything(hObject, handles);
 
 
 % --- Executes on button press in CoercivityCrosssection.
@@ -167,7 +166,6 @@ function CoercivityCrosssection_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of CoercivityCrosssection
     handles.PlotCoercivityCrosssection = get(handles.CoercivityCrosssection, 'Value');
     SaveState(hObject, handles);
-    PlotEverything(hObject, handles);
 
 
 
@@ -184,7 +182,6 @@ function CoercivityCrosssectionAt_Callback(hObject, eventdata, handles)
         handles.Hu_cross = 0;
     end
     SaveState(hObject, handles);
-    PlotEverything(hObject, handles);
  
 % --- Executes during object creation, after setting all properties.
 function CoercivityCrosssectionAt_CreateFcn(hObject, eventdata, handles)
@@ -202,11 +199,6 @@ end
 function PlotEverything(hObject, handles)
     data = guidata(handles.forc.output);
     axes(handles.axes1);
-    if handles.AddToPlots.Value
-        hold on
-    else
-        cla;
-    end
     rho = data.princeton.forc.rho;
     Ha = data.princeton.forc.Ha; 
     Hb = data.princeton.forc.Hb; 
@@ -281,7 +273,6 @@ function PlotEverything(hObject, handles)
         maxH = handles.forc.princeton.forc.maxHu;
     end
     xlim([minH maxH]*1e3);
-    hold off
 
 
 % --- Executes during object creation, after setting all properties.
@@ -306,7 +297,6 @@ function InteractionDistribution_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of InteractionDistribution
     handles.PlotInteractionDistribution = get(handles.InteractionDistribution, 'Value');
     SaveState(hObject, handles);
-    PlotEverything(hObject, handles);
 
 % --- Executes on button press in InteractionCrosssection.
 function InteractionCrosssection_Callback(hObject, eventdata, handles)
@@ -317,7 +307,6 @@ function InteractionCrosssection_Callback(hObject, eventdata, handles)
 % Hint: get(hObject,'Value') returns toggle state of InteractionCrosssection
     handles.PlotInteractionCrosssection = get(handles.InteractionCrosssection, 'Value');
     SaveState(hObject, handles);
-    PlotEverything(hObject, handles);
 
 
 function InteractionCrosssectionAt_Callback(hObject, eventdata, handles)
@@ -333,7 +322,6 @@ function InteractionCrosssectionAt_Callback(hObject, eventdata, handles)
         handles.Hc_cross = 0;
     end
     SaveState(hObject, handles);
-    PlotEverything(hObject, handles);
 
 
 % --- Executes on button press in NormalizeCheckbox.
@@ -547,7 +535,11 @@ function YFrom_Callback(hObject, eventdata, handles)
 
 % Hints: get(hObject,'String') returns contents of YFrom as text
 %        str2double(get(hObject,'String')) returns contents of YFrom as a double
-
+    axes(handles.axes1);
+    try
+        ylim([str2double(handles.YFrom.String) str2double(handles.YTo.String)])
+    catch
+    end
 
 % --- Executes during object creation, after setting all properties.
 function YFrom_CreateFcn(hObject, eventdata, handles)
@@ -579,6 +571,71 @@ function YTo_Callback(hObject, eventdata, handles)
 % --- Executes during object creation, after setting all properties.
 function YTo_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to YTo (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in ClearPlotButton.
+function ClearPlotButton_Callback(hObject, eventdata, handles)
+% hObject    handle to ClearPlotButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+    data = guidata(handles.forc.output);
+    axes(handles.axes1);
+    cla;
+
+
+
+function XFrom_Callback(hObject, eventdata, handles)
+% hObject    handle to XFrom (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of XFrom as text
+%        str2double(get(hObject,'String')) returns contents of XFrom as a double
+    axes(handles.axes1);
+    try
+        xlim([str2double(handles.XFrom.String) str2double(handles.XTo.String)])
+    catch
+    end
+
+% --- Executes during object creation, after setting all properties.
+function XFrom_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to XFrom (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function XTo_Callback(hObject, eventdata, handles)
+% hObject    handle to XTo (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of XTo as text
+%        str2double(get(hObject,'String')) returns contents of XTo as a double
+    axes(handles.axes1);
+    try
+        xlim([str2double(handles.XFrom.String) str2double(handles.XTo.String)])
+    catch
+    end
+
+% --- Executes during object creation, after setting all properties.
+function XTo_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to XTo (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 

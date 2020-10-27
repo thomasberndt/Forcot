@@ -193,7 +193,7 @@ function handles = LoadForc(hObject, handles)
     DeleteThing(handles.SendDiagnosticDataButton);
     handles.n = get(handles.FileListBox, 'Value');
     handles.filename = fullfile(handles.pathname, handles.files{handles.n}); 
-    [~,name] = fileparts(handles.filename);
+    [~,name,ext] = fileparts(handles.filename);
     set(handles.TitleTextBox, 'String', name); 
     title(handles.ForcAxes, name); 
     handles.MessageText = text(handles.ForcAxes, 0.1, 0.5, ...
@@ -203,7 +203,14 @@ function handles = LoadForc(hObject, handles)
     drawnow
     try
         handles.manualSF = [];
-        handles.princeton = LoadAndProcessPrincetonForc(handles.filename); 
+        if strcmpi(ext, '.tsforc') || strcmpi(ext, '.taforc') 
+            ts_file = fullfile(handles.pathname, strcat(name, '.tsforc'));
+            ta_file = fullfile(handles.pathname, strcat(name, '.taforc'));
+            [ts, ta, dif] = LoadAndProcessPrincetonTaForc(ts_file, ta_file);
+            handles.princeton = dif; 
+        else
+            handles.princeton = LoadAndProcessPrincetonForc(handles.filename); 
+        end
         set(handles.SFTextBox, 'String', num2str(handles.princeton.forc.SF));
         handles.princeton.forc.maxHu = handles.princeton.forc.maxHu * .9; 
         set(handles.Hu_TextBox, 'String', num2str(round(handles.princeton.forc.maxHu*1000)));
@@ -211,7 +218,9 @@ function handles = LoadForc(hObject, handles)
         DeleteThing(handles.MessageText);
         GuiPlotForc(handles);  
         TightAxis(handles);
-        GuiPlotPowerSpectrum(handles);   
+        if ~(strcmpi(ext, '.tsforc') || strcmpi(ext, '.taforc'))
+            GuiPlotPowerSpectrum(handles);   
+        end
     catch ME
         axes(handles.ForcAxes);
         handles.ME = ME; 
