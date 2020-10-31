@@ -22,7 +22,7 @@ function varargout = ForcGui(varargin)
 
 % Edit the above text to modify the response to help ForcGui
 
-% Last Modified by GUIDE v2.5 19-Jun-2020 17:31:24
+% Last Modified by GUIDE v2.5 31-Oct-2020 13:18:42
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -206,8 +206,8 @@ function handles = LoadForc(hObject, handles)
         if strcmpi(ext, '.tsforc') || strcmpi(ext, '.taforc') 
             ts_file = fullfile(handles.pathname, strcat(name, '.tsforc'));
             ta_file = fullfile(handles.pathname, strcat(name, '.taforc'));
-            [ts, ta, dif] = LoadAndProcessPrincetonTaForc(ts_file, ta_file);
-            handles.princeton = dif; 
+            handles.princeton = LoadAndProcessPrincetonTaForc(ts_file, ta_file);
+            handles = SelectTaForcType(handles);
         else
             handles.princeton = LoadAndProcessPrincetonForc(handles.filename); 
         end
@@ -728,3 +728,84 @@ function AdvancedDialogButton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
     handles.AdvancedDialog = AdvancedDialog(handles);
     SaveState(hObject,handles); 
+
+
+% --- Executes on selection change in TA_Forc_Selector.
+function TA_Forc_Selector_Callback(hObject, eventdata, handles)
+% hObject    handle to TA_Forc_Selector (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns TA_Forc_Selector contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from TA_Forc_Selector
+
+    idx = get(hObject, 'Value');
+    if handles.princeton.istaforc
+        if idx == 1
+            handles.selected_TA = 'TS-FORC';
+        elseif idx == 2
+            handles.selected_TA = 'TA-FORC';
+        elseif idx == 3
+            handles.selected_TA = 'Difference';
+        elseif idx == 4
+            handles.selected_TA = 'TA-Distribution-A';
+        elseif idx == 5
+            handles.selected_TA = 'TA-Distribution-B';
+        elseif idx == 6
+            handles.selected_TA = 'TA-Distribution-Anorm';
+        elseif idx == 7
+            handles.selected_TA = 'TS-norm';
+        elseif idx == 8
+            handles.selected_TA = 'TA-frac';
+        end
+        handles = SelectTaForcType(handles);
+        GuiPlotForc(handles);       
+        SaveState(hObject,handles); 
+    end
+
+function handles = SelectTaForcType(handles)
+    if isfield(handles.princeton, 'istaforc')
+        if handles.princeton.istaforc
+            if ~isfield(handles, 'selected_TA')
+                handles.selected_TA = 'TS-FORC';
+            end
+            if strcmpi(handles.selected_TA, 'TS-FORC')
+                handles.princeton.forc = handles.princeton.ts.forc;
+                handles.princeton.grid = handles.princeton.ts.grid;
+            elseif strcmpi(handles.selected_TA, 'TA-FORC')
+                handles.princeton.forc = handles.princeton.ta.forc;
+                handles.princeton.grid = handles.princeton.ta.grid;
+            elseif strcmpi(handles.selected_TA, 'Difference')
+                handles.princeton.forc = handles.princeton.dif.forc;
+                handles.princeton.grid = handles.princeton.dif.grid;
+            elseif strcmpi(handles.selected_TA, 'TA-Distribution-A')
+                handles.princeton.forc = handles.princeton.tadista.forc;
+                handles.princeton.grid = handles.princeton.tadista.grid;
+            elseif strcmpi(handles.selected_TA, 'TA-Distribution-B')
+                handles.princeton.forc = handles.princeton.tadistb.forc;
+                handles.princeton.grid = handles.princeton.tadistb.grid;
+            elseif strcmpi(handles.selected_TA, 'TA-Distribution-Anorm')
+                handles.princeton.forc = handles.princeton.tadistanorm.forc;
+                handles.princeton.grid = handles.princeton.tadistanorm.grid;
+            elseif strcmpi(handles.selected_TA, 'TS-norm')
+                handles.princeton.forc = handles.princeton.tsnorm.forc;
+                handles.princeton.grid = handles.princeton.tsnorm.grid;
+            elseif strcmpi(handles.selected_TA, 'TA-frac')
+                handles.princeton.forc = handles.princeton.tafrac.forc;
+                handles.princeton.grid = handles.princeton.tafrac.grid;
+            end
+            handles.princeton.selected = handles.selected_TA;
+        end
+    end
+
+% --- Executes during object creation, after setting all properties.
+function TA_Forc_Selector_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to TA_Forc_Selector (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end

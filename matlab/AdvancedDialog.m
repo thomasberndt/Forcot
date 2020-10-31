@@ -221,7 +221,7 @@ function PlotEverything(hObject, handles)
     end
     
     if handles.PlotCoercivityDistribution
-        n = max(abs(CoercivityDistribution))*handles.Normalize + (1-handles.Normalize);
+        n = max(abs(CoercivityDistribution(hcs*1e3>5)))*handles.Normalize + (1-handles.Normalize);
         plot(hcs*1e3, CoercivityDistribution/n, 'DisplayName', ...
             sprintf('H_c (%s)', data.TitleTextBox.String), ...
             'LineWidth', 2);
@@ -231,7 +231,7 @@ function PlotEverything(hObject, handles)
         [~,x] = min(abs(Hu-handles.Hu_cross));
         ind = sub2ind(size(Hu), x, 1:length(x));
         r = rho(ind);
-        n = max(abs(r))*handles.Normalize + (1-handles.Normalize);
+        n = max(abs(r(Hc(ind)*1e3>5)))*handles.Normalize + (1-handles.Normalize);
         plot(Hc(ind)*1e3, r/n, 'DisplayName', ...
             sprintf('H_c at H_u=%g mT (%s)', ...
             handles.Hu_cross*1e3, ...

@@ -1,8 +1,8 @@
 function [files, pathname, ext, n] = OpenForcDialog(pathname)
     if nargin == 1 && ~isempty(pathname)
-        mask = fullfile(pathname, '*.frc');
+        mask = fullfile(pathname, '*.*');
     else 
-        mask = '*.frc'; 
+        mask = '*.*'; 
     end
     [filename, pathname] = uigetfile(mask);
     if filename == 0

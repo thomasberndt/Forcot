@@ -1,4 +1,4 @@
-function [rho, SF, M, d, ps] = SmoothForcFft(M, Ha, Hb, SF)
+function [rho, SF, M, d, ps] = SmoothForcFft(M, Ha, Hb, SF, tatype)
 % Smoothes the FORC using FFT algorithm and returns the smooth FORC
 % distribution. 
 %
@@ -16,12 +16,22 @@ function [rho, SF, M, d, ps] = SmoothForcFft(M, Ha, Hb, SF)
 % SF - SF that was actually used, i.e. same as input argument if given, or
 % optimal SF if not given. 
 % M - smoothed FORCs M
-
+    
+    if nargin < 5 
+        tatype = 'TS-FORC';
+    end
     if nargin < 3
         if nargin == 2
             SF = Ha;
         end
         princeton = M; 
+        if isfield(princeton, 'istaforc')
+            if princeton.istaforc
+                if isfield(princeton, 'selected')
+                    tatype = princeton.selected;
+                end
+            end
+        end
         M = princeton.grid.M;
         Ha = princeton.grid.Ha;
         Hb = princeton.grid.Hb;
@@ -50,7 +60,13 @@ function [rho, SF, M, d, ps] = SmoothForcFft(M, Ha, Hb, SF)
     KX = KX';
     KY = KY';
     
-    f2 = (2i*pi)^2.*KX.*KY.*f; 
+    if strcmpi(tatype, 'TA-Distribution-A') 
+        f2 = 2i*pi.*KX.*f; 
+    elseif strcmpi(tatype, 'TA-Distribution-B') 
+        f2 = -2i*pi.*KY.*f; 
+    else
+        f2 = (2i*pi)^2.*KX.*KY.*f; 
+    end
     
     if nargin ~= 2
         SFs = [0.2:0.2:6]; 
