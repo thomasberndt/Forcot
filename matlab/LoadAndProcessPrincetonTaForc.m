@@ -1,7 +1,5 @@
 function forc = LoadAndProcessPrincetonTaForc(filename_ts, filename_ta)
-
-    Ms = 480e3; 
-    T = 293;
+ 
     k = 1.38e-23;
     mu0 = pi*4e-7;
     t = 1; 
@@ -11,6 +9,15 @@ function forc = LoadAndProcessPrincetonTaForc(filename_ts, filename_ta)
     forc = LoadPrincetonForc(filename_ts); 
     forc.selected = 'TS-FORC';
     forc.istaforc = true;
+    taforc_temperature = regexp(filename_ts, '[^a-zA-Z0-9]([0-9]+)K\.t[sa]forc', 'tokens');
+    if ~isempty(taforc_temperature)
+        forc.taforc_temperature = str2double(taforc_temperature{1}{1});
+    else
+        forc.taforc_temperature = 293;
+    end
+    T = forc.taforc_temperature; 
+    Ms = CalculateMsT(forc.taforc_temperature);
+    forc.taforc_Ms = Ms;
     forc.correctedM = DriftCorrection(forc);
     forc.grid = RegularizeForcGrid(forc); 
     forc.forc = SmoothForcFft(forc);
@@ -24,6 +31,8 @@ function forc = LoadAndProcessPrincetonTaForc(filename_ts, filename_ta)
     ta.forc = SmoothForcFft(ta, forc.forc.SF);
     ta.forc.maxHc = round(0.9*ta.forc.maxHc,4);
     ta.forc.maxHu = round(0.9*ta.forc.maxHu,4);
+    ta.taforc_temperature = forc.taforc_temperature;
+    ta.taforc_Ms = forc.taforc_Ms;
     
     dif = forc; 
     dif.selected = 'Difference';
