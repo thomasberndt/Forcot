@@ -1,3 +1,3 @@
 function version = GetCurrentVersion()
-    version = 'v1.0.9';
+    version = 'v1.1.0';
 end

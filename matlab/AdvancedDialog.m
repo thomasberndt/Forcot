@@ -22,7 +22,7 @@ function varargout = AdvancedDialog(varargin)
 
 % Edit the above text to modify the response to help AdvancedDialog
 
-% Last Modified by GUIDE v2.5 27-Oct-2020 19:54:31
+% Last Modified by GUIDE v2.5 15-Dec-2020 22:44:27
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -273,6 +273,172 @@ function PlotEverything(hObject, handles)
         maxH = handles.forc.princeton.forc.maxHu;
     end
     xlim([minH maxH]*1e3);
+
+
+
+function PlotSizeAndShape(hObject, handles)
+    mu0 = pi*4e-7;
+    data = guidata(handles.forc.output);
+    axes(handles.axes1);
+    rho = data.princeton.forc.rho;
+    Ha = data.princeton.forc.Ha; 
+    Hb = data.princeton.forc.Hb; 
+    Hc = data.princeton.forc.Hc; 
+    Hu = data.princeton.forc.Hu; 
+    if isfield(handles.forc.princeton, 'taforc_Ms')
+        Ms = handles.forc.princeton.taforc_Ms;
+    else
+        Ms = 480e3;
+    end
+    
+    hcs = linspace(0, data.princeton.forc.maxHc);
+    hus = linspace(-data.princeton.forc.maxHu, data.princeton.forc.maxHu);
+
+    if handles.PlotCoercivityCrosssection
+        [~,x] = min(abs(Hu-handles.Hu_cross));
+        ind = sub2ind(size(Hu), x, 1:length(x));
+        r = rho(ind);
+        V = r.^3;
+        N = Hc(ind) / mu0 ./ Ms; 
+        q = ShapeAnisotropyInv(N);
+        L = (6/pi * V .* q.^2).^(1/3);
+        
+        abundance = data.princeton.ts.forc.rho(ind);
+        abundance(isnan(abundance)) = 0;
+        abundance(abundance<0) = 0;
+        ma = max(abundance); 
+        ab = abundance/ma * 150 + 1;
+        h = scatter(1./q, L*1e9, ab, ...
+            'filled', ...
+            'AlphaData', sqrt(abundance/ma), ...
+            'MarkerFaceAlpha', 'flat', ...
+            'DisplayName', ...
+            sprintf('H_c at H_u=%g mT (%s)', ...
+            handles.Hu_cross*1e3, ...
+            data.TitleTextBox.String), ...
+            'LineWidth', 2);
+        hold on
+    end
+    grid on
+    xlabel('Axial ratio');
+    ylabel('Length [nm]'); 
+    legend('location', 'northeastoutside');
+%     xlim([1 100]);
+
+
+function PlotShape(hObject, handles)
+    mu0 = pi*4e-7;
+    data = guidata(handles.forc.output);
+    axes(handles.axes1);
+    rho = data.princeton.forc.rho;
+    Ha = data.princeton.forc.Ha; 
+    Hb = data.princeton.forc.Hb; 
+    Hc = data.princeton.forc.Hc; 
+    Hu = data.princeton.forc.Hu; 
+    if isfield(handles.forc.princeton, 'taforc_Ms')
+        Ms = handles.forc.princeton.taforc_Ms;
+    else
+        Ms = 480e3;
+    end
+    
+    hcs = linspace(0, data.princeton.forc.maxHc);
+    hus = linspace(-data.princeton.forc.maxHu, data.princeton.forc.maxHu);
+
+    if handles.PlotCoercivityCrosssection
+        [~,x] = min(abs(Hu-handles.Hu_cross));
+        ind = sub2ind(size(Hu), x, 1:length(x));
+        r = rho(ind);
+        V = r.^3;
+        N = Hc(ind) / mu0 ./ Ms; 
+        q = ShapeAnisotropyInv(N);
+        L = real((6/pi * V .* q.^2).^(1/3));
+                
+        abundance = data.princeton.ts.forc.rho(ind);
+        abundance(isnan(abundance)) = 0;
+        abundance(abundance<0) = 0;
+        
+        [q, id] = sort(q);
+        qq = linspace(1, 1/.6, 30);
+        abundance = abundance(id);
+        
+        ma = max(abundance); 
+        ab = abundance/ma;
+        A = zeros(size(qq));
+        for n = 1:length(qq)-1
+            A(n) = nansum(ab(and(q>qq(n), q<=qq(n+1))));
+        end
+        plot(1./qq, A/max(A),  ...
+            'DisplayName', ...
+            sprintf('H_c at H_u=%g mT (%s)', ...
+            handles.Hu_cross*1e3, ...
+            data.TitleTextBox.String), ...
+            'LineWidth', 2);
+        hold on
+    end
+    grid on
+    xlabel('Axial ratio');
+    ylabel('Abundance'); 
+    legend('location', 'northeastoutside');
+%     xlim([1 100]);
+
+
+
+
+
+function PlotSize(hObject, handles)
+    mu0 = pi*4e-7;
+    data = guidata(handles.forc.output);
+    axes(handles.axes1);
+    rho = data.princeton.forc.rho;
+    Ha = data.princeton.forc.Ha; 
+    Hb = data.princeton.forc.Hb; 
+    Hc = data.princeton.forc.Hc; 
+    Hu = data.princeton.forc.Hu; 
+    if isfield(handles.forc.princeton, 'taforc_Ms')
+        Ms = handles.forc.princeton.taforc_Ms;
+    else
+        Ms = 480e3;
+    end
+    
+    hcs = linspace(0, data.princeton.forc.maxHc);
+    hus = linspace(-data.princeton.forc.maxHu, data.princeton.forc.maxHu);
+
+    if handles.PlotCoercivityCrosssection
+        [~,x] = min(abs(Hu-handles.Hu_cross));
+        ind = sub2ind(size(Hu), x, 1:length(x));
+        r = rho(ind);
+        V = r.^3;
+        N = Hc(ind) / mu0 ./ Ms; 
+        q = ShapeAnisotropyInv(N);
+        L = real((6/pi * V .* q.^2).^(1/3));
+                
+        abundance = data.princeton.ts.forc.rho(ind);
+        abundance(isnan(abundance)) = 0;
+        abundance(abundance<0) = 0;
+        
+        [L, id] = sort(L);
+        LL = linspace(0, 100e-9, 20);
+        abundance = abundance(id);
+        
+        ma = max(abundance); 
+        ab = abundance/ma;
+        A = zeros(size(LL));
+        for n = 1:length(LL)-1
+            A(n) = nansum(ab(and(L>LL(n), L<=LL(n+1))));
+        end
+        plot(LL*1e9, A,  ...
+            'DisplayName', ...
+            sprintf('H_c at H_u=%g mT (%s)', ...
+            handles.Hu_cross*1e3, ...
+            data.TitleTextBox.String), ...
+            'LineWidth', 2);
+        hold on
+    end
+    grid on
+    xlabel('Length [nm]');
+    ylabel('Abundance'); 
+    legend('location', 'northeastoutside');
+%     xlim([1 100]);
 
 
 % --- Executes during object creation, after setting all properties.
@@ -644,3 +810,29 @@ function XTo_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in PushPlotSizeShape.
+function PushPlotSizeShape_Callback(hObject, eventdata, handles)
+% hObject    handle to PushPlotSizeShape (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+    PlotSizeAndShape(hObject, handles);
+
+
+% --- Executes on button press in PlotSizeButton.
+function PlotSizeButton_Callback(hObject, eventdata, handles)
+% hObject    handle to PlotSizeButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+    PlotSize(hObject, handles);
+
+% --- Executes on button press in PlotShapeButton.
+function PlotShapeButton_Callback(hObject, eventdata, handles)
+% hObject    handle to PlotShapeButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+    PlotShape(hObject, handles);
+    
+    
+    
