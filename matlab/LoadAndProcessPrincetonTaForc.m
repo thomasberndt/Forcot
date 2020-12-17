@@ -2,12 +2,11 @@ function forc = LoadAndProcessPrincetonTaForc(filename_ts, filename_ta)
  
     k = 1.38e-23;
     mu0 = pi*4e-7;
-    t = 1; 
     tau0 = 1e-9;
-    
-    
+        
     forc = LoadPrincetonForc(filename_ts); 
-    forc.selected = 'TS-FORC';
+    forc.selected = 'TS_FORC';
+    t1 = forc.metadata.script.PauseReversal; 
     forc.istaforc = true;
     taforc_temperature = regexp(filename_ts, '[^a-zA-Z0-9]([0-9]+)K\.t[sa]forc', 'tokens');
     if ~isempty(taforc_temperature)
@@ -24,58 +23,84 @@ function forc = LoadAndProcessPrincetonTaForc(filename_ts, filename_ta)
     forc.forc.maxHc = round(0.9*forc.forc.maxHc,4);
     forc.forc.maxHu = round(0.9*forc.forc.maxHu,4);
     
-    ta = LoadPrincetonForc(filename_ta); 
-    ta.selected = 'TA-FORC';
-    ta.correctedM = DriftCorrection(ta);
-    ta.grid = RegularizeForcGrid(ta); 
-    ta.forc = SmoothForcFft(ta, forc.forc.SF);
-    ta.forc.maxHc = round(0.9*ta.forc.maxHc,4);
-    ta.forc.maxHu = round(0.9*ta.forc.maxHu,4);
-    ta.taforc_temperature = forc.taforc_temperature;
-    ta.taforc_Ms = forc.taforc_Ms;
+    TA_FORC = LoadPrincetonForc(filename_ta); 
+    t2 = TA_FORC.metadata.script.PauseReversal; 
+    TA_FORC.selected = 'TA_FORC';
+    TA_FORC.correctedM = DriftCorrection(TA_FORC);
+    TA_FORC.grid = RegularizeForcGrid(TA_FORC); 
+    TA_FORC.forc = SmoothForcFft(TA_FORC, forc.forc.SF);
+    TA_FORC.forc.maxHc = round(0.9*TA_FORC.forc.maxHc,4);
+    TA_FORC.forc.maxHu = round(0.9*TA_FORC.forc.maxHu,4);
+    TA_FORC.taforc_temperature = forc.taforc_temperature;
+    TA_FORC.taforc_Ms = forc.taforc_Ms;
     
-    dif = forc; 
-    dif.selected = 'Difference';
-    dif.grid.M = ta.grid.M - forc.grid.M; 
-    dif.forc = SmoothForcFft(dif, forc.forc.SF);
-    dif.forc.maxHc = round(0.9*dif.forc.maxHc,4);
-    dif.forc.maxHu = round(0.9*dif.forc.maxHu,4);
+    Difference = forc; 
+    Difference.selected = 'Difference';
+    Difference.grid.M = TA_FORC.grid.M - forc.grid.M; 
+    Difference.forc = SmoothForcFft(Difference, forc.forc.SF);
+    Difference.forc.maxHc = round(0.9*Difference.forc.maxHc,4);
+    Difference.forc.maxHu = round(0.9*Difference.forc.maxHu,4);
     
-    tadista = dif;
-    tadista.selected = 'TA-Distribution-A';
-    tadista.forc = SmoothForcFft(tadista, dif.forc.SF);
-    tadista.forc.maxHc = round(0.9*dif.forc.maxHc,4);
-    tadista.forc.maxHu = round(0.9*dif.forc.maxHu,4);
+    TA_Distribution_A = Difference;
+    TA_Distribution_A.selected = 'TA_Distribution_A';
+    TA_Distribution_A.forc = SmoothForcFft(TA_Distribution_A, Difference.forc.SF);
+    TA_Distribution_A.forc.maxHc = round(0.9*Difference.forc.maxHc,4);
+    TA_Distribution_A.forc.maxHu = round(0.9*Difference.forc.maxHu,4);
     
-    tadistb = dif;
-    tadistb.selected = 'TA-Distribution-B';
-    tadistb.forc = SmoothForcFft(tadistb, dif.forc.SF);
-    tadistb.forc.maxHc = round(0.9*dif.forc.maxHc,4);
-    tadistb.forc.maxHu = round(0.9*dif.forc.maxHu,4);
+    TA_Distribution_B = Difference;
+    TA_Distribution_B.selected = 'TA_Distribution_B';
+    TA_Distribution_B.forc = SmoothForcFft(TA_Distribution_B, Difference.forc.SF);
+    TA_Distribution_B.forc.maxHc = round(0.9*Difference.forc.maxHc,4);
+    TA_Distribution_B.forc.maxHu = round(0.9*Difference.forc.maxHu,4);
     
     
-    tadistanorm = tadista;
-    tadistanorm.selected = 'TA-Distribution-Anorm';
-    norm = sqrt((2*Ms*k*T)/(mu0*log(t/tau0)));
-    tadistanorm.forc.rho = tadistanorm.forc.rho / norm ./ sqrt(abs(mu0*tadistanorm.forc.Hc));
+    TA_Distribution_Anorm = TA_Distribution_A;
+    TA_Distribution_Anorm.selected = 'TA_Distribution_Anorm';
+    norm = sqrt((2*Ms*k*T)/(mu0*log(t1/tau0)));
+    TA_Distribution_Anorm.forc.rho = TA_Distribution_Anorm.forc.rho / norm ./ sqrt(abs(mu0*TA_Distribution_Anorm.forc.Hc));
+        
+    TA_Distribution_Bnorm = TA_Distribution_B;
+    TA_Distribution_Bnorm.selected = 'TA_Distribution_Bnorm';
+    norm = sqrt((2*Ms*k*T)/(mu0*log(t1/tau0)));
+    TA_Distribution_Bnorm.forc.rho = TA_Distribution_Bnorm.forc.rho / norm ./ sqrt(abs(mu0*TA_Distribution_Bnorm.forc.Hc));
     
-    tsnorm = forc;
-    tsnorm.selected = 'TS-norm';
+    TS_norm = forc;
+    TS_norm.selected = 'TS_norm';
     norm = 2*Ms;
-    tsnorm.forc.rho = tsnorm.forc.rho / norm;
+    TS_norm.forc.rho = TS_norm.forc.rho / norm;
     
     
-    tafrac = tadistanorm;
-    tafrac.selected = 'TA-frac';
-    tafrac.forc.rho = real((tsnorm.forc.rho ./ tadistanorm.forc.rho).^(2/3));
-    tafrac.forc.limit = 1e-7;
+    TA_frac_A = TA_Distribution_Anorm;
+    TA_frac_A.selected = 'TA_frac_A';
+    TA_frac_A.forc.rho = real((TS_norm.forc.rho ./ TA_Distribution_Anorm.forc.rho).^(2/3));
+    TA_frac_A.forc.limit = 1e-7;
     
-    forc.ts = forc;
-    forc.ta = ta; 
-    forc.dif = dif;
-    forc.tadista = tadista;
-    forc.tadistb = tadistb;
-    forc.tadistanorm = tadistanorm;
-    forc.tsnorm = tsnorm;
-    forc.tafrac = tafrac;
+    TA_frac_B = TA_Distribution_Bnorm;
+    TA_frac_B.selected = 'TA_frac_B';
+    TA_frac_B.forc.rho = real((TS_norm.forc.rho ./ TA_Distribution_Bnorm.forc.rho).^(2/3));
+    TA_frac_B.forc.limit = 1e-7;
+    
+    [V1, HK1] = GetV(TA_Distribution_B.forc.rho, forc.forc.rho, ...
+        t1, t2, Ms, forc.forc.Hc, T, tau0);
+    V = forc; 
+    V.selected = 'V';
+    V.forc.rho = V1; 
+    V.forc.limit = 1e-10;
+    HK = forc; 
+    HK.selected = 'HK';
+    HK.forc.rho = HK1; 
+    HK.forc.limit = 1e11;
+    
+    forc.TS_FORC = forc;
+    forc.TA_FORC = TA_FORC; 
+    forc.Difference = Difference;
+    forc.TA_Distribution_A = TA_Distribution_A;
+    forc.TA_Distribution_B = TA_Distribution_B;
+    forc.TA_Distribution_Anorm = TA_Distribution_Anorm;
+    forc.TA_Distribution_Bnorm = TA_Distribution_Bnorm;
+    forc.TS_norm = TS_norm;
+    forc.TA_frac_A = TA_frac_A;
+    forc.TA_frac_B = TA_frac_B;
+    forc.V = V;
+    forc.HK = HK;
 end

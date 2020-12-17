@@ -740,24 +740,9 @@ function TA_Forc_Selector_Callback(hObject, eventdata, handles)
 %        contents{get(hObject,'Value')} returns selected item from TA_Forc_Selector
 
     idx = get(hObject, 'Value');
+    selection = get(hObject, 'String');
     if handles.princeton.istaforc
-        if idx == 1
-            handles.selected_TA = 'TS-FORC';
-        elseif idx == 2
-            handles.selected_TA = 'TA-FORC';
-        elseif idx == 3
-            handles.selected_TA = 'Difference';
-        elseif idx == 4
-            handles.selected_TA = 'TA-Distribution-A';
-        elseif idx == 5
-            handles.selected_TA = 'TA-Distribution-B';
-        elseif idx == 6
-            handles.selected_TA = 'TA-Distribution-Anorm';
-        elseif idx == 7
-            handles.selected_TA = 'TS-norm';
-        elseif idx == 8
-            handles.selected_TA = 'TA-frac';
-        end
+        handles.selected_TA = selection{idx};
         handles = SelectTaForcType(handles);
         GuiPlotForc(handles);       
         SaveState(hObject,handles); 
@@ -767,34 +752,11 @@ function handles = SelectTaForcType(handles)
     if isfield(handles.princeton, 'istaforc')
         if handles.princeton.istaforc
             if ~isfield(handles, 'selected_TA')
-                handles.selected_TA = 'TS-FORC';
+                handles.selected_TA = 'TS_FORC';
             end
-            if strcmpi(handles.selected_TA, 'TS-FORC')
-                handles.princeton.forc = handles.princeton.ts.forc;
-                handles.princeton.grid = handles.princeton.ts.grid;
-            elseif strcmpi(handles.selected_TA, 'TA-FORC')
-                handles.princeton.forc = handles.princeton.ta.forc;
-                handles.princeton.grid = handles.princeton.ta.grid;
-            elseif strcmpi(handles.selected_TA, 'Difference')
-                handles.princeton.forc = handles.princeton.dif.forc;
-                handles.princeton.grid = handles.princeton.dif.grid;
-            elseif strcmpi(handles.selected_TA, 'TA-Distribution-A')
-                handles.princeton.forc = handles.princeton.tadista.forc;
-                handles.princeton.grid = handles.princeton.tadista.grid;
-            elseif strcmpi(handles.selected_TA, 'TA-Distribution-B')
-                handles.princeton.forc = handles.princeton.tadistb.forc;
-                handles.princeton.grid = handles.princeton.tadistb.grid;
-            elseif strcmpi(handles.selected_TA, 'TA-Distribution-Anorm')
-                handles.princeton.forc = handles.princeton.tadistanorm.forc;
-                handles.princeton.grid = handles.princeton.tadistanorm.grid;
-            elseif strcmpi(handles.selected_TA, 'TS-norm')
-                handles.princeton.forc = handles.princeton.tsnorm.forc;
-                handles.princeton.grid = handles.princeton.tsnorm.grid;
-            elseif strcmpi(handles.selected_TA, 'TA-frac')
-                handles.princeton.forc = handles.princeton.tafrac.forc;
-                handles.princeton.grid = handles.princeton.tafrac.grid;
-            end
-            handles.princeton.selected = handles.selected_TA;
+            handles.princeton.selected = handles.princeton.(handles.selected_TA); 
+            handles.princeton.forc = handles.princeton.selected.forc;
+            handles.princeton.grid = handles.princeton.selected.grid;
         end
     end
 

@@ -1,5 +1,5 @@
 <deployment-project plugin="plugin.ezdeploy" plugin-version="1.0">
-  <configuration build-checksum="1545296602" file="C:\Users\Tom\Dropbox\Documents\Studies\Semester 14 Beijing Fall\FFT-FORC_priv\matlab\ForcGui.prj" location="C:\Users\Tom\Dropbox\Documents\Studies\Semester 14 Beijing Fall\FFT-FORC_priv\matlab" name="ForcGui" preferred-package-location="C:\Users\Tom\Dropbox\Documents\Studies\Semester 14 Beijing Fall\Forcot\matlab\ForcGui\for_redistribution" preferred-package-type="package.type.exe" target="target.ezdeploy.standalone" target-name="Application Compiler">
+  <configuration build-checksum="2782379748" file="C:\Users\Tom\Dropbox\Documents\Studies\Semester 14 Beijing Fall\FFT-FORC_priv\matlab\ForcGui.prj" location="C:\Users\Tom\Dropbox\Documents\Studies\Semester 14 Beijing Fall\FFT-FORC_priv\matlab" name="ForcGui" preferred-package-location="C:\Users\Tom\Dropbox\Documents\Studies\Semester 14 Beijing Fall\FFT-FORC_priv\matlab\ForcGui\for_redistribution" preferred-package-type="package.type.exe" target="target.ezdeploy.standalone" target-name="Application Compiler">
     <param.appname>Forcot</param.appname>
     <param.icon />
     <param.icons />
@@ -120,6 +120,10 @@
       <file>${PROJECT_ROOT}\PlotFORC.m</file>
       <file>${PROJECT_ROOT}\RaiseIssue.m</file>
       <file>${PROJECT_ROOT}\RegularizeForcGrid.m</file>
+      <file>${PROJECT_ROOT}\ShapeAnisotropy.m</file>
+      <file>${PROJECT_ROOT}\ShapeAnisotropyF.m</file>
+      <file>${PROJECT_ROOT}\ShapeAnisotropyInv.m</file>
+      <file>${PROJECT_ROOT}\ShapeAnisotropyInv1.m</file>
       <file>${PROJECT_ROOT}\SkipVersion.m</file>
       <file>${PROJECT_ROOT}\SmoothForcFft.m</file>
     </fileset.depfun>

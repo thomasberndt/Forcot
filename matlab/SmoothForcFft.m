@@ -18,7 +18,7 @@ function [rho, SF, M, d, ps] = SmoothForcFft(M, Ha, Hb, SF, tatype)
 % M - smoothed FORCs M
     
     if nargin < 5 
-        tatype = 'TS-FORC';
+        tatype = 'TS_FORC';
     end
     if nargin < 3
         if nargin == 2
@@ -60,9 +60,9 @@ function [rho, SF, M, d, ps] = SmoothForcFft(M, Ha, Hb, SF, tatype)
     KX = KX';
     KY = KY';
     
-    if strcmpi(tatype, 'TA-Distribution-A') 
+    if strcmpi(tatype, 'TA_Distribution_A') 
         f2 = 2i*pi.*KX.*f; 
-    elseif strcmpi(tatype, 'TA-Distribution-B') 
+    elseif strcmpi(tatype, 'TA_Distribution_B') 
         f2 = -2i*pi.*KY.*f; 
     else
         f2 = (2i*pi)^2.*KX.*KY.*f; 

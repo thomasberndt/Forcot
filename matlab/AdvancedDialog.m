@@ -22,7 +22,7 @@ function varargout = AdvancedDialog(varargin)
 
 % Edit the above text to modify the response to help AdvancedDialog
 
-% Last Modified by GUIDE v2.5 15-Dec-2020 22:44:27
+% Last Modified by GUIDE v2.5 17-Dec-2020 11:40:45
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -301,9 +301,9 @@ function PlotSizeAndShape(hObject, handles)
         V = r.^3;
         N = Hc(ind) / mu0 ./ Ms; 
         q = ShapeAnisotropyInv(N);
-        L = (6/pi * V .* q.^2).^(1/3);
+        L = real((6/pi * V .* q.^2).^(1/3));
         
-        abundance = data.princeton.ts.forc.rho(ind);
+        abundance = data.princeton.TS_FORC.forc.rho(ind);
         abundance(isnan(abundance)) = 0;
         abundance(abundance<0) = 0;
         ma = max(abundance); 
@@ -323,13 +323,14 @@ function PlotSizeAndShape(hObject, handles)
     xlabel('Axial ratio');
     ylabel('Length [nm]'); 
     legend('location', 'northeastoutside');
-%     xlim([1 100]);
+    xlim([0.6 1]);
+    ylim([0 100]);
 
 
 function PlotShape(hObject, handles)
     mu0 = pi*4e-7;
     data = guidata(handles.forc.output);
-    axes(handles.axes1);
+    axes(handles.axes3);
     rho = data.princeton.forc.rho;
     Ha = data.princeton.forc.Ha; 
     Hb = data.princeton.forc.Hb; 
@@ -352,8 +353,8 @@ function PlotShape(hObject, handles)
         N = Hc(ind) / mu0 ./ Ms; 
         q = ShapeAnisotropyInv(N);
         L = real((6/pi * V .* q.^2).^(1/3));
-                
-        abundance = data.princeton.ts.forc.rho(ind);
+        
+        abundance = data.princeton.TS_FORC.forc.rho(ind);
         abundance(isnan(abundance)) = 0;
         abundance(abundance<0) = 0;
         
@@ -378,8 +379,8 @@ function PlotShape(hObject, handles)
     grid on
     xlabel('Axial ratio');
     ylabel('Abundance'); 
-    legend('location', 'northeastoutside');
-%     xlim([1 100]);
+%     legend('location', 'northeastoutside');
+    xlim([0.6 1]);
 
 
 
@@ -388,7 +389,7 @@ function PlotShape(hObject, handles)
 function PlotSize(hObject, handles)
     mu0 = pi*4e-7;
     data = guidata(handles.forc.output);
-    axes(handles.axes1);
+    axes(handles.axes2);
     rho = data.princeton.forc.rho;
     Ha = data.princeton.forc.Ha; 
     Hb = data.princeton.forc.Hb; 
@@ -412,7 +413,7 @@ function PlotSize(hObject, handles)
         q = ShapeAnisotropyInv(N);
         L = real((6/pi * V .* q.^2).^(1/3));
                 
-        abundance = data.princeton.ts.forc.rho(ind);
+        abundance = data.princeton.TS_FORC.forc.rho(ind);
         abundance(isnan(abundance)) = 0;
         abundance(abundance<0) = 0;
         
@@ -437,8 +438,8 @@ function PlotSize(hObject, handles)
     grid on
     xlabel('Length [nm]');
     ylabel('Abundance'); 
-    legend('location', 'northeastoutside');
-%     xlim([1 100]);
+%     legend('location', 'northeastoutside');
+    xlim([0 100]);
 
 
 % --- Executes during object creation, after setting all properties.
@@ -756,6 +757,10 @@ function ClearPlotButton_Callback(hObject, eventdata, handles)
     data = guidata(handles.forc.output);
     axes(handles.axes1);
     cla;
+    axes(handles.axes2);
+    cla;
+    axes(handles.axes3);
+    cla;
 
 
 
@@ -818,21 +823,8 @@ function PushPlotSizeShape_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
     PlotSizeAndShape(hObject, handles);
-
-
-% --- Executes on button press in PlotSizeButton.
-function PlotSizeButton_Callback(hObject, eventdata, handles)
-% hObject    handle to PlotSizeButton (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
     PlotSize(hObject, handles);
-
-% --- Executes on button press in PlotShapeButton.
-function PlotShapeButton_Callback(hObject, eventdata, handles)
-% hObject    handle to PlotShapeButton (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
     PlotShape(hObject, handles);
-    
-    
+
+
     
