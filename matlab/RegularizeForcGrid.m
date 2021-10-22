@@ -19,6 +19,18 @@ function grid = RegularizeForcGrid(M, Ha, Hb)
         M = princeton.correctedM; 
         Ha = princeton.measurements.Ha; 
         Hb = princeton.measurements.Hb; 
+        if princeton.metadata.IrregularGrid
+            grid.Ha = Ha;
+            grid.Hb = Hb;
+            grid.M = M; 
+            grid.Hc = (grid.Hb - grid.Ha)/2; 
+            grid.Hu = (grid.Hb + grid.Ha)/2;
+            Hcs = grid.Hc(~isnan(grid.M)); 
+            Hus = grid.Hu(~isnan(grid.M)); 
+            grid.maxHc = max(Hcs(:)); 
+            grid.maxHu = max(Hus(:)); 
+            return
+        end
     end
     
     Ha_space = linspace(Hb(1,1), Hb(1, end), round(size(Hb,2))); 

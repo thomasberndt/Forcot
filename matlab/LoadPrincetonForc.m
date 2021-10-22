@@ -22,6 +22,10 @@ function princeton_forc = LoadPrincetonForc(filepath)
     
     fid = fopen(filepath); 
     
+    calibration = []; 
+    metadata = []; 
+    metadata.IrregularGrid = false;
+    
     firstline = fgetl(fid); 
     if count(firstline, ',') > 20
         % Assume this is a csv file
@@ -34,13 +38,16 @@ function princeton_forc = LoadPrincetonForc(filepath)
         measurements.Ha = repmat(measurements.Hb(1,:), size(measurements.Hb, 1), 1); 
         measurements.T = NaN*zeros(size(measurements.M)); 
         measurements.t = NaN*zeros(size(measurements.M)); 
-        calibration = []; 
-        metadata = []; 
+        metadata.script.PauseReversal = 0.12;
+        if strcmpi(ext, 'taforc')
+            metadata.script.PauseReversal = 200;
+        end
     else 
-        % This is a Princeton file
-        if strcmpi(firstline, 'MicroMag 2900/3900 Data File (Series 0015)') || ...
+        if startsWith(firstline, 'VFTB', 'IgnoreCase',true) ||...
+                strcmpi(firstline, 'MicroMag 2900/3900 Data File (Series 0015)') || ...
                 strcmpi(firstline, 'MicroMag 2900/3900 Data File') || ...
                 strcmpi(firstline, 'MicroMag 2900/3900 Data File (Series 0015)First-order reversal curves')
+            % This is a Princeton file
             col = 20;
             if ~strcmpi(firstline, 'MicroMag 2900/3900 Data File (Series 0015)First-order reversal curves')
                 fgetl(fid); 
@@ -404,21 +411,28 @@ function princeton_forc = LoadPrincetonForc(filepath)
              Nsmooth = metadata.script.Smoothing; 
         end
 
-        if isnan(N)
-            [~, filename, ext] = fileparts(filepath); 
-            ME = MException('Forc:InvalidFileFormat', ...
-                '%s%s is not a valid Princeton VSM FORC file format', ...
-                filename, ext);
-            throw(ME);
+        N2 = N;
+        if isnan(N2)
+            % VFTB format does not contain information on how many loops
+            % were measured. These need to be determined manually by
+            % counting the lines in the file. Also, the grid may not be
+            % regular.
+%             [~, filename, ext] = fileparts(filepath); 
+%             ME = MException('Forc:InvalidFileFormat', ...
+%                 '%s%s is not a valid Princeton VSM FORC file format', ...
+%                 filename, ext);
+%             throw(ME);
+            N2 = 2;
+            metadata.IrregularGrid = true;
         end
-        measurements.M = NaN*zeros(1,N); 
-        measurements.Hb = NaN*zeros(1,N); 
-        measurements.T = NaN*zeros(1,N); 
-        measurements.t = NaN*zeros(1,N); 
-        calibration.M = NaN*zeros(1,N); 
-        calibration.H = NaN*zeros(1,N); 
-        calibration.T = NaN*zeros(1,N); 
-        calibration.t = NaN*zeros(1,N); 
+        measurements.M = NaN*zeros(1,N2); 
+        measurements.Hb = NaN*zeros(1,N2); 
+        measurements.T = NaN*zeros(1,N2); 
+        measurements.t = NaN*zeros(1,N2); 
+        calibration.M = NaN*zeros(1,N2); 
+        calibration.H = NaN*zeros(1,N2); 
+        calibration.T = NaN*zeros(1,N2); 
+        calibration.t = NaN*zeros(1,N2); 
 
         t_rev = metadata.script.PauseReversal; 
         t_sat = metadata.script.PauseSaturation;
@@ -427,9 +441,9 @@ function princeton_forc = LoadPrincetonForc(filepath)
         t_slew = metadata.script.SlewRate; 
         t_sat_to_cal = (metadata.script.HSat - metadata.script.HCal) / t_slew; 
 
-        line = fgetl(fid); 
 
         if contains_temperature
+            line = fgetl(fid); 
             C1 = transpose(sscanf(line, '%g,%g,%g'));
             line = fgetl(fid);
             line = fgetl(fid);  
@@ -444,73 +458,92 @@ function princeton_forc = LoadPrincetonForc(filepath)
             C = fscanf(fid, '%g,%g,%g'); 
             C = reshape(C, 3, [])'; 
         else
-            C1 = transpose(sscanf(line, '%g,%g'));
-            line = fgetl(fid);
-            line = fgetl(fid);  
-            k = 1;
-
-            while ischar(line) && ~contains(line, 'MicroMag') && ~isempty(line)
-                k = k + 1;
-                C1(k,:) = transpose(sscanf(line, '%g,%g'));
+            if metadata.IrregularGrid
+                % VFTB may have a slightly non-regular grid
+                [Ha, Hb, M, Ha_cal, Hb_cal, M_cal, N2, N_b] = LoadIrregularForcData(fid);
+            else                
                 line = fgetl(fid); 
-            end
+                C1 = transpose(sscanf(line, '%g,%g'));
+                line = fgetl(fid);
+                line = fgetl(fid);  
+                k = 1;
+                while ischar(line) && ...
+                        ~contains(line, 'MicroMag') && ...
+                        ~contains(line, 'ends') && ...
+                        ~isempty(line)
+                    k = k + 1;
+                    C1(k,:) = transpose(sscanf(line, '%g,%g'));
+                    line = fgetl(fid); 
+                end
 
-            C = fscanf(fid, '%g,%g'); 
-            C = reshape(C, 2, [])'; 
+                C = fscanf(fid, '%g,%g'); 
+                C = reshape(C, 2, [])'; 
+            end
         end
         fclose(fid);
-
-        n = (1:N)-1; 
-        a1 = size(C1,1)-1; 
-        C = [C1; C]; 
-        numdat = length(C(:,1));
-        maxn1 = (N+.5) - sqrt((N+.5)^2-numdat+N*(a1-1));
-        maxn2 = N - sqrt(N^2-numdat+N*a1);
-        if abs(maxn1-round(maxn1))>abs(maxn2-round(maxn2))
-            maxn = maxn2;
-            addone = 0;
-        else
-            maxn = maxn1; 
-            addone = 1;
-        end
-        cal = transpose(n.*(a1+n))+1;
-        cal2 = transpose(maxn*(maxn+a1)+(n-maxn).*(a1+2*maxn-addone)) + 1;
-        cal(n>=maxn) = cal2(n>=maxn);
-
-        calibration.H = C(cal,1)' * unitsH; 
-        calibration.M = C(cal,2)' * unitsM; 
-        if contains_temperature
-            calibration.T = C(cal,3)'; 
-        end
-
-        measurements.M = NaN((maxn-1) * 2+1-addone, N);
-        measurements.Hb = NaN((maxn-1) * 2+1-addone, N);
-        measurements.T = NaN((maxn-1) * 2+1-addone, N);
-        for k = 1:N
-            if k == N
-                id = cal(k)+1:numdat;
+        
+        if ~metadata.IrregularGrid
+            n = (1:N)-1; 
+            a1 = size(C1,1)-1; 
+            C = [C1; C]; 
+            numdat = length(C(:,1));
+            maxn1 = (N+.5) - sqrt((N+.5)^2-numdat+N*(a1-1));
+            maxn2 = N - sqrt(N^2-numdat+N*a1);
+            if abs(maxn1-round(maxn1))>abs(maxn2-round(maxn2))
+                maxn = maxn2;
+                addone = 0;
             else
-                id = cal(k)+1:cal(k+1)-1;
+                maxn = maxn1; 
+                addone = 1;
             end
-            measurements.M(1:length(id),k) = C(id,2) * unitsM; 
-            measurements.Hb(1:length(id),k) = C(id,1) * unitsH; 
+            cal = transpose(n.*(a1+n))+1;
+            cal2 = transpose(maxn*(maxn+a1)+(n-maxn).*(a1+2*maxn-addone)) + 1;
+            cal(n>=maxn) = cal2(n>=maxn);
+
+            calibration.H = C(cal,1)' * unitsH; 
+            calibration.M = C(cal,2)' * unitsM; 
             if contains_temperature
-                measurements.T(1:length(id),k) = C(id,3); 
-            end        
+                calibration.T = C(cal,3)'; 
+            end
+
+            measurements.M = NaN((maxn-1) * 2+1-addone, N);
+            measurements.Hb = NaN((maxn-1) * 2+1-addone, N);
+            measurements.T = NaN((maxn-1) * 2+1-addone, N);
+            for k = 1:N
+                if k == N
+                    id = cal(k)+1:numdat;
+                else
+                    id = cal(k)+1:cal(k+1)-1;
+                end
+                measurements.M(1:length(id),k) = C(id,2) * unitsM; 
+                measurements.Hb(1:length(id),k) = C(id,1) * unitsH; 
+                if contains_temperature
+                    measurements.T(1:length(id),k) = C(id,3); 
+                end        
+            end
+
+            dt_cal = t_sat + t_sat_to_cal + t_cal;
+            dHb = diff([calibration.H(:)'; measurements.Hb]);
+            dt = t_slew * abs(dHb) + t_avg; 
+            dt(1,:) = dt(1,:) + t_rev; 
+            dt = [dt_cal * ones(1, N); dt]; 
+            t = cumsum(dt) + cumsum(nansum(dt)); 
+            calibration.t = t(1,:); 
+            measurements.t = t(2:end,:);
+
+            measurements.Ha = repmat(measurements.Hb(1,:), size(measurements.Hb,1), 1); 
+            measurements.Ha(isnan(measurements.Hb)) = NaN;
+        else
+            % VFTB may have a slightly non-regular grid
+            f = scatteredInterpolant(Ha', Hb', M'); 
+            [measurements.Ha, measurements.Hb] = meshgrid(...
+                linspace(max(Ha), min(Ha), N2), ...
+                linspace(min(Hb), max(Hb), N_b));
+            measurements.M = f(measurements.Ha, measurements.Hb) * unitsM;
+            measurements.Ha = measurements.Ha * unitsH;
+            measurements.Hb = measurements.Hb * unitsH;
+            calibration = [];
         end
-
-        dt_cal = t_sat + t_sat_to_cal + t_cal;
-        dHb = diff([calibration.H(:)'; measurements.Hb]);
-        dt = t_slew * abs(dHb) + t_avg; 
-        dt(1,:) = dt(1,:) + t_rev; 
-        dt = [dt_cal * ones(1, N); dt]; 
-        t = cumsum(dt) + cumsum(nansum(dt)); 
-        calibration.t = t(1,:); 
-        measurements.t = t(2:end,:);
-
-        measurements.Ha = repmat(measurements.Hb(1,:), size(measurements.Hb,1), 1); 
-        measurements.Ha(isnan(measurements.Hb)) = NaN;
-
         measurements.Hc = (measurements.Hb - measurements.Ha)/2; 
         measurements.Hu = (measurements.Hb + measurements.Ha)/2;
     end

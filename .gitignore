@@ -1,4 +1,5 @@
 
+gforc-master
 matlab/ForcGui/
 Macincloud
 
@@ -11,6 +12,7 @@ issues
 ~$*
 
 matlab/ForcGui/PackagingLog.html
+matlab/ForcGui/for_redistribution_files_only/readme.txt
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
