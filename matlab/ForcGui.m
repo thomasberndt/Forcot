@@ -203,9 +203,15 @@ function handles = LoadForc(hObject, handles)
     drawnow
     try
         handles.manualSF = [];
+        is_taforc = false;
         if strcmpi(ext, '.tsforc') || strcmpi(ext, '.taforc') 
             ts_file = fullfile(handles.pathname, strcat(name, '.tsforc'));
             ta_file = fullfile(handles.pathname, strcat(name, '.taforc'));
+            if exist(ts_file) && exist(ta_file)
+                is_taforc = true;
+            end
+        end
+        if is_taforc
             handles.princeton = LoadAndProcessPrincetonTaForc(ts_file, ta_file);
             handles = SelectTaForcType(handles);
         else
