@@ -6,15 +6,9 @@ function princeton = LoadRepeatedPrincetonForc(filename)
     rep_princetons = cell([length(repeated_measured),1]);
     for n = 1:length(repeated_measured)
         rep_princetons{n} = LoadPrincetonForc(repeated_measured{n}); 
-        rep_princetons{n}.istaforc = false;
         rep_princetons{n}.correctedM = DriftCorrection(rep_princetons{n});
         rep_princetons{n}.grid = RegularizeForcGrid(rep_princetons{n}); 
     end
 
-    princeton = rep_princetons{n}; 
-    princeton.grid.M = zeros(size(princeton.grid.M));
-    for n = 1:length(repeated_measured)
-        princeton.grid.M = princeton.grid.M + rep_princetons{n}.grid.M;
-    end
-    princeton.grid.M = princeton.grid.M / length(repeated_measured);
+    princeton = AverageOfRepeatedForcs(rep_princetons);
 end

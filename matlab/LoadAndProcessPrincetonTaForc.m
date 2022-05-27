@@ -1,20 +1,25 @@
-function forc = LoadAndProcessPrincetonTaForc(filename_ts, filename_ta)
+function forc = LoadAndProcessPrincetonTaForc(filename_ts, filename_ta, repeated)
  
+    if nargin < 3
+        repeated = true;
+    end
+
     k = 1.38e-23;
     mu0 = pi*4e-7;
     tau0 = 1e-9;
-        
-    forc = LoadRepeatedPrincetonForc(filename_ts); 
+
+    if repeated 
+        forc = LoadRepeatedPrincetonForc(filename_ts);
+    else
+        forc = LoadPrincetonForc(filename_ts); 
+        forc.correctedM = DriftCorrection(forc);
+        forc.grid = RegularizeForcGrid(forc); 
+    end
     forc.selected = 'TS_FORC';
     t1 = forc.metadata.script.PauseReversal; 
     forc.istaforc = true;
-    taforc_temperature = regexp(filename_ts, '[^a-zA-Z0-9]([0-9]+)K\.t[sa]forc', 'tokens');
-    if ~isempty(taforc_temperature)
-        forc.taforc_temperature = str2double(taforc_temperature{1}{1});
-    else
-        forc.taforc_temperature = 293;
-    end
-    T = forc.taforc_temperature; 
+    T = GetTemperatureFromFilename(filename_ts);
+    forc.taforc_temperature = T; 
     Ms = CalculateMsT(forc.taforc_temperature);
     forc.taforc_Ms = Ms;
 %     forc.correctedM = DriftCorrection(forc);
@@ -23,7 +28,13 @@ function forc = LoadAndProcessPrincetonTaForc(filename_ts, filename_ta)
     forc.forc.maxHc = round(0.9*forc.forc.maxHc,4);
     forc.forc.maxHu = round(0.9*forc.forc.maxHu,4);
     
-    TA_FORC = LoadRepeatedPrincetonForc(filename_ta); 
+    if repeated 
+        TA_FORC = LoadRepeatedPrincetonForc(filename_ta);
+    else
+        TA_FORC = LoadPrincetonForc(filename_ta); 
+        TA_FORC.correctedM = DriftCorrection(TA_FORC);
+        TA_FORC.grid = RegularizeForcGrid(TA_FORC); 
+    end
     t2 = TA_FORC.metadata.script.PauseReversal; 
     TA_FORC.selected = 'TA_FORC';
 %     TA_FORC.correctedM = DriftCorrection(TA_FORC);
@@ -33,6 +44,7 @@ function forc = LoadAndProcessPrincetonTaForc(filename_ts, filename_ta)
     TA_FORC.forc.maxHu = round(0.9*TA_FORC.forc.maxHu,4);
     TA_FORC.taforc_temperature = forc.taforc_temperature;
     TA_FORC.taforc_Ms = forc.taforc_Ms;
+    TA_FORC.forc.SFs = forc.forc.SFs;
     
     Difference = forc; 
     Difference.selected = 'Difference';
