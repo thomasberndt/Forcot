@@ -38,9 +38,9 @@ function [rho, SF, M, d, ps] = SmoothForcFft(M, Ha, Hb, SF, tatype)
     end
 
     dHa = abs(diff(Ha'));
-    dHa = nanmean(dHa(:));
+    dHa = mean(dHa(:), 'omitnan');
     dHb = abs(diff(Hb));
-    dHb = nanmean(dHb(:));
+    dHb = mean(dHb(:), 'omitnan');
 
     [X1, Y1] = size(M);
     M2 = NaN(2^nextpow2(max(X1,Y1)),2^nextpow2(max(X1,Y1)));
@@ -78,25 +78,25 @@ function [rho, SF, M, d, ps] = SmoothForcFft(M, Ha, Hb, SF, tatype)
         d = sqrt((KX*dHa).^2+(KY*dHb).^2); 
         for n = 1:length(r)-1
             idx = logical(r(n) <= d & d < r(n+1)); 
-            p(n) = log10(nanmean(abs(f2(idx)).^2)); 
-            num(n) = nansum(idx(:));
+            p(n) = log10(mean(abs(f2(idx)).^2, 'omitnan')); 
+            num(n) = sum(idx(:), "omitnan");
         end
         r(end) = []; 
         SFs(end) = []; 
         firstone = find(~isnan(p), 1, 'last'); 
-        if p(firstone) < nanmin(p(firstone-3:firstone-1))
+        if p(firstone) < min(p(firstone-3:firstone-1), [], "omitnan")
             p(firstone) = NaN; 
         end
         psmooth = smooth(p, 'rlowess')'; 
         pp = sort(psmooth, 'desc', 'MissingPlacement', 'last'); 
-        [~, ~, bin] = histcounts(psmooth, linspace(nanmin(p), nanmean(pp(1:3)), 10)); 
+        [~, ~, bin] = histcounts(psmooth, linspace(min(p, [], "omitnan"), mean(pp(1:3),'omitnan'), 10)); 
         nbin = 1; 
         while ~any(bin==nbin)
             nbin = nbin + 1;
         end
         idx = (bin==nbin); 
         SF = SFs(idx);
-        SF = nanmin(SF);
+        SF = min(SF, [], "omitnan");
         ps = psmooth;
         d = SFs;
     end

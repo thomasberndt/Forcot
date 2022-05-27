@@ -11,9 +11,27 @@ function [files, pathname, ext, n] = OpenForcDialog(pathname)
         ext = [];
         n = [];
     else
-        [~, ~, ext] = fileparts(filename); 
-        files = dir(sprintf('%s/*%s', pathname, ext)); 
-        files = {files.name};
+%         if IsRepeatedlyMeasuredForc(filename)
+%             % numerical extension means that multiple 
+%             % repeated measurements where done
+%             
+%             files = {};
+%             n = 0;
+%             ext = '000'; 
+%             for ext_n = 0:99
+%                 files_n = dir(sprintf('%s/*%03.f', pathname, ext_n)); 
+%                 files_n = {files_n.name};
+%                 files = cat(2, files, files_n);
+%             end
+%         else
+            [~, name, ext] = fileparts(filename); 
+            if IsRepeatedlyMeasuredForc(filename)
+                [~, ~, ext2] = fileparts(name); 
+                ext = strcat(ext2, ext);
+            end
+            files = dir(sprintf('%s/*%s', pathname, ext)); 
+            files = {files.name};
+%         end
         n = find(strcmpi(files, filename));
     end
 end

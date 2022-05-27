@@ -11,8 +11,8 @@ function limit = EstimateForcPeak(rho, Hc, Hu, maxHc, maxHu, minHc)
     end
     f = rho(GetVisibleForcPart(rho, Hc, Hu, maxHc, maxHu, 'cropcorner', minHc));
     if isempty(f)
-        limit = nanmax(abs(rho(:)));
+        limit = max(abs(rho(:)), [], 'omitnan');
     else
-        limit = nanmax(abs(f(:))); 
+        limit = max(abs(f(:)), [], 'omitnan'); 
     end
 end

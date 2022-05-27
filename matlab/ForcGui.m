@@ -201,13 +201,20 @@ function handles = LoadForc(hObject, handles)
             'VerticalAlignment', 'bottom', ...
             'Color', 'b');
     drawnow
-    try
+%     try
         handles.manualSF = [];
         is_taforc = false;
         if strcmpi(ext, '.tsforc') || strcmpi(ext, '.taforc') 
             ts_file = fullfile(handles.pathname, strcat(name, '.tsforc'));
             ta_file = fullfile(handles.pathname, strcat(name, '.taforc'));
-            if exist(ts_file) && exist(ta_file)
+            if exist(ts_file, 'file') && exist(ta_file, 'file')
+                is_taforc = true;
+            end
+        elseif IsRepeatedlyMeasuredForc(handles.filename) && ...
+                (endsWith(name, '.tsforc') || endsWith(name, '.taforc'))
+            ts_file = fullfile(handles.pathname, strcat(name(1:end-7), '.tsforc.000'));
+            ta_file = fullfile(handles.pathname, strcat(name(1:end-7), '.taforc.000'));
+            if exist(ts_file, 'file') && exist(ta_file, 'file')
                 is_taforc = true;
             end
         end
@@ -227,23 +234,23 @@ function handles = LoadForc(hObject, handles)
         if ~(strcmpi(ext, '.tsforc') || strcmpi(ext, '.taforc'))
             GuiPlotPowerSpectrum(handles);   
         end
-    catch ME
-        axes(handles.ForcAxes);
-        handles.ME = ME; 
-        DeleteThing(handles.MessageText);
-        handles.MessageText = text(0.1, 0.5, ...
-            sprintf('%s\n\nWould you like to send data to the authors to assist fixing the problem?', ...
-            ME.message), ...
-            'VerticalAlignment', 'bottom', ...
-            'Color', 'r');
-        handles.SendDiagnosticDataButton = uicontrol('Style','pushbutton',...
-             'String','Send data to authors', ...
-             'Units', 'normalized', ...
-             'Position',[0.15,0.3,0.25,0.08], ...
-             'Callback',{@(source, eventdata) SendDiagnosticData_Callback(source, eventdata, handles)});
-        guidata(hObject, handles);
-        drawnow;
-    end
+%     catch ME
+%         axes(handles.ForcAxes);
+%         handles.ME = ME; 
+%         DeleteThing(handles.MessageText);
+%         handles.MessageText = text(0.1, 0.5, ...
+%             sprintf('%s\n\nWould you like to send data to the authors to assist fixing the problem?', ...
+%             ME.message), ...
+%             'VerticalAlignment', 'bottom', ...
+%             'Color', 'r');
+%         handles.SendDiagnosticDataButton = uicontrol('Style','pushbutton',...
+%              'String','Send data to authors', ...
+%              'Units', 'normalized', ...
+%              'Position',[0.15,0.3,0.25,0.08], ...
+%              'Callback',{@(source, eventdata) SendDiagnosticData_Callback(source, eventdata, handles)});
+%         guidata(hObject, handles);
+%         drawnow;
+%     end
     
     
 function SendDiagnosticData_Callback(source, eventdata, handles) 

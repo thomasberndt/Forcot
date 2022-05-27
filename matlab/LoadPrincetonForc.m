@@ -527,7 +527,7 @@ function princeton_forc = LoadPrincetonForc(filepath)
             dt = t_slew * abs(dHb) + t_avg; 
             dt(1,:) = dt(1,:) + t_rev; 
             dt = [dt_cal * ones(1, N); dt]; 
-            t = cumsum(dt) + cumsum(nansum(dt)); 
+            t = cumsum(dt) + cumsum(sum(dt, 'omitnan')); 
             calibration.t = t(1,:); 
             measurements.t = t(2:end,:);
 
@@ -553,4 +553,5 @@ function princeton_forc = LoadPrincetonForc(filepath)
     princeton_forc.metadata = metadata; 
     princeton_forc.filename = filename; 
     princeton_forc.settings = []; 
+    princeton_forc.istaforc = false;
 end

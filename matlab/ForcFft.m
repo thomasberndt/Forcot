@@ -1,8 +1,8 @@
 function [f, KX, KY, MM] = ForcFft(M, Ha, Hb)
     dHa = abs(diff(Ha'));
-    dHa = nanmean(dHa(:));
+    dHa = mean(dHa(:), 'omitnan');
     dHb = abs(diff(Hb));
-    dHb = nanmean(dHb(:));
+    dHb = mean(dHb(:), 'omitnan');
 
     [X1, Y1] = size(M);
     M2 = NaN(2^nextpow2(max(X1,Y1)),2^nextpow2(max(X1,Y1)));

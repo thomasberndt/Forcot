@@ -115,8 +115,8 @@ function [lim, h, ax] = PlotFORC(forc, Hc, Hu, Hcplot, Huplot, limit, PlotFirstP
     mask = and(Hc2==0, Hu2==0);
     Hc2(mask) = NaN; 
     Hu2(mask) = NaN; 
-    Hc3 = linspace(nanmin(Hc2(:)), nanmax(Hc2(:)), size(Hc2, 2));
-    Hu3 = linspace(nanmin(Hu2(:)), nanmax(Hu2(:)), size(Hu2, 1));
+    Hc3 = linspace(min(Hc2(:), [], 'omitnan'), max(Hc2(:), [], 'omitnan'), size(Hc2, 2));
+    Hu3 = linspace(min(Hu2(:), [], 'omitnan'), max(Hu2(:), [], 'omitnan'), size(Hu2, 1));
     left   = find(Hc3>=0, 1, 'first'); 
     right  = find(Hc3<=Hcplot, 1, 'last'); 
     top    = size(Hu2, 1)-find(Hu3>=-Huplot, 1, 'first'); 

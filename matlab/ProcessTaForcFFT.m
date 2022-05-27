@@ -63,8 +63,8 @@
     Nb = 2.^nextpow2(size(Hb1, 1)); 
     Na = max(Na,Nb);
     Nb = Na; 
-    da = nanmean(reshape(diff(Ha1,1,2),[],1));
-    db = nanmean(reshape(diff(Hb1,1,1),[],1));
+    da = mean(reshape(diff(Ha1,1,2),[],1), 'omitnan');
+    db = mean(reshape(diff(Hb1,1,1),[],1), 'omitnan');
     a = [-Na/2:Na/2-1];
     b = [-Nb/2:Nb/2-1];
     k = 2*pi/(Na*da) * a;

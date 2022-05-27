@@ -215,9 +215,9 @@ function PlotEverything(hObject, handles)
 %         end
         r = data.princeton.rhoInterpolant(hc, hu);
         CoercivityDistribution = sum(r, 1);
-        CoercivityDistribution = CoercivityDistribution / nansum(CoercivityDistribution);
+        CoercivityDistribution = CoercivityDistribution / sum(CoercivityDistribution, 'omitnan');
         InteractionDistribution = sum(r, 2);
-        InteractionDistribution = InteractionDistribution / nansum(InteractionDistribution);
+        InteractionDistribution = InteractionDistribution / sum(InteractionDistribution, 'omitnan');
     end
     
     if handles.PlotCoercivityDistribution
@@ -366,7 +366,7 @@ function PlotShape(hObject, handles)
         ab = abundance/ma;
         A = zeros(size(qq));
         for n = 1:length(qq)-1
-            A(n) = nansum(ab(and(q>qq(n), q<=qq(n+1))));
+            A(n) = sum(ab(and(q>qq(n), q<=qq(n+1))), 'omitnan');
         end
         plot(1./qq, A/sum(A),  ...
             'DisplayName', ...
@@ -425,7 +425,7 @@ function PlotSize(hObject, handles)
         ab = abundance/ma;
         A = zeros(size(LL));
         for n = 1:length(LL)-1
-            A(n) = nansum(ab(and(L>LL(n), L<=LL(n+1))));
+            A(n) = sum(ab(and(L>LL(n), L<=LL(n+1))), 'omitnan');
         end
         plot(LL*1e9, A/ sum(A),  ...
             'DisplayName', ...
@@ -640,9 +640,9 @@ function ExportCsv_Callback(hObject, eventdata, handles)
     if handles.PlotCoercivityDistribution || handles.PlotInteractionDistribution
         r = handles.forc.princeton.rhoInterpolant(hc, hu);
         CoercivityDistribution = sum(r, 1);
-        CoercivityDistribution = CoercivityDistribution / nansum(CoercivityDistribution);
+        CoercivityDistribution = CoercivityDistribution / sum(CoercivityDistribution, 'omitnan');
         InteractionDistribution = sum(r, 2);
-        InteractionDistribution = InteractionDistribution / nansum(InteractionDistribution);
+        InteractionDistribution = InteractionDistribution / sum(InteractionDistribution, 'omitnan');
     end
     
     if handles.PlotCoercivityDistribution
