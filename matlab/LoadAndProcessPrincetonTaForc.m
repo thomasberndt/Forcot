@@ -15,6 +15,7 @@ function forc = LoadAndProcessPrincetonTaForc(filename_ts, filename_ta, repeated
         forc.correctedM = DriftCorrection(forc);
         forc.grid = RegularizeForcGrid(forc); 
     end
+    calibration_factor = forc.calibration.M(1);
     forc.selected = 'TS_FORC';
     t1 = forc.metadata.script.PauseReversal; 
     forc.istaforc = true;
@@ -29,10 +30,11 @@ function forc = LoadAndProcessPrincetonTaForc(filename_ts, filename_ta, repeated
     forc.forc.maxHu = round(0.9*forc.forc.maxHu,4);
     
     if repeated 
-        TA_FORC = LoadRepeatedPrincetonForc(filename_ta);
+        TA_FORC = LoadRepeatedPrincetonForc(filename_ta, calibration_factor);
     else
         TA_FORC = LoadPrincetonForc(filename_ta); 
         TA_FORC.correctedM = DriftCorrection(TA_FORC);
+        TA_FORC.correctedM = TA_FORC.correctedM / TA_FORC.calibration.M(1) * calibration_factor;
         TA_FORC.grid = RegularizeForcGrid(TA_FORC); 
     end
     t2 = TA_FORC.metadata.script.PauseReversal; 

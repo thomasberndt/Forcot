@@ -1,15 +1,10 @@
-function [f, KX, KY, MM] = ForcFft(M, Ha, Hb)
+function [f, KX, KY, MM, dHa, dHb] = ForcFft(M, Ha, Hb)
     dHa = abs(diff(Ha'));
     dHa = mean(dHa(:), 'omitnan');
     dHb = abs(diff(Hb));
     dHb = mean(dHb(:), 'omitnan');
 
-    [X1, Y1] = size(M);
-    M2 = NaN(2^nextpow2(max(X1,Y1)),2^nextpow2(max(X1,Y1)));
-    M2(1:X1,end-Y1+1:end) = M; 
-
-    M2 = FillNaNs(M2);
-
+    M2 = ForcGridToFftGrid(M);
     MM = [flipud(M2), rot90(M2, 2); M2, fliplr(M2)]; 
 
     f = fft2(MM);

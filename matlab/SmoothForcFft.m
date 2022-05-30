@@ -37,28 +37,7 @@ function [rho, SF, M, d, ps] = SmoothForcFft(M, Ha, Hb, SF, tatype)
         Hb = princeton.grid.Hb;
     end
 
-    dHa = abs(diff(Ha'));
-    dHa = mean(dHa(:), 'omitnan');
-    dHb = abs(diff(Hb));
-    dHb = mean(dHb(:), 'omitnan');
-
-    [X1, Y1] = size(M);
-    M2 = NaN(2^nextpow2(max(X1,Y1)),2^nextpow2(max(X1,Y1)));
-    M2(1:X1,end-Y1+1:end) = M; 
-
-    M2 = FillNaNs(M2);
-
-    MM = [flipud(M2), rot90(M2, 2); M2, fliplr(M2)]; 
-
-    f = fft2(MM);
-    [X, Y] = size(f); 
-    kx = (-X/2):(X/2-1);
-    ky = (-Y/2):(Y/2-1); 
-    kx = kx/(dHa*X/1); 
-    ky = ky/(dHb*Y/1); 
-    [KX, KY] = meshgrid(fftshift(kx), fftshift(ky)); 
-    KX = KX';
-    KY = KY';
+    [f, KX, KY, ~, dHa, dHb] = ForcFft(M, Ha, Hb);
     
     if strcmpi(tatype, 'TA_Distribution_A') 
         f2 = 2i*pi.*KX.*f; 
@@ -69,36 +48,7 @@ function [rho, SF, M, d, ps] = SmoothForcFft(M, Ha, Hb, SF, tatype)
     end
     
     if nargin ~= 2
-        SFs = [0.2:0.2:6]; 
-        SFs = SFs(end:-1:1);
-        r = linspace(0.2, 1, 35).^3; 
-        r = 1./SFs;
-        p = zeros(1,length(r)-1);
-        num = zeros(1,length(r)-1);
-        d = sqrt((KX*dHa).^2+(KY*dHb).^2); 
-        for n = 1:length(r)-1
-            idx = logical(r(n) <= d & d < r(n+1)); 
-            p(n) = log10(mean(abs(f2(idx)).^2, 'omitnan')); 
-            num(n) = sum(idx(:), "omitnan");
-        end
-        r(end) = []; 
-        SFs(end) = []; 
-        firstone = find(~isnan(p), 1, 'last'); 
-        if p(firstone) < min(p(firstone-3:firstone-1), [], "omitnan")
-            p(firstone) = NaN; 
-        end
-        psmooth = smooth(p, 'rlowess')'; 
-        pp = sort(psmooth, 'desc', 'MissingPlacement', 'last'); 
-        [~, ~, bin] = histcounts(psmooth, linspace(min(p, [], "omitnan"), mean(pp(1:3),'omitnan'), 10)); 
-        nbin = 1; 
-        while ~any(bin==nbin)
-            nbin = nbin + 1;
-        end
-        idx = (bin==nbin); 
-        SF = SFs(idx);
-        SF = min(SF, [], "omitnan");
-        ps = psmooth;
-        d = SFs;
+        [SF, SFs, PowerSpectrum]  = DetermineOptimalSF(f2, KX, KY, dHa, dHb);
     end
     
     filter = exp(-pi^2*SF^2.*((KX*dHa).^2+(KY*dHb).^2)/2); 
@@ -107,8 +57,9 @@ function [rho, SF, M, d, ps] = SmoothForcFft(M, Ha, Hb, SF, tatype)
     f3 = filter.*f2;
     f4 = f3;
     
+    [X, Y] = size(M);
     M = ifft2(f4); 
-    rho = M((end/2+1):(end/2+X1),(end/2-Y1+1):end/2);
+    rho = M((end/2+1):(end/2+X),(end/2-Y+1):end/2);
     
     if nargin < 3 && nargout == 1
         forc = princeton.grid; 
@@ -116,8 +67,8 @@ function [rho, SF, M, d, ps] = SmoothForcFft(M, Ha, Hb, SF, tatype)
         forc.M = M; 
         forc.SF = SF; 
         if nargin ~= 2
-            forc.SFs = d(end:-1:1);
-            forc.PowerSpectrum = ps(end:-1:1);
+            forc.SFs = SFs(end:-1:1);
+            forc.PowerSpectrum = PowerSpectrum(end:-1:1);
         end
         idx = GetVisibleForcPart(rho, forc.Hc, forc.Hu, forc.maxHc*1.1, forc.maxHu, 'keepfirstpoint'); 
         forc.rho(~idx) = NaN; 

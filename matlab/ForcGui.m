@@ -22,7 +22,7 @@ function varargout = ForcGui(varargin)
 
 % Edit the above text to modify the response to help ForcGui
 
-% Last Modified by GUIDE v2.5 31-Oct-2020 13:18:42
+% Last Modified by GUIDE v2.5 29-May-2022 21:58:56
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -302,6 +302,11 @@ function handles = LoadState(hObject, handles)
         else
             handles.PlotFirstPointArtifact = 0;
         end
+        if isfield(stufftoload, 'repeated')
+            handles.repeated = stufftoload.repeated;
+        else
+            handles.repeated = true;
+        end
         set(handles.CheckFirstPointArtifact, 'value', handles.PlotFirstPointArtifact);
         if isfield(stufftoload, 'FigurePath')
             handles.FigurePath = stufftoload.FigurePath;
@@ -335,6 +340,9 @@ function handles = LoadState(hObject, handles)
 function SaveState(hObject, handles)
     stufftosave = struct(); 
     stufftosave.filename = handles.filename; 
+    if isfield(handles, 'repeated')
+        stufftosave.repeated = handles.repeated;
+    end
     if isfield(handles, 'PlotFirstPointArtifact')
         stufftosave.PlotFirstPointArtifact = handles.PlotFirstPointArtifact; 
     end
@@ -796,3 +804,61 @@ function TA_Forc_Selector_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in ForcPcaButton.
+function ForcPcaButton_Callback(hObject, eventdata, handles)
+% hObject    handle to ForcPcaButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+    pc = ForcPca(fullfile(handles.pathname, handles.files));
+
+    for n = 1:10
+        princeton = handles.princeton; 
+        princeton.grid.M = real(pc(:,:,n));
+        princeton.forc = SmoothForcFft(princeton, 2);
+        axes(handles.ForcAxes); 
+        PlotFORC(princeton.forc);
+        title(sprintf("PC %g", n));
+        drawnow;
+    end
+
+
+
+
+% --- Executes on button press in FftPcaButton.
+function FftPcaButton_Callback(hObject, eventdata, handles)
+% hObject    handle to FftPcaButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+    pc = ForcFftPca(fullfile(handles.pathname, handles.files));
+    for n = 1:10
+        princeton = handles.princeton; 
+        princeton.grid.M = real(pc(:,:,n));
+        princeton.forc = SmoothForcFft(princeton, 2);
+        axes(handles.ForcAxes); 
+        PlotFORC(princeton.forc);
+        title(sprintf("PC %g", n));
+        drawnow;
+    end
+
+
+
+
+% --- Executes on button press in PhasePcaButton.
+function PhasePcaButton_Callback(hObject, eventdata, handles)
+% hObject    handle to PhasePcaButton (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+    [pc, rec_forc] = ForcFftPhasePca(fullfile(handles.pathname, handles.files));
+    for n = 1:size(rec_forc,3)
+        princeton = handles.princeton; 
+%         princeton.grid.M = real(pc(:,:,n));
+        princeton.grid.M = rec_forc(:,:,n);
+        princeton.forc = SmoothForcFft(princeton, 2);
+        axes(handles.ForcAxes); 
+        PlotFORC(princeton.forc);
+        title(sprintf("PC %g", n));
+        drawnow;
+    end
+
