@@ -339,7 +339,9 @@ function handles = LoadState(hObject, handles)
     
 function SaveState(hObject, handles)
     stufftosave = struct(); 
-    stufftosave.filename = handles.filename; 
+    if isfield(handles, 'filename')
+        stufftosave.filename = handles.filename; 
+    end
     if isfield(handles, 'repeated')
         stufftosave.repeated = handles.repeated;
     end

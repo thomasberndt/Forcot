@@ -1,9 +1,9 @@
 <deployment-project plugin="plugin.ezdeploy" plugin-version="1.0">
-  <configuration build-checksum="2782379748" file="E:\Dropbox\Documents\Studies\Semester 14 Beijing Fall\FFT-FORC_priv\matlab\ForcGui.prj" location="E:\Dropbox\Documents\Studies\Semester 14 Beijing Fall\FFT-FORC_priv\matlab" name="ForcGui" preferred-package-location="C:\Users\Tom\Dropbox\Documents\Studies\Semester 14 Beijing Fall\FFT-FORC_priv\matlab\ForcGui\for_redistribution" preferred-package-type="package.type.exe" target="target.ezdeploy.standalone" target-name="Application Compiler">
+  <configuration build-checksum="2193434421" file="D:\Dropbox\Documents\Studies\Semester 14 Beijing Fall\FFT-FORC_priv\matlab\ForcGui.prj" location="D:\Dropbox\Documents\Studies\Semester 14 Beijing Fall\FFT-FORC_priv\matlab" name="ForcGui" preferred-package-location="D:\Dropbox\Documents\Studies\Semester 14 Beijing Fall\FFT-FORC_priv\matlab\ForcGui\for_redistribution" preferred-package-type="package.type.exe" target="target.ezdeploy.standalone" target-name="Application Compiler">
     <param.appname>Forcot</param.appname>
     <param.icon />
     <param.icons />
-    <param.version>1.13</param.version>
+    <param.version>1.14</param.version>
     <param.authnamewatermark>Thomas A. Berndt</param.authnamewatermark>
     <param.email>thomas.andreas.berndt@gmail.com</param.email>
     <param.company />
@@ -27,7 +27,7 @@
     <param.web.mcr>true</param.web.mcr>
     <param.package.mcr>false</param.package.mcr>
     <param.no.mcr>false</param.no.mcr>
-    <param.web.mcr.name>Forcot_WebInstaller_v1.1.3</param.web.mcr.name>
+    <param.web.mcr.name>Forcot_WebInstaller_v1.1.4</param.web.mcr.name>
     <param.package.mcr.name>MyAppInstaller_mcr</param.package.mcr.name>
     <param.no.mcr.name>MyAppInstaller_app</param.no.mcr.name>
     <param.windows.command.prompt>true</param.windows.command.prompt>
@@ -79,43 +79,43 @@
     <fileset.resources />
     <fileset.package />
     <fileset.depfun>
-      <file>C:\Users\Tom\Documents\MATLAB\Add-Ons\Toolboxes\altmany-export_fig-cafc7c5\code\copyfig.m</file>
-      <file>C:\Users\Tom\Documents\MATLAB\Add-Ons\Toolboxes\altmany-export_fig-cafc7c5\code\crop_borders.m</file>
-      <file>C:\Users\Tom\Documents\MATLAB\Add-Ons\Toolboxes\altmany-export_fig-cafc7c5\code\eps2pdf.m</file>
-      <file>C:\Users\Tom\Documents\MATLAB\Add-Ons\Toolboxes\altmany-export_fig-cafc7c5\code\export_fig.m</file>
-      <file>C:\Users\Tom\Documents\MATLAB\Add-Ons\Toolboxes\altmany-export_fig-cafc7c5\code\fix_lines.m</file>
-      <file>C:\Users\Tom\Documents\MATLAB\Add-Ons\Toolboxes\altmany-export_fig-cafc7c5\code\ghostscript.m</file>
-      <file>C:\Users\Tom\Documents\MATLAB\Add-Ons\Toolboxes\altmany-export_fig-cafc7c5\code\isolate_axes.m</file>
-      <file>C:\Users\Tom\Documents\MATLAB\Add-Ons\Toolboxes\altmany-export_fig-cafc7c5\code\pdf2eps.m</file>
-      <file>C:\Users\Tom\Documents\MATLAB\Add-Ons\Toolboxes\altmany-export_fig-cafc7c5\code\pdftops.m</file>
-      <file>C:\Users\Tom\Documents\MATLAB\Add-Ons\Toolboxes\altmany-export_fig-cafc7c5\code\print2array.m</file>
-      <file>C:\Users\Tom\Documents\MATLAB\Add-Ons\Toolboxes\altmany-export_fig-cafc7c5\code\print2eps.m</file>
-      <file>C:\Users\Tom\Documents\MATLAB\Add-Ons\Toolboxes\altmany-export_fig-cafc7c5\code\read_write_entire_textfile.m</file>
-      <file>C:\Users\Tom\Documents\MATLAB\Add-Ons\Toolboxes\altmany-export_fig-cafc7c5\code\user_string.m</file>
-      <file>C:\Users\Tom\Documents\MATLAB\Add-Ons\Toolboxes\altmany-export_fig-cafc7c5\code\using_hg2.m</file>
       <file>${PROJECT_ROOT}\AdjustFigureSize.m</file>
       <file>${PROJECT_ROOT}\AdvancedDialog.fig</file>
       <file>${PROJECT_ROOT}\AdvancedDialog.m</file>
+      <file>${PROJECT_ROOT}\AverageOfRepeatedForcs.m</file>
       <file>${PROJECT_ROOT}\base64encode.m</file>
       <file>${PROJECT_ROOT}\CalculateMs0.m</file>
       <file>${PROJECT_ROOT}\CalculateMsT.m</file>
       <file>${PROJECT_ROOT}\CheckLatestVersion.m</file>
       <file>${PROJECT_ROOT}\colorcet.m</file>
+      <file>${PROJECT_ROOT}\DetermineOptimalSF.m</file>
       <file>${PROJECT_ROOT}\DownloadLatestVersion.m</file>
       <file>${PROJECT_ROOT}\DriftCorrection.m</file>
       <file>${PROJECT_ROOT}\EstimateForcPeak.m</file>
       <file>${PROJECT_ROOT}\FillNaNs.m</file>
+      <file>${PROJECT_ROOT}\ForcFft.m</file>
+      <file>${PROJECT_ROOT}\ForcFftPca.m</file>
+      <file>${PROJECT_ROOT}\ForcFftPhasePca.m</file>
+      <file>${PROJECT_ROOT}\ForcGridToFftGrid.m</file>
       <file>${PROJECT_ROOT}\ForcGui.fig</file>
+      <file>${PROJECT_ROOT}\ForcPca.m</file>
       <file>${PROJECT_ROOT}\GetCurrentVersion.m</file>
       <file>${PROJECT_ROOT}\GetForcColors.m</file>
+      <file>${PROJECT_ROOT}\GetRepeatedlyMeasuredForc.m</file>
       <file>${PROJECT_ROOT}\GetSkippedVersions.m</file>
+      <file>${PROJECT_ROOT}\GetTemperatureFromFilename.m</file>
+      <file>${PROJECT_ROOT}\GetV.m</file>
       <file>${PROJECT_ROOT}\GetVisibleForcPart.m</file>
       <file>${PROJECT_ROOT}\gzipencode.m</file>
       <file>${PROJECT_ROOT}\InstallLatestVersion.m</file>
+      <file>${PROJECT_ROOT}\IsRepeatedlyMeasuredForc.m</file>
       <file>${PROJECT_ROOT}\IsSkippedVersion.m</file>
       <file>${PROJECT_ROOT}\LoadAndProcessPrincetonForc.m</file>
       <file>${PROJECT_ROOT}\LoadAndProcessPrincetonTaForc.m</file>
+      <file>${PROJECT_ROOT}\LoadForcsForForcPca.m</file>
+      <file>${PROJECT_ROOT}\LoadIrregularForcData.m</file>
       <file>${PROJECT_ROOT}\LoadPrincetonForc.m</file>
+      <file>${PROJECT_ROOT}\LoadRepeatedPrincetonForc.m</file>
       <file>${PROJECT_ROOT}\OpenForcDialog.m</file>
       <file>${PROJECT_ROOT}\PlotFORC.m</file>
       <file>${PROJECT_ROOT}\RaiseIssue.m</file>
@@ -128,9 +128,9 @@
       <file>${PROJECT_ROOT}\SmoothForcFft.m</file>
     </fileset.depfun>
     <build-deliverables>
-      <file location="${PROJECT_ROOT}\ForcGui\for_testing" name="Forcot.exe" optional="false">E:\Dropbox\Documents\Studies\Semester 14 Beijing Fall\FFT-FORC_priv\matlab\ForcGui\for_testing\Forcot.exe</file>
-      <file location="${PROJECT_ROOT}\ForcGui\for_testing" name="readme.txt" optional="true">E:\Dropbox\Documents\Studies\Semester 14 Beijing Fall\FFT-FORC_priv\matlab\ForcGui\for_testing\readme.txt</file>
-      <file location="${PROJECT_ROOT}\ForcGui\for_testing" name="splash.png" optional="false">E:\Dropbox\Documents\Studies\Semester 14 Beijing Fall\FFT-FORC_priv\matlab\ForcGui\for_testing\splash.png</file>
+      <file location="${PROJECT_ROOT}\ForcGui\for_testing" name="Forcot.exe" optional="false">D:\Dropbox\Documents\Studies\Semester 14 Beijing Fall\FFT-FORC_priv\matlab\ForcGui\for_testing\Forcot.exe</file>
+      <file location="${PROJECT_ROOT}\ForcGui\for_testing" name="splash.png" optional="false">D:\Dropbox\Documents\Studies\Semester 14 Beijing Fall\FFT-FORC_priv\matlab\ForcGui\for_testing\splash.png</file>
+      <file location="${PROJECT_ROOT}\ForcGui\for_testing" name="readme.txt" optional="true">D:\Dropbox\Documents\Studies\Semester 14 Beijing Fall\FFT-FORC_priv\matlab\ForcGui\for_testing\readme.txt</file>
     </build-deliverables>
     <workflow />
     <matlab>
